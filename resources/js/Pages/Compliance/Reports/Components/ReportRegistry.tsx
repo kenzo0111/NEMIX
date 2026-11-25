@@ -38,22 +38,22 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                     <table className="ui-data-table w-full min-w-[53rem] text-left border-collapse">
                         <thead className="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
+                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-5 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
                                     Reference No.
                                 </SortableTableHeader>
-                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[7rem] align-middle">
+                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-5 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[7rem] align-middle">
                                     Form Type
                                 </SortableTableHeader>
-                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[12.5rem] align-middle">
+                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-5 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[12.5rem] align-middle">
                                     Document Title
                                 </SortableTableHeader>
-                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.75rem] align-middle">
+                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-5 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap min-w-[8.75rem] align-middle">
                                     Coverage Period
                                 </SortableTableHeader>
-                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-semibold text-slate-700 md:table-cell lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
+                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-5 py-3.5 text-sm font-semibold text-slate-700 md:table-cell dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
                                     Date Generated
                                 </SortableTableHeader>
-                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-right text-slate-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem] align-middle">
+                                <th scope="col" className="px-5 py-3.5 text-sm font-semibold tracking-normal text-right text-slate-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem] align-middle">
                                     Actions
                                 </th>
                             </tr>
@@ -75,15 +75,15 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                         key={report.id}
                                         className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 group"
                                     >
-                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums tracking-normal align-middle">
+                                        <td className="px-5 py-3.5 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums tracking-normal align-middle">
                                             {report.reference}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap align-middle">
+                                        <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/80 dark:border-red-900/40 tabular-nums">
                                                 {shortType}
                                             </span>
                                         </td>
-                                        <td className="px-4 lg:px-6 py-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 min-w-[12.5rem] max-w-sm break-words align-middle">
+                                        <td className="px-5 py-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 min-w-[12.5rem] max-w-sm break-words align-middle">
                                             <div className="font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                                                 {report.title}
                                             </div>
@@ -93,14 +93,14 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-3.5 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap font-medium align-middle">
+                                        <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap font-medium align-middle">
                                             {coverageText}
                                         </td>
-                                        <td className="hidden md:table-cell px-4 lg:px-6 py-3.5 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums align-middle">
+                                        <td className="hidden md:table-cell px-5 py-3.5 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums align-middle">
                                             {formatScreenDate(genDate)}
                                         </td>
                                         {/* Actions: View & Official COA Form */}
-                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap min-w-[10rem] text-right align-middle">
+                                        <td className="px-5 py-3.5 whitespace-nowrap min-w-[10rem] text-right align-middle">
                                             <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                                                 <Button variant="secondary"
                                                     type="button"

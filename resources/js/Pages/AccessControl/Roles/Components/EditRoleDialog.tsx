@@ -1,9 +1,11 @@
-import { DialogHeader, DialogFooter } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import { X, Lock, Sliders, Loader2 } from 'lucide-react';
+import { useValidationFocus } from '@/Hooks/useValidationFocus';
 import { Role, Permission, EditRoleFormData, ModuleStats } from '../types';
 import PermissionModuleList from './PermissionModuleList';
 import PermissionList from './PermissionList';
@@ -29,6 +31,7 @@ export default function EditRoleDialog({
         name: '',
         permissions: [],
     });
+    useValidationFocus(errors);
 
     const visiblePermissionsByModule = useMemo(() => {
         const allowed = new Set(assignablePermissionIds ?? Object.values(permissionsByModule).flat().map((permission) => permission.id));
@@ -124,11 +127,10 @@ export default function EditRoleDialog({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Role and Permissions">
-            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden flex flex-col max-h-[90vh] shadow-none">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Header */}
+            {/* Header */}
                 <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div
@@ -176,37 +178,29 @@ export default function EditRoleDialog({
                 <form
                     id="edit-role-form"
                     onSubmit={handleSubmit}
-                    className="overflow-y-auto grow p-4 sm:p-6 space-y-5 flex flex-col"
+                    className="flex min-h-0 flex-1 flex-col"
                 >
+                    <DialogBody className="p-4 sm:p-6 space-y-5">
                     {/* Role Name Field */}
                     <div className="bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/90 dark:border-slate-700 rounded-lg p-4">
-                        <label
-                            htmlFor="edit-role-name"
-                            className="block mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300"
-                        >
-                            Role Name <span className="text-red-600 dark:text-red-400">*</span>
-                        </label>
-                        <div className="relative max-w-md">
-                            <input aria-invalid={Boolean(errors.name)}
-                                type="text"
-                                id="edit-role-name"
-                                value={data.name}
-                                disabled={isSystemRole}
-                                onChange={(e) => setData('name', e.target.value)}
-                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
-    ? "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 cursor-not-allowed border-slate-200 dark:border-slate-700 pl-8" : errors.name
-    ? "border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
-                                required
-                            />
-                            {isSystemRole && (
-                                <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                            )}
-                        </div>
-                        {errors.name && (
-                            <p className="leading-relaxed text-sm text-red-600 dark:text-red-400 mt-1 font-medium">
-                                {errors.name}
-                            </p>
-                        )}
+                        <Field id="edit-role-name" label="Role Name" required error={errors.name}>
+                            <div className="relative max-w-md">
+                                <input aria-invalid={Boolean(errors.name)}
+                                    type="text"
+                                    id="edit-role-name"
+                                    value={data.name}
+                                    disabled={isSystemRole}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
+        ? "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 cursor-not-allowed border-slate-200 dark:border-slate-700 pl-8" : errors.name
+        ? "border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
+                                    required
+                                />
+                                {isSystemRole && (
+                                    <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                                )}
+                            </div>
+                        </Field>
                         {isSystemRole && (
                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1.5">
                                 System role names are protected and cannot be changed.
@@ -243,6 +237,7 @@ export default function EditRoleDialog({
                             onSelectAllModule={handleSelectAllModule}
                         />
                     </div>
+                    </DialogBody>
                 </form>
 
                 {/* Footer */}
@@ -279,7 +274,6 @@ export default function EditRoleDialog({
                         </Button>
                     </div>
                 </DialogFooter>
-            </div>
         </Modal>
     );
 }

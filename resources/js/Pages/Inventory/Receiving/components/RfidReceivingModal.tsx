@@ -146,12 +146,11 @@ export const RfidReceivingModal: React.FC<Props> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Scan RFID Tags">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Institutional Top Accent */}
-                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Top Accent */}
+            <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Header */}
-                <DialogHeader className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/70 shrink-0 flex-nowrap">
+            {/* Header */}
+            <DialogHeader className="shrink-0">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-200 dark:border-red-900/50 shrink-0">
                             <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
@@ -528,7 +527,6 @@ export const RfidReceivingModal: React.FC<Props> = ({
                         </Button>
                     </div>
                 </DialogFooter>
-            </div>
         </Modal>
     );
 };

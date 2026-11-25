@@ -2,6 +2,7 @@ import { Button } from '@/Components/ui/button';
 import { useState, useMemo, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { PaginationMeta, RFIDInventoryItem } from '../types';
+import { TablePagination } from '@/Components/ui/table-pagination';
 import {
     TableProperties,
     Search,
@@ -412,34 +413,15 @@ export default function RFIDRecordsTable({
 
                     {/* Server-side Pagination footer if paginator present */}
                     {pagination && pagination.last_page > 1 && (
-                        <div className="ui-pagination px-4 sm:px-6 py-3.5 bg-slate-50/70 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
-                            <div>
-                                Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.from ?? 0}</span> to{' '}
-                                <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.to ?? 0}</span> of{' '}
-                                <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.total}</span> records
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <Button variant="secondary"
-                                    type="button"
-                                    onClick={() => handlePageChange(pagination.current_page - 1)}
-                                    disabled={pagination.current_page <= 1}
-                                    className=""
-                                >
-                                    Previous
-                                </Button>
-                                <span className="px-2 tabular-nums text-slate-700 dark:text-slate-300 font-semibold">
-                                    {pagination.current_page} / {pagination.last_page}
-                                </span>
-                                <Button variant="secondary"
-                                    type="button"
-                                    onClick={() => handlePageChange(pagination.current_page + 1)}
-                                    disabled={pagination.current_page >= pagination.last_page}
-                                    className=""
-                                >
-                                    Next
-                                </Button>
-                            </div>
-                        </div>
+                        <TablePagination
+                            currentPage={pagination.current_page}
+                            totalPages={pagination.last_page}
+                            totalRecords={pagination.total}
+                            from={pagination.from}
+                            to={pagination.to}
+                            onPageChange={handlePageChange}
+                            recordLabel="records"
+                        />
                     )}
                 </div>
             )}

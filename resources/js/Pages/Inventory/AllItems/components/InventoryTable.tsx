@@ -6,6 +6,7 @@ import InventoryRow from './InventoryRow';
 import { InventorySortKey } from '../types';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TablePagination from '@/Components/ui/table-pagination';
 
 interface InventoryTableProps {
     items: InventoryItem[];
@@ -128,41 +129,15 @@ export default function InventoryTable({
             </div>
 
             {/* Pagination Footer */}
-            {totalCount > 0 && (
-                <div className="ui-pagination px-4 sm:px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center sm:justify-between gap-3 text-sm text-slate-600 dark:text-slate-400">
-                    <div>
-                        Showing <span className="font-semibold text-slate-900 dark:text-slate-200">{fromCount}</span>–<span className="font-semibold text-slate-900 dark:text-slate-200">{toCount}</span> of <span className="font-semibold text-slate-900 dark:text-slate-200">{totalCount}</span> items
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                            disabled={currentPage <= 1}
-                            aria-label="Go to previous page"
-                            className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center gap-1"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            <span className="hidden sm:inline">Previous</span>
-                        </Button>
-
-                        <span className="px-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Page {currentPage} of {Math.max(1, totalPages)}
-                        </span>
-
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage >= totalPages}
-                            aria-label="Go to next page"
-                            className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center gap-1"
-                        >
-                            <span className="hidden sm:inline">Next</span>
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalRecords={totalCount}
+                from={fromCount}
+                to={toCount}
+                onPageChange={onPageChange}
+                recordLabel="items"
+            />
         </div>
     );
 }

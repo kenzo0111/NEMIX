@@ -1,6 +1,7 @@
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
+import useValidationFocus from '@/Hooks/useValidationFocus';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Select from 'react-select';
@@ -93,6 +94,8 @@ export function RequestFormModal({
             ? request.items.map((line) => ({ item_id: String(line.item_id), quantity: String(line.quantity) }))
             : [{ item_id: initialItemId ? String(initialItemId) : '', quantity: '' }]) as FormLine[],
     });
+
+    useValidationFocus(form.errors);
 
     const isPreRequest = form.data.request_type === 'pre_request';
     const isRestocked = request?.status === 'Stock Restocked';
@@ -374,52 +377,52 @@ export function RequestFormModal({
             closeable={!form.processing}
             ariaLabel={isRestocked ? 'Complete Restocked Requisition' : isPreRequest ? (request ? 'Edit Pre-Request' : 'Create Multi-Item Pre-Request') : (request ? 'Edit Supply Request' : 'Create Supply Request')}
         >
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            {isRestocked ? (
-                                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                            ) : isPreRequest ? (
-                                <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                            ) : (
-                                <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            )}
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                {isRestocked
-                                    ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
-                                    : isPreRequest
-                                        ? (request ? `Edit Pre-Request #${request.id}` : 'Create Multi-Item Pre-Request')
-                                        : (request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)')}
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
-                                {isRestocked
-                                    ? 'Supplies have arrived and have been restocked by Central Supply. Review line items and submit your official requisition.'
-                                    : isPreRequest
-                                        ? 'Submit demand for out-of-stock items so the Supply Office can prioritize restock and notify you when available.'
-                                        : 'Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review'}
-                            </p>
-                        </div>
+            {/* Header */}
+            <DialogHeader className="shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
+                        {isRestocked ? (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        ) : isPreRequest ? (
+                            <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        ) : (
+                            <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
+                        )}
                     </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={handleModalClose}
-                        disabled={form.processing}
-                        className="shrink-0 ml-2"
-                        aria-label="Close"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
+                    <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            {isRestocked
+                                ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
+                                : isPreRequest
+                                    ? (request ? `Edit Pre-Request #${request.id}` : 'Create Multi-Item Pre-Request')
+                                    : (request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)')}
+                        </h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                            {isRestocked
+                                ? 'Supplies have arrived and have been restocked by Central Supply. Review line items and submit your official requisition.'
+                                : isPreRequest
+                                    ? 'Submit demand for out-of-stock items so the Supply Office can prioritize restock and notify you when available.'
+                                    : 'Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review'}
+                        </p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon"
+                    type="button"
+                    onClick={handleModalClose}
+                    disabled={form.processing}
+                    className="shrink-0 ml-2"
+                    aria-label="Close"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
 
-                {/* Form Body */}
-                <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
+            {/* Form Body */}
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+                <DialogBody className="space-y-6 text-sm">
                     {!request && (
                         <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                             <Button aria-pressed={!isPreRequest} variant="tab"
@@ -955,42 +958,31 @@ export function RequestFormModal({
                         </div>}
                         {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm text-slate-600 dark:text-slate-400">Current: <a className="underline font-medium text-slate-800 dark:text-slate-200" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
                     </section>}
+                    </DialogBody>
+
                     {/* Footer Actions */}
-                    <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <DialogFooter>
                         <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto"
                         >
                             Cancel
                         </Button>
                         <Button variant="primary"
                             type="submit"
                             disabled={form.processing || assignmentMissing || hasStockError}
-                            className="w-full sm:w-auto tabular-nums flex items-center justify-center gap-2"
+                            loading={form.processing}
+                            className="tabular-nums"
                         >
-                            {form.processing ? (
-                                <>
-                                    <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                    </svg>
-                                    <span>Saving...</span>
-                                </>
-                            ) : (
-                                <span>
-                                    {isRestocked
-                                        ? 'Submit Official Requisition'
-                                        : isPreRequest
-                                            ? (request ? 'Update Pre-Request' : 'Submit Pre-Request')
-                                            : (request ? 'Save Changes' : 'Submit Supply Request')}
-                                </span>
-                            )}
+                            {isRestocked
+                                ? 'Submit Official Requisition'
+                                : isPreRequest
+                                    ? (request ? 'Update Pre-Request' : 'Submit Pre-Request')
+                                    : (request ? 'Save Changes' : 'Submit Supply Request')}
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
-            </div>
         </Modal>
     );
 }

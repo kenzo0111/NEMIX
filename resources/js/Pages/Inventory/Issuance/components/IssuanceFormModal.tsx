@@ -1,6 +1,7 @@
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
+import useValidationFocus from '@/Hooks/useValidationFocus';
 import React, { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -51,6 +52,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
         issuances: [{ item_id: '', quantity: '' }] as IssuanceLine[],
     });
 
+    useValidationFocus(form.errors);
 
     React.useEffect(() => {
         if (show) {
@@ -144,38 +146,38 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={handleModalClose} maxWidth="3xl" closeable={!form.processing} ariaLabel="Record Stock Issuance">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Formal Administrative Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 flex-shrink-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                Record Stock Issuance
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
-                                Administrative Requisition & Issue Slip (RIS) Entry
-                            </p>
-                        </div>
+            {/* Formal Administrative Header */}
+            <DialogHeader className="shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
+                        <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                     </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={handleModalClose}
-                        disabled={form.processing}
-                        className="shrink-0 ml-2"
-                        aria-label="Close"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
+                    <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            Record Stock Issuance
+                        </h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                            Administrative Requisition & Issue Slip (RIS) Entry
+                        </p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon"
+                    type="button"
+                    onClick={handleModalClose}
+                    disabled={form.processing}
+                    className="shrink-0 ml-2"
+                    aria-label="Close"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
 
-                {/* Form Body */}
-                <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
+            {/* Form Body */}
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+                <DialogBody className="space-y-6 text-sm">
                     <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">For Authorized Personnel, Supply Coordinators, and Inventory Staff, release supplies through their approved request in the approval queue. Their weekly allowance is recorded there.</p>
                     {/* SECTION 1: Recipient Information */}
                     <div>
@@ -429,45 +431,27 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         </div>
                     </div>
 
+                    </DialogBody>
+
                     {/* Footer Actions */}
-                    <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <DialogFooter>
                         <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
                         </Button>
                         <Button variant="primary"
                             type="submit"
                             disabled={form.processing}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 tabular-nums"
+                            loading={form.processing}
+                            className="tabular-nums"
                         >
-                            {form.processing ? (
-                                <>
-                                    <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        />
-                                    </svg>
-                                    Recording...
-                                </>
-                            ) : (
-                                <>
-                                    <svg className="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Record Issuance
-                                </>
-                            )}
+                            Record Issuance
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
-            </div>
         </Modal>
     );
 };

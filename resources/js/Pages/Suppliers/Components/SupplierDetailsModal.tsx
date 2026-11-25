@@ -46,12 +46,11 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="xl" ariaLabel="Supplier Information">
-            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70">
+            {/* Header */}
+            <DialogHeader className="shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
@@ -224,11 +223,10 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                <DialogFooter>
                     <Button variant="secondary"
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto text-center"
                     >
                         Close
                     </Button>
@@ -238,13 +236,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             onClose();
                             onEdit(supplier);
                         }}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-center"
+                        className="inline-flex items-center gap-1.5"
                     >
                         <Edit3 className="w-3.5 h-3.5 text-amber-300" />
                         <span>Update Supplier</span>
                     </Button>}
                 </DialogFooter>
-            </div>
         </Modal>
     );
 };

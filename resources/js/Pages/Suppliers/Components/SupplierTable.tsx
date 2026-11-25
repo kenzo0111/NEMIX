@@ -1,8 +1,8 @@
-import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { SupplierTableProps } from '../types';
 import { SupplierRow } from './SupplierRow';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TablePagination from '@/Components/ui/table-pagination';
 
 export const SupplierTable: React.FC<SupplierTableProps> = ({
     suppliers,
@@ -65,40 +65,15 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            {totalCount > 0 && (
-                <div className="ui-pagination flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-sm">
-                    <span className="text-slate-600 dark:text-slate-400 font-medium">
-                        Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{startIndex}</span> to{' '}
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">{endIndex}</span> of{' '}
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">{totalCount}</span> suppliers
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            aria-label="Go to previous page"
-                            className="min-h-[38px]"
-                        >
-                            Previous
-                        </Button>
-                        <span className="text-slate-600 dark:text-slate-400 font-medium px-1">
-                            Page <span className="font-semibold text-slate-900 dark:text-slate-100">{currentPage}</span> of{' '}
-                            <span className="font-semibold text-slate-900 dark:text-slate-100">{totalPages}</span>
-                        </span>
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(currentPage + 1)}
-                            disabled={currentPage >= totalPages}
-                            aria-label="Go to next page"
-                            className="min-h-[38px]"
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalRecords={totalCount}
+                from={startIndex}
+                to={endIndex}
+                onPageChange={onPageChange}
+                recordLabel="suppliers"
+            />
         </div>
     );
 };

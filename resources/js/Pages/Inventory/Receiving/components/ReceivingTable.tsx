@@ -4,6 +4,7 @@ import { ReceivingRecord, PaginatedData, ReceivingSortKey } from '../types';
 import { ReceivingRow } from './ReceivingRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TablePagination from '@/Components/ui/table-pagination';
 
 interface ReceivingTableProps {
     receivings: ReceivingRecord[];
@@ -115,35 +116,16 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            {paginationMeta && totalRecords > 0 && (
-                <div className="ui-pagination px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
-                        Showing <span className="font-semibold text-slate-900 dark:text-slate-200">{fromRecord}</span> to{' '}
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">{toRecord}</span> of{' '}
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">{totalRecords}</span> entries
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(currentPage - 1)}
-                            disabled={currentPage <= 1}
-                            className=""
-                        >
-                            Previous
-                        </Button>
-                        <span className="px-3 text-sm text-slate-600 dark:text-slate-400">
-                            Page {currentPage} of {lastPage}
-                        </span>
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(currentPage + 1)}
-                            disabled={currentPage >= lastPage}
-                            className=""
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
+            {paginationMeta && (
+                <TablePagination
+                    currentPage={currentPage}
+                    totalPages={lastPage}
+                    totalRecords={totalRecords}
+                    from={fromRecord}
+                    to={toRecord}
+                    onPageChange={onPageChange}
+                    recordLabel="entries"
+                />
             )}
         </div>
     );

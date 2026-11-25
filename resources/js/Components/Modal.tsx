@@ -74,7 +74,7 @@ export default function Modal({
                         leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     >
                         <DialogPanel
-                            className={`ui-dialog-panel w-full my-auto transform overflow-y-auto rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-left align-middle border border-slate-200 dark:border-slate-800 transition-all max-w-[calc(100vw-2rem)] ${maxWidthClass} print:m-0 print:p-0 print:shadow-none print:border-none print:rounded-none print:w-full print:max-w-none print:transform-none print:overflow-visible`}
+                            className={`ui-dialog-panel w-full my-auto transform flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-left align-middle border border-slate-200 dark:border-slate-800 transition-all max-w-[calc(100vw-2rem)] ${maxWidthClass} print:m-0 print:p-0 print:shadow-none print:border-none print:rounded-none print:w-full print:max-w-none print:transform-none print:overflow-visible`}
                         >
                             {children}
                         </DialogPanel>

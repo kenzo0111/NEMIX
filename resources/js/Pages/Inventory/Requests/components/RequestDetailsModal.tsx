@@ -50,9 +50,8 @@ export function RequestDetailsModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Supply Request Details">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-                <DialogHeader className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
+            <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            <DialogHeader className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center text-red-950 dark:text-red-400 border border-red-100 dark:border-red-900/40">
                             <ClipboardList className="w-5 h-5" />
@@ -295,7 +294,6 @@ export function RequestDetailsModal({
                         Close
                     </Button>
                 </DialogFooter>
-            </div>
         </Modal>
     );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { focusFirstInvalidField } from '@/utils/validationFocus';
 
-export default function useValidationFocus(errors?: Record<string, unknown>) {
+export function useValidationFocus(errors?: Record<string, unknown>) {
     const previousCount = useRef(0);
     useEffect(() => {
         const count = Object.keys(errors || {}).length;
@@ -9,3 +9,5 @@ export default function useValidationFocus(errors?: Record<string, unknown>) {
         previousCount.current = count;
     }, [errors]);
 }
+
+export default useValidationFocus;

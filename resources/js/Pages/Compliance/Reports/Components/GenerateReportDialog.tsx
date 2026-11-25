@@ -221,12 +221,11 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             closeable={!isSubmitting}
             ariaLabel="Generate Official Report"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
-                {/* Thin Maroon Accent Top Line */}
-                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
+            {/* Thin Maroon Accent Top Line */}
+            <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
-                {/* Modal Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0 print:hidden compliance-print-hide">
+            {/* Modal Header */}
+            <DialogHeader className="shrink-0 print:hidden compliance-print-hide">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 flex items-center justify-center text-red-900 dark:text-red-300 shadow-sm shrink-0">
                             {currentStep === 'configure' ? (
@@ -706,7 +705,6 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                         )}
                     </div>
                 </DialogFooter>
-            </div>
         </Modal>
     );
 };

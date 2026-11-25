@@ -1,7 +1,7 @@
-import { DialogHeader, DialogBody } from '@/Components/ui/dialog-frame';
-import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Modal from '@/Components/Modal';
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import { ReceivingForm } from './ReceivingForm';
 import { InventoryItem, Supplier, ReceivingFormData } from '../types';
 import { PackagePlus, Edit3, X } from 'lucide-react';
@@ -41,57 +41,55 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
             closeable={!processing}
             ariaLabel={mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
         >
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden">
-                {/* Institutional Maroon Accent Header */}
-                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
+            {/* Institutional Maroon Accent Header */}
+            <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
 
-                {/* Header */}
-                <DialogHeader className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-800/70 flex-nowrap shrink-0">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            {mode === 'edit' ? (
-                                <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            ) : (
-                                <PackagePlus className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
-                                {mode === 'edit'
-                                    ? 'Update incoming inventory delivery specifications.'
-                                    : 'Register incoming inventory delivered to the university.'}
-                            </p>
-                        </div>
+            {/* Header */}
+            <DialogHeader className="shrink-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
+                        {mode === 'edit' ? (
+                            <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
+                        ) : (
+                            <PackagePlus className="w-5 h-5 text-red-900 dark:text-red-400" />
+                        )}
                     </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={onClose}
-                        disabled={processing}
-                        className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                        aria-label="Close modal"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
+                    <div className="min-w-0 flex-1">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
+                        </h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
+                            {mode === 'edit'
+                                ? 'Update incoming inventory delivery specifications.'
+                                : 'Register incoming inventory delivered to the university.'}
+                        </p>
+                    </div>
+                </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    onClick={onClose}
+                    disabled={processing}
+                    className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    aria-label="Close modal"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
 
-                {/* Form Body */}
-                <DialogBody className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
-                    <ReceivingForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                        processing={processing}
-                        mode={mode}
-                        items={items}
-                        suppliers={suppliers}
-                        onSubmit={onSubmit}
-                        onCancel={onClose}
-                    />
-                </DialogBody>
-            </div>
+            {/* Form Body & Footer */}
+            <ReceivingForm
+                data={data}
+                setData={setData}
+                errors={errors}
+                processing={processing}
+                mode={mode}
+                items={items}
+                suppliers={suppliers}
+                onSubmit={onSubmit}
+                onCancel={onClose}
+            />
         </Modal>
     );
 };

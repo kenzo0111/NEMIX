@@ -1,8 +1,10 @@
-import { Button } from '@/Components/ui/button';
 import React, { useMemo, useEffect } from 'react';
-import axios from 'axios';
 import Select from 'react-select';
-import { institutionalSelectStyles, getInstitutionalSelectStyles } from '@/styles/selectStyles';
+import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
+import { DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
+import Field from '@/Components/ui/field';
+import useValidationFocus from '@/Hooks/useValidationFocus';
 import { InventoryItem, Supplier, ReceivingFormData } from '../types';
 
 interface ReceivingFormProps {
@@ -51,6 +53,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
     onSubmit,
     onCancel,
 }) => {
+    useValidationFocus(errors);
+
     // Format items for React Select
     const itemOptions = useMemo(() => {
         return items.map((item) => ({
@@ -82,7 +86,6 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         const chosenItem = selected.item;
         setData('item_id', chosenItem.id);
 
-        // Prefill supplier if item has an associated default supplier and no supplier is selected yet
         if (chosenItem.supplier_id && !data.supplier_id) {
             setData('supplier_id', chosenItem.supplier_id);
         }
@@ -98,286 +101,190 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             const supplier = suppliers.find((s) => s.id === Number(data.supplier_id));
             const acronym = getSupplierAcronym(supplier?.name);
             const dateStr = data.date_received || new Date().toISOString().slice(0, 10);
-            const dateObj = new Date(dateStr);
-            const yy = String(isNaN(dateObj.getFullYear()) ? new Date().getFullYear() : dateObj.getFullYear()).slice(-2);
-            const mm = String(isNaN(dateObj.getMonth()) ? new Date().getMonth() + 1 : dateObj.getMonth() + 1).padStart(2, '0');
-            const itemPart = String(Number(data.item_id) % 1000).padStart(3, '0');
-            const fallbackPreview = `${acronym}-${yy}-${mm}-${itemPart}-0001`;
-
-            let isMounted = true;
-            axios.get('/inventory/generate-supplier-stock-no', {
-                params: {
-                    supplier_id: data.supplier_id,
-                    item_id: data.item_id,
-                    date_received: data.date_received,
-                },
-            }).then((res) => {
-                if (isMounted && res.data?.supplier_stock_no) {
-                    setData('supplier_stock_no', res.data.supplier_stock_no);
-                }
-            }).catch(() => {
-                if (isMounted && !data.supplier_stock_no) {
-                    setData('supplier_stock_no', fallbackPreview);
-                }
-            });
-
-            return () => {
-                isMounted = false;
-            };
-        } else if (mode === 'create') {
-            setData('supplier_stock_no', '');
+            const cleanDate = dateStr.replace(/-/g, '');
+            const generated = `${acronym}-${cleanDate}-${data.item_id}`;
+            setData('supplier_stock_no', generated);
         }
     }, [data.item_id, data.supplier_id, data.date_received, mode]);
 
-    const isRfidReceipt = mode === 'edit' && Boolean(data.scanned_rfid_tag);
-    const hasItemError = Boolean(errors.item_id);
-    const hasSupplierError = Boolean(errors.supplier_id);
-
     return (
-        <form onSubmit={onSubmit} className="space-y-5">
-            {/* Item Selection */}
-            <div>
-                <label htmlFor="receiving_item_id" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                    Inventory Item <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
-                    <span className="sr-only"> (required)</span>
-                </label>
-                {isRfidReceipt ? (
-                    <div className="space-y-1.5">
-                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-md text-sm flex items-center justify-between">
-                            <div>
-                                <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedItemOption?.label || `Item #${data.item_id}`}</span>
-                                <span className="ml-2 tabular-nums text-sm text-slate-500 dark:text-slate-400">
-                                    Tag: {data.scanned_rfid_tag}
-                                </span>
-                            </div>
-                            <span className="px-2 py-0.5 rounded text-sm font-semibold bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50">
-                                RFID-ORIGINATED (LOCKED)
-                            </span>
-                        </div>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
-                            This receipt records a scanned RFID tag. The item is locked to preserve tag traceability.
-                        </p>
-                    </div>
-                ) : (
+        <form onSubmit={onSubmit} className="flex flex-col min-h-0 flex-1">
+            <DialogBody className="space-y-5">
+                {/* Item Selection */}
+                <Field
+                    id="receiving_item_id"
+                    label="Item"
+                    required
+                    error={errors.item_id}
+                >
                     <Select
                         inputId="receiving_item_id"
                         name="item_id"
-                        aria-label="Inventory Item"
-                        aria-invalid={hasItemError}
-                        aria-describedby={hasItemError ? 'receiving_item_id-error' : undefined}
+                        aria-label="Item"
+                        aria-invalid={Boolean(errors.item_id)}
                         value={selectedItemOption}
                         onChange={handleItemChange}
                         options={itemOptions}
-                        placeholder="Search and select an item..."
+                        placeholder="Search item by name or stock number..."
                         isClearable
-                        styles={hasItemError ? getInstitutionalSelectStyles(true) : institutionalSelectStyles}
+                        styles={getInstitutionalSelectStyles(Boolean(errors.item_id))}
                         classNamePrefix="react-select"
+                        isDisabled={processing}
                     />
-                )}
-                {errors.item_id && (
-                    <p id="receiving_item_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.item_id}</p>
-                )}
-            </div>
+                </Field>
 
-            {/* Supplier Selection */}
-            <div>
-                <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
-                    <label htmlFor="receiving_supplier_id" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
-                        Supplier <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
-                        <span className="sr-only"> (required)</span>
-                    </label>
-                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                        Deliveries can be received from any vendor
-                    </span>
-                </div>
-                <Select
-                    inputId="receiving_supplier_id"
-                    name="supplier_id"
-                    aria-label="Supplier"
-                    aria-invalid={hasSupplierError}
-                    aria-describedby={hasSupplierError ? 'receiving_supplier_id-error' : undefined}
-                    value={selectedSupplierOption}
-                    onChange={(selected) => setData('supplier_id', selected ? selected.value : '')}
-                    options={supplierOptions}
-                    placeholder="Select supplier..."
-                    isClearable
-                    styles={hasSupplierError ? getInstitutionalSelectStyles(true) : institutionalSelectStyles}
-                    classNamePrefix="react-select"
-                />
-                {errors.supplier_id && (
-                    <p id="receiving_supplier_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.supplier_id}</p>
-                )}
-            </div>
-
-            {/* Supplier Stock Number (Automatic) */}
-            <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center gap-2">
-                    <label htmlFor="receiving_supplier_stock_no" className="text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
-                        Supplier Stock No.
-                    </label>
-                    <span className="shrink-0 whitespace-nowrap rounded-md border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                        AUTOMATIC
-                    </span>
-                </div>
-                <div className="relative">
-                    <input
-                        id="receiving_supplier_stock_no"
-                        name="supplier_stock_no"
-                        type="text"
-                        readOnly
-                        tabIndex={-1}
-                        value={data.supplier_stock_no || ''}
-                        placeholder="Auto-generated after item & supplier selection"
-                        title="Generated automatically after selecting an item and supplier."
-                        aria-invalid={Boolean(errors.supplier_stock_no)}
-                        aria-describedby={errors.supplier_stock_no ? 'receiving_supplier_stock_no-error' : undefined}
-                        className="ui-field w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 tabular-nums font-semibold text-sm rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 dark:focus:border-slate-600 transition-colors shadow-sm"
+                {/* Supplier Selection */}
+                <Field
+                    id="receiving_supplier_id"
+                    label="Supplier"
+                    required
+                    error={errors.supplier_id}
+                    hint="Deliveries can be received from any accredited vendor"
+                >
+                    <Select
+                        inputId="receiving_supplier_id"
+                        name="supplier_id"
+                        aria-label="Supplier"
+                        aria-invalid={Boolean(errors.supplier_id)}
+                        value={selectedSupplierOption}
+                        onChange={(selected) => setData('supplier_id', selected ? selected.value : '')}
+                        options={supplierOptions}
+                        placeholder="Select supplier..."
+                        isClearable
+                        styles={getInstitutionalSelectStyles(Boolean(errors.supplier_id))}
+                        classNamePrefix="react-select"
+                        isDisabled={processing}
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                        <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                    </div>
-                </div>
-                <p className="min-w-0 text-sm leading-relaxed text-slate-500 dark:text-slate-400 whitespace-normal break-words">
-                    Automatically generated per receiving batch and retained for RPCI reporting.
-                </p>
-                {errors.supplier_stock_no && (
-                    <p id="receiving_supplier_stock_no-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.supplier_stock_no}</p>
-                )}
-            </div>
+                </Field>
 
-            {/* Quantity, Unit Cost, and Amount */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Quantity */}
-                <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="receiving_quantity" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
-                            Quantity Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
-                        </label>
-                        {isRfidReceipt && <span className="text-sm text-slate-500 dark:text-slate-400">Correct from inspection record</span>}
+                {/* Supplier Stock Number (Automatic) */}
+                <Field
+                    id="receiving_supplier_stock_no"
+                    label="Supplier Stock No."
+                    error={errors.supplier_stock_no}
+                    hint="Automatically generated per receiving batch and retained for RPCI reporting."
+                >
+                    <div className="relative">
+                        <input
+                            id="receiving_supplier_stock_no"
+                            name="supplier_stock_no"
+                            type="text"
+                            readOnly
+                            tabIndex={-1}
+                            value={data.supplier_stock_no || ''}
+                            placeholder="Auto-generated after item & supplier selection"
+                            className="ui-field w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 tabular-nums font-semibold cursor-not-allowed select-none"
+                        />
                     </div>
-                    <input
+                </Field>
+
+                {/* Quantity, Unit Cost, and Amount */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Quantity */}
+                    <Field
                         id="receiving_quantity"
-                        name="quantity"
-                        type="number"
-                        min="1"
-                        max="1000000"
+                        label="Quantity Received"
+                        required
+                        error={errors.quantity}
+                    >
+                        <input
+                            id="receiving_quantity"
+                            name="quantity"
+                            type="number"
+                            min="1"
+                            max="1000000"
+                            required
+                            aria-required="true"
+                            value={data.quantity}
+                            onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
+                            placeholder="e.g. 50"
+                            className="ui-field w-full px-3 py-2 tabular-nums"
+                            disabled={processing}
+                        />
+                    </Field>
+
+                    {/* Unit Cost */}
+                    <Field
+                        id="receiving_unit_cost"
+                        label="Unit Cost (₱)"
+                        error={errors.unit_cost}
+                    >
+                        <input
+                            id="receiving_unit_cost"
+                            name="unit_cost"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={data.unit_cost !== undefined ? data.unit_cost : ''}
+                            onChange={(e) => setData('unit_cost', e.target.value)}
+                            placeholder="0.00"
+                            className="ui-field w-full px-3 py-2 tabular-nums"
+                            disabled={processing}
+                        />
+                    </Field>
+
+                    {/* Batch Total Amount Preview */}
+                    <Field
+                        id="receiving_batch_total"
+                        label="Batch Total (₱)"
+                    >
+                        <input
+                            id="receiving_batch_total"
+                            type="text"
+                            readOnly
+                            disabled
+                            value={
+                                data.quantity && data.unit_cost
+                                    ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                      })}`
+                                    : '₱0.00'
+                            }
+                            className="ui-field w-full px-3 py-2 bg-slate-100 dark:bg-slate-800/80 tabular-nums font-semibold cursor-not-allowed"
+                        />
+                    </Field>
+                </div>
+
+                {/* Date Received */}
+                <Field
+                    id="receiving_date_received"
+                    label="Date Received"
+                    required
+                    error={errors.date_received}
+                >
+                    <input
+                        id="receiving_date_received"
+                        name="date_received"
+                        type="date"
                         required
                         aria-required="true"
-                        aria-invalid={Boolean(errors.quantity)}
-                        aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
-                        value={data.quantity}
-                        onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
-                        placeholder="e.g. 50"
-                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.quantity
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
+                        value={data.date_received}
+                        onChange={(e) => setData('date_received', e.target.value)}
+                        className="ui-field w-full px-3 py-2 tabular-nums"
+                        disabled={processing}
                     />
-                    {errors.quantity && (
-                        <p id="receiving_quantity-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.quantity}</p>
-                    )}
-                </div>
+                </Field>
+            </DialogBody>
 
-                {/* Unit Cost */}
-                <div>
-                    <label htmlFor="receiving_unit_cost" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                        Unit Cost (₱)
-                    </label>
-                    <input
-                        id="receiving_unit_cost"
-                        name="unit_cost"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={data.unit_cost !== undefined ? data.unit_cost : ''}
-                        onChange={(e) => setData('unit_cost', e.target.value)}
-                        placeholder="0.00"
-                        aria-invalid={Boolean(errors.unit_cost)}
-                        aria-describedby={errors.unit_cost ? 'receiving_unit_cost-error' : undefined}
-                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.unit_cost
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
-                    />
-                    {errors.unit_cost && (
-                        <p id="receiving_unit_cost-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.unit_cost}</p>
-                    )}
-                </div>
-
-                {/* Batch Total Amount Preview */}
-                <div>
-                    <label htmlFor="receiving_batch_total" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                        Batch Total (₱)
-                    </label>
-                    <input
-                        id="receiving_batch_total"
-                        type="text"
-                        readOnly
-                        disabled
-                        value={
-                            data.quantity && data.unit_cost
-                                ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                : '₱0.00'
-                        }
-                        className="ui-field w-full px-3 py-2 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-900 dark:text-slate-100 cursor-not-allowed"
-                    />
-                </div>
-            </div>
-
-            {/* Date Received */}
-            <div>
-                <label htmlFor="receiving_date_received" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                    Date Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
-                    <span className="sr-only"> (required)</span>
-                </label>
-                <input
-                    id="receiving_date_received"
-                    name="date_received"
-                    type="date"
-                    required
-                    aria-required="true"
-                    aria-invalid={Boolean(errors.date_received)}
-                    aria-describedby={errors.date_received ? 'receiving_date_received-error' : undefined}
-                    value={data.date_received}
-                    onChange={(e) => setData('date_received', e.target.value)}
-                    className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none transition-colors ${errors.date_received
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
-                />
-                {errors.date_received && (
-                    <p id="receiving_date_received-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.date_received}</p>
-                )}
-            </div>
-
-            {/* Modal Actions Footer */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
-                <Button variant="secondary"
+            <DialogFooter>
+                <Button
+                    variant="secondary"
                     type="button"
                     onClick={onCancel}
                     disabled={processing}
-                    className="w-full sm:w-auto text-center"
                 >
                     Cancel
                 </Button>
-                <Button variant="primary"
+                <Button
+                    variant="primary"
                     type="submit"
                     disabled={processing}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
+                    loading={processing}
                 >
-                    {processing ? (
-                        <>
-                            <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                            </svg>
-                            Saving...
-                        </>
-                    ) : (
-                        <>{mode === 'edit' ? 'Update Receiving' : 'Save Receiving'}</>
-                    )}
+                    {mode === 'edit' ? 'Update Receiving' : 'Save Receiving'}
                 </Button>
-            </div>
+            </DialogFooter>
         </form>
     );
 };

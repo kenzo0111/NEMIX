@@ -1,4 +1,5 @@
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
 import DepartmentAssignmentFields from './DepartmentAssignmentFields';
 import React, { useEffect, useMemo } from 'react';
@@ -8,6 +9,7 @@ import Select, { StylesConfig } from 'react-select';
 import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { Edit2, User, Mail, X } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
+import { useValidationFocus } from '@/Hooks/useValidationFocus';
 import { EditStaffFormData, SelectOption, Staff } from '../types';
 
 interface EditStaffModalProps {
@@ -41,6 +43,7 @@ export default function EditStaffModal({
         email: '',
         role: '',
     });
+    useValidationFocus(errors);
 
     const { can, isSystemAdmin, user: currentUser } = useAuthorization();
 
@@ -102,50 +105,44 @@ export default function EditStaffModal({
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Staff Account">
-            <div className="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-none">
-                {/* Institutional Maroon Accent Bar */}
-                <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
+            {/* Institutional Maroon Accent Bar */}
+            <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
-                {/* Modal Header */}
-                <DialogHeader className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
-                            <Edit2 className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                Update account details and Delivery Unit assignment for{' '}
-                                <strong className="text-slate-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
-                            </p>
-                        </div>
+            {/* Modal Header */}
+            <DialogHeader className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
+                        <Edit2 className="w-5 h-5" />
                     </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={handleClose}
-                        className="shrink-0 ml-2"
-                        aria-label="Close modal"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
+                    <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Update account details and Delivery Unit assignment for{' '}
+                            <strong className="text-slate-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
+                        </p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon"
+                    type="button"
+                    onClick={handleClose}
+                    className="shrink-0 ml-2"
+                    aria-label="Close modal"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
 
-                {/* Form Body */}
-                <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-                    <div className="grid min-h-0 gap-7 overflow-y-auto p-5 sm:p-7 md:grid-cols-2 md:gap-8">
+            {/* Form Body */}
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="p-0">
+                    <div className="grid min-h-0 gap-7 p-5 sm:p-7 md:grid-cols-2 md:gap-8">
                         <section className="min-w-0 space-y-5" aria-label="Account details">
                             <div>
                                 <h4 className="font-semibold text-slate-900 dark:text-slate-100">Account details</h4>
                                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage the staff member’s identity and system access.</p>
                             </div>
                         {/* Full Name */}
-                        <div>
-                            <label
-                                htmlFor="edit-staff-name"
-                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
-                            >
-                                Full Name <span className="text-red-600 dark:text-red-300">*</span>
-                            </label>
+                        <Field id="edit-staff-name" label="Full Name" required error={errors.name}>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <User className="w-4 h-4" />
@@ -163,19 +160,10 @@ export default function EditStaffModal({
                                     autoFocus
                                 />
                             </div>
-                            {errors.name && (
-                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium dark:text-red-300">{errors.name}</p>
-                            )}
-                        </div>
+                        </Field>
 
                         {/* Email Address (Read-only) */}
-                        <div>
-                            <label
-                                htmlFor="edit-staff-email"
-                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
-                            >
-                                Email Address
-                            </label>
+                        <Field id="edit-staff-email" label="Email Address" error={errors.email}>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <Mail className="w-4 h-4" />
@@ -188,20 +176,11 @@ export default function EditStaffModal({
                                     className="ui-field w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
                                 />
                             </div>
-                            {errors.email && (
-                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium dark:text-red-300">{errors.email}</p>
-                            )}
                             <p className="leading-relaxed mt-1 text-sm text-slate-500 dark:text-slate-400">Email address cannot be modified after registration.</p>
-                        </div>
+                        </Field>
 
                         {/* System Role */}
-                        <div>
-                            <label
-                                htmlFor="edit-staff-role"
-                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
-                            >
-                                System Role <span className="text-red-600 dark:text-red-300">*</span>
-                            </label>
+                        <Field id="edit-staff-role" label="System Role" required error={errors.role}>
                             {canChangeRole ? (
                                 <Select<SelectOption, false>
                                     inputId="edit-staff-role"
@@ -232,10 +211,7 @@ export default function EditStaffModal({
                                     </p>
                                 </div>
                             )}
-                            {errors.role && (
-                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium dark:text-red-300">{errors.role}</p>
-                            )}
-                        </div>
+                        </Field>
                         </section>
                         <DepartmentAssignmentFields
                             data={data}
@@ -245,37 +221,37 @@ export default function EditStaffModal({
                             onChange={(field, value) => { setData(field, value); clearErrors(field); }}
                         />
                     </div>
+                </DialogBody>
 
-                    {/* Modal Actions */}
-                    <div className="flex shrink-0 flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-5 sm:px-7 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={handleClose}
-                            disabled={processing}
-                            className="w-full sm:w-auto text-center"
-                        >
-                            Cancel
-                        </Button>
-                        <Button variant="primary"
-                            type="submit"
-                            disabled={processing}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
-                        >
-                            {processing ? (
-                                <>
-                                    <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <span>Saving Changes...</span>
-                                </>
-                            ) : (
-                                <span>Save Changes</span>
-                            )}
-                        </Button>
-                    </div>
-                </form>
-            </div>
+                {/* Modal Actions */}
+                <DialogFooter className="flex shrink-0 flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-5 sm:px-7 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
+                    <Button variant="secondary"
+                        type="button"
+                        onClick={handleClose}
+                        disabled={processing}
+                        className="w-full sm:w-auto text-center"
+                    >
+                        Cancel
+                    </Button>
+                    <Button variant="primary"
+                        type="submit"
+                        disabled={processing}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
+                    >
+                        {processing ? (
+                            <>
+                                <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Saving Changes...</span>
+                            </>
+                        ) : (
+                            <span>Save Changes</span>
+                        )}
+                    </Button>
+                </DialogFooter>
+            </form>
         </Modal>
     );
 }

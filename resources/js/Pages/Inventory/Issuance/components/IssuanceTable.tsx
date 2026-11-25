@@ -4,6 +4,7 @@ import { IssuanceRecord, PaginatedData, IssuanceSortKey } from '../types';
 import { IssuanceRow } from './IssuanceRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TablePagination from '@/Components/ui/table-pagination';
 
 interface IssuanceTableProps {
     issuances: IssuanceRecord[];
@@ -102,39 +103,15 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
             </div>
 
             {/* Pagination Footer */}
-            {totalRecords > 0 && (
-                <div className="ui-pagination px-4 sm:px-6 lg:px-8 py-3.5 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                    <span className="text-slate-600 dark:text-slate-400 font-medium">
-                        Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{fromRecord}</span>–<span className="font-semibold text-slate-900 dark:text-slate-100">{toRecord}</span> of{' '}
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">{totalRecords}</span> records
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-                            disabled={currentPage <= 1}
-                            aria-label="Go to previous page"
-                            className="min-h-[38px] inline-flex items-center justify-center"
-                        >
-                            Previous
-                        </Button>
-                        <span className="text-slate-600 dark:text-slate-400 font-medium px-1">
-                            Page <span className="font-semibold text-slate-900 dark:text-slate-100">{currentPage}</span> of{' '}
-                            <span className="font-semibold text-slate-900 dark:text-slate-100">{lastPage}</span>
-                        </span>
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={() => onPageChange(Math.min(currentPage + 1, lastPage))}
-                            disabled={currentPage >= lastPage}
-                            aria-label="Go to next page"
-                            className="min-h-[38px] inline-flex items-center justify-center"
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={lastPage}
+                totalRecords={totalRecords}
+                from={fromRecord}
+                to={toRecord}
+                onPageChange={onPageChange}
+                recordLabel="records"
+            />
         </div>
     );
 };

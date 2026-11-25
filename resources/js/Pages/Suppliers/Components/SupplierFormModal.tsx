@@ -1,5 +1,5 @@
 import useValidationFocus from '@/Hooks/useValidationFocus';
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
 import React from 'react';
@@ -39,45 +39,44 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg" closeable={!isSubmitting} ariaLabel={title}>
-            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
-                {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            {isCreate ? (
-                                <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            ) : (
-                                <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            )}
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                {title}
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {isCreate
-                                    ? 'Maintain an accredited vendor record for university consumables.'
-                                    : 'Update official accreditation and compliance record.'}
-                            </p>
-                        </div>
+            {/* Header */}
+            <DialogHeader className="shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
+                        {isCreate ? (
+                            <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
+                        ) : (
+                            <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
+                        )}
                     </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={onClose}
-                        disabled={isSubmitting}
-                        className="shrink-0 ml-2"
-                        aria-label="Close"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
+                    <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            {title}
+                        </h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                            {isCreate
+                                ? 'Maintain an accredited vendor record for university consumables.'
+                                : 'Update official accreditation and compliance record.'}
+                        </p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon"
+                    type="button"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                    className="shrink-0 ml-2"
+                    aria-label="Close"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
 
-                {/* Form */}
-                <form onSubmit={onSubmit}>
-                    <div className="p-4 sm:p-6 space-y-5 text-sm max-h-[75vh] overflow-y-auto">
+            {/* Form */}
+            <form onSubmit={onSubmit} className="flex flex-col min-h-0 flex-1">
+                <DialogBody className="space-y-5 text-sm">
                         {/* Section 1: Business Information */}
                         <div>
                             <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-slate-100 dark:border-slate-800">
@@ -200,38 +199,32 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DialogBody>
 
                     {/* Footer */}
-                    <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/75 dark:bg-slate-900/75 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <DialogFooter>
                         <Button variant="secondary"
                             type="button"
                             onClick={onClose}
                             disabled={isSubmitting}
-                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
                         </Button>
                         <Button variant="primary"
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2"
+                            loading={isSubmitting}
+                            className="inline-flex items-center gap-1.5"
                         >
-                            {isSubmitting ? (
-                                <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                            ) : isCreate ? (
+                            {isCreate ? (
                                 <Plus className="w-3.5 h-3.5 text-amber-300" />
                             ) : (
                                 <Check className="w-3.5 h-3.5 text-amber-300" />
                             )}
                             <span>{submitLabel}</span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
-            </div>
         </Modal>
     );
 };

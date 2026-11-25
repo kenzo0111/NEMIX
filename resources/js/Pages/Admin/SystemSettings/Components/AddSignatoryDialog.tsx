@@ -1,4 +1,5 @@
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -93,122 +94,114 @@ export default function AddSignatoryDialog({
             closeable={!submitting}
             ariaLabel="Add New Signatory"
         >
-            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
-                {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
+            {/* Institutional Maroon Top Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
-                {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
-                            <UserPlus className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                Add New Signatory
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
-                                Register authorized personnel to the official directory.
-                            </p>
-                        </div>
+            {/* Header */}
+            <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
+                        <UserPlus className="w-5 h-5" />
                     </div>
-                    <Button variant="ghost" size="icon"
+                    <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            Add New Signatory
+                        </h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
+                            Register authorized personnel to the official directory.
+                        </p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon"
+                    type="button"
+                    onClick={onClose}
+                    disabled={submitting}
+                    className="shrink-0 ml-2"
+                    aria-label="Close dialog"
+                >
+                    <X className="w-5 h-5" />
+                </Button>
+            </DialogHeader>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="p-4 sm:p-6 space-y-4">
+                    {errorMessage && (
+                        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-start gap-2.5 text-sm text-red-700 dark:text-red-300 leading-relaxed">
+                            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5 dark:text-red-300" />
+                            <span>{errorMessage}</span>
+                        </div>
+                    )}
+
+                    <Field id="signatory-name" label="Full Name" required>
+                        <input
+                            type="text"
+                            id="signatory-name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={submitting}
+                            placeholder="e.g. JUAN DELA CRUZ, PhD"
+                            className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                            autoFocus
+                            required
+                        />
+                    </Field>
+
+                    <Field id="signatory-designation" label="Official Designation / Title" required>
+                        <input
+                            type="text"
+                            id="signatory-designation"
+                            value={designation}
+                            onChange={(e) => setDesignation(e.target.value)}
+                            disabled={submitting}
+                            placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
+                            className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                            required
+                        />
+                    </Field>
+
+                    <Field id="signatory-office" label={<>Office / Department <span className="text-slate-500 dark:text-slate-400 text-sm font-normal normal-case">(Optional)</span></>}>
+                        <input
+                            type="text"
+                            id="signatory-office"
+                            value={office}
+                            onChange={(e) => setOffice(e.target.value)}
+                            disabled={submitting}
+                            placeholder="e.g. Supply & Property Management Office (SPMO)"
+                            className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                        />
+                    </Field>
+                </DialogBody>
+
+                {/* Footer */}
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
+                    <Button variant="secondary"
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="shrink-0 ml-2"
-                        aria-label="Close dialog"
+                        className="w-full sm:w-auto text-center"
                     >
-                        <X className="w-5 h-5" />
+                        Cancel
                     </Button>
-                </DialogHeader>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit}>
-                    <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                        {errorMessage && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-start gap-2.5 text-sm text-red-700 dark:text-red-300 leading-relaxed">
-                                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5 dark:text-red-300" />
-                                <span>{errorMessage}</span>
-                            </div>
+                    <Button variant="primary"
+                        type="submit"
+                        disabled={submitting || !name.trim() || !designation.trim()}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
+                    >
+                        {submitting ? (
+                            <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <span>Adding...</span>
+                            </>
+                        ) : (
+                            <>
+                                <UserPlus className="w-3.5 h-3.5 text-amber-300" />
+                                <span>Add Signatory</span>
+                            </>
                         )}
-
-                        <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
-                                Full Name <span className="text-red-600 dark:text-red-300">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                disabled={submitting}
-                                placeholder="e.g. JUAN DELA CRUZ, PhD"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
-                                autoFocus
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
-                                Official Designation / Title <span className="text-red-600 dark:text-red-300">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={designation}
-                                onChange={(e) => setDesignation(e.target.value)}
-                                disabled={submitting}
-                                placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
-                                Office / Department <span className="text-slate-500 dark:text-slate-400 text-sm font-normal normal-case">(Optional)</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={office}
-                                onChange={(e) => setOffice(e.target.value)}
-                                disabled={submitting}
-                                placeholder="e.g. Supply & Property Management Office (SPMO)"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
-                        <Button variant="secondary"
-                            type="button"
-                            onClick={onClose}
-                            disabled={submitting}
-                            className="w-full sm:w-auto text-center"
-                        >
-                            Cancel
-                        </Button>
-                        <Button variant="primary"
-                            type="submit"
-                            disabled={submitting || !name.trim() || !designation.trim()}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
-                        >
-                            {submitting ? (
-                                <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Adding...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <UserPlus className="w-3.5 h-3.5 text-amber-300" />
-                                    <span>Add Signatory</span>
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </form>
-            </div>
+                    </Button>
+                </DialogFooter>
+            </form>
         </Modal>
     );
 }
