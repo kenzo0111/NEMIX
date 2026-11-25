@@ -199,14 +199,14 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
                     {/* Optional Department Head for Authorized Personnel */}
                     <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
                             <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                                 Department / Office Head (Optional)
                             </span>
-                            <Button variant="secondary"
+                            <Button variant="ghost" size="sm"
                                 type="button"
                                 onClick={() => setShowOptionalHead(!showOptionalHead)}
-                                className="hover:underline"
+                                className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                             >
                                 {showOptionalHead ? 'Hide optional head' : '+ Assign office head (optional)'}
                             </Button>
@@ -215,14 +215,14 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                         {showOptionalHead && (
                             <div className="space-y-4 p-3 bg-slate-50/70 dark:bg-slate-850/60 rounded-lg border border-slate-200/60 dark:border-slate-800">
                                 <div>
-                                    <div className="flex items-center justify-between mb-1">
+                                    <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
                                         <label htmlFor="staff-office-head" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                             Department Head (Optional)
                                         </label>
-                                        <Button variant="secondary"
+                                        <Button variant="ghost" size="sm"
                                             type="button"
                                             onClick={() => toggleManualMode(!isManualMode)}
-                                            className="hover:underline flex items-center gap-1"
+                                            className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                                         >
                                             {isManualMode ? 'Choose from list' : 'Enter head manually'}
                                         </Button>
@@ -312,24 +312,24 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
                     {/* Department / Office Head */}
                     <div>
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
                             <label htmlFor="staff-office-head" className="block text-sm font-semibold">
                                 Department / Office Head {required && '*'}
                             </label>
-                            <Button variant="secondary"
+                            <Button variant="ghost" size="sm"
                                 type="button"
                                 onClick={() => toggleManualMode(!isManualMode)}
-                                className="hover:underline flex items-center gap-1"
+                                className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                             >
                                 {isManualMode ? (
                                     <>
-                                        <ListFilter className="w-3 h-3" />
-                                        <span>Choose from existing list</span>
+                                        <ListFilter className="w-3.5 h-3.5" />
+                                        <span>Choose from list</span>
                                     </>
                                 ) : (
                                     <>
-                                        <UserPlus className="w-3 h-3" />
-                                        <span>Can't find head? Enter manually</span>
+                                        <UserPlus className="w-3.5 h-3.5" />
+                                        <span>Enter head manually</span>
                                     </>
                                 )}
                             </Button>
