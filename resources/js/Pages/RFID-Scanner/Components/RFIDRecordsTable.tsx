@@ -177,7 +177,7 @@ export default function RFIDRecordsTable({
     return (
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 overflow-hidden">
             {/* Header: Collapsible section */}
-            <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/80 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800">
+            <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/80 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800">
                 <Button variant="secondary"
                     type="button"
                     onClick={() => setIsCollapsed(!isCollapsed)}
@@ -266,19 +266,19 @@ export default function RFIDRecordsTable({
                         </form>
 
                         {/* Segmented Filter Control */}
-                        <div className="inline-flex rounded-lg border border-slate-200/90 dark:border-slate-700 p-1 bg-slate-100/80 dark:bg-slate-800/80 text-sm shadow-sm overflow-x-auto justify-between sm:justify-start">
-                            <Button variant="primary"
+                        <div className="inline-flex rounded-lg border border-slate-200/90 dark:border-slate-700 p-1 bg-slate-100/80 dark:bg-slate-800/80 text-sm shadow-sm overflow-x-auto justify-between sm:justify-start gap-1">
+                            <Button variant={localStatus === 'all' ? 'tab' : 'ghost'}
                                 type="button"
                                 onClick={() => handleServerFilterChange('all')}
                                 aria-pressed={localStatus === 'all'}
                                 className="inline-flex items-center gap-1.5"
                             >
                                 <span>All</span>
-                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 tabular-nums">
+                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
                                     {items.length}
                                 </span>
                             </Button>
-                            <Button variant="primary"
+                            <Button variant={localStatus === 'untagged' ? 'tab' : 'ghost'}
                                 type="button"
                                 onClick={() => handleServerFilterChange('untagged')}
                                 aria-pressed={localStatus === 'untagged'}
@@ -289,7 +289,7 @@ export default function RFIDRecordsTable({
                                     {untaggedCount}
                                 </span>
                             </Button>
-                            <Button variant="primary"
+                            <Button variant={localStatus === 'tagged' ? 'tab' : 'ghost'}
                                 type="button"
                                 onClick={() => handleServerFilterChange('tagged')}
                                 aria-pressed={localStatus === 'tagged'}

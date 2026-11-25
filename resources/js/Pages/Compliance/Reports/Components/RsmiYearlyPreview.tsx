@@ -37,25 +37,25 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
     return (
         <div className="w-full space-y-6">
             {/* Screen-Only Header & Navigation Bar */}
-            <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-sm print:hidden compliance-print-hide space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm print:hidden compliance-print-hide space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                     <div>
-                        <div className="flex items-center gap-2">
-                            <h4 className="text-base font-semibold text-slate-900 font-sans tracking-tight">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 Yearly RSMI report package — {yearlyData.year}
                             </h4>
-                            <span className="px-2 py-0.5 bg-red-50 text-red-900 border border-red-200 rounded text-sm tabular-nums font-semibold">
+                            <span className="px-2 py-0.5 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-200 dark:border-red-900/50 rounded text-sm tabular-nums font-semibold">
                                 Appendix 64 Package
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-slate-500 mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                             {totalActiveMonths} Active Monthly Periods • {totalFormsCount} Official Forms Generated
                         </p>
                     </div>
 
                     <div className="flex items-center gap-1.5 text-sm">
-                        <span className="text-slate-500 font-medium text-sm">Filter View:</span>
-                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-sm">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium text-sm">Filter View:</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-sm">
                             {selectedMonthFilter === 'ALL'
                                 ? 'All 12 Months'
                                 : `${MONTH_NAMES[selectedMonthFilter - 1]} ${yearlyData.year}`}
@@ -89,12 +89,12 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                                 {m.has_records ? (
                                     <span
                                         className={`px-1.5 py-0.2 rounded-full text-sm font-semibold ${isSelected
-    ? "bg-red-800 text-white" : "bg-red-50 text-red-900 border border-red-200"}`}
+    ? "bg-red-800 text-white" : "bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-200 dark:border-red-900/50"}`}
                                     >
                                         {formCount}
                                     </span>
                                 ) : (
-                                    <span className="text-sm text-slate-500">0</span>
+                                    <span className="text-sm text-slate-500 dark:text-slate-400">0</span>
                                 )}
                             </Button>
                         );
@@ -109,9 +109,9 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                         return (
                             <div
                                 key={`empty-month-${m.month}`}
-                                className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center text-sm text-slate-500 font-medium print:hidden compliance-print-hide my-3"
+                                className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-center text-sm text-slate-500 dark:text-slate-400 font-medium print:hidden compliance-print-hide my-3"
                             >
-                                <span className="font-semibold text-slate-600">{m.month_name} {yearlyData.year}</span> — No RSMI issuance records recorded for this monthly reporting period.
+                                <span className="font-semibold text-slate-600 dark:text-slate-200">{m.month_name} {yearlyData.year}</span> — No RSMI issuance records recorded for this monthly reporting period.
                             </div>
                         );
                     }
@@ -119,9 +119,9 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                     return (
                         <div key={`month-group-${m.month}`} className="space-y-6 print:space-y-0">
                             {/* Screen-Only Month Section Banner */}
-                            <div className="flex items-center justify-between px-3 py-1.5 bg-red-950/5 border-l-4 border-l-red-900 rounded-r-lg print:hidden compliance-print-hide">
+                            <div className="flex items-center justify-between px-3 py-1.5 bg-red-950/5 dark:bg-red-950/30 border-l-4 border-l-red-900 dark:border-l-red-500 rounded-r-lg print:hidden compliance-print-hide">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-sans font-semibold text-sm text-red-950 normal-case tracking-normal">
+                                    <span className="font-sans font-semibold text-sm text-red-950 dark:text-red-200 normal-case tracking-normal">
                                         {m.month_name} {yearlyData.year}
                                     </span>
                                     <span className="text-sm text-slate-500 font-medium">

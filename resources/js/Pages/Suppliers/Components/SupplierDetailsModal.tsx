@@ -81,7 +81,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 {/* Content */}
                 <DialogBody className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
                     {/* Hero Business Identity Banner */}
-                    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div>
                                 <span className="inline-block text-sm font-semibold normal-case tracking-normal tabular-nums text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">

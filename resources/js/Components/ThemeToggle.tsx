@@ -137,7 +137,7 @@ export default function ThemeToggle({
                             aria-checked={isSelected}
                             onClick={() => setTheme(mode)}
                             title={`Theme: ${label}`}
-                            className={`p-1.5 rounded transition-all cursor-pointer focus:outline-none ${isSelected
+                            className={`p-1.5 rounded transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${isSelected
     ? "bg-red-900 text-amber-300 shadow-sm" : "text-red-300/70 hover:text-white hover:bg-white/5"}`}
                         >
                             <Icon className="w-3.5 h-3.5" />

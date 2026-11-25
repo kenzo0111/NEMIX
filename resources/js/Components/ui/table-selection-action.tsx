@@ -32,7 +32,7 @@ export default function TableSelectionAction({
                 type="button"
                 disabled={!selectedLabel}
                 onClick={onAction}
-                className="table-control inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-red-950 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none dark:disabled:bg-slate-800 dark:disabled:text-slate-500 dark:text-slate-300"
+                className="table-control inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-red-950 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
             >
                 <Eye className="h-4 w-4" aria-hidden="true" />
                 {actionLabel}

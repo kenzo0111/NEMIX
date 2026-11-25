@@ -779,7 +779,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                         align: 'center',
                                         render: (value) => (
                                             <span
-                                                className={`rounded-full px-2 py-1 text-sm font-medium ${value === 'Highest' ? "bg-red-100 text-red-900" : value === 'Low' ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}
+                                                className={`rounded-full px-2 py-1 text-sm font-medium ${value === 'Highest' ? "bg-red-100 text-red-900 dark:bg-red-950/50 dark:text-red-300" : value === 'Low' ? "bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"}`}
                                             >
                                                 {value}
                                             </span>

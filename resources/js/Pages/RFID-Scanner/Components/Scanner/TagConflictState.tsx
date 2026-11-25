@@ -16,16 +16,16 @@ export default function TagConflictState({
     onViewExistingItem,
 }: TagConflictStateProps) {
     return (
-        <div className="text-center py-7 px-6 bg-gradient-to-b from-amber-50/40 via-white to-gray-50/20 rounded-xl border border-amber-200 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200 dark:text-amber-300">
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-amber-50/40 via-white to-slate-50/20 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-amber-200 dark:border-amber-900/60 shadow-sm">
+            <div className="w-12 h-12 rounded-xl bg-amber-100/80 dark:bg-amber-950/50 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200 dark:border-amber-800/60 dark:text-amber-300">
                 <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-300" />
             </div>
 
-            <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-300">
+            <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-100">
                 RFID Tag Already In Use
             </h3>
 
-            <div className="my-2.5 inline-flex items-center gap-2 tabular-nums text-base font-semibold text-red-950 bg-white px-4 py-1.5 rounded-lg border border-amber-300 shadow-sm dark:text-red-300 dark:bg-slate-900">
+            <div className="my-2.5 inline-flex items-center gap-2 tabular-nums text-base font-semibold text-red-950 bg-white px-4 py-1.5 rounded-lg border border-amber-300 dark:border-amber-800/60 shadow-sm dark:text-red-300 dark:bg-slate-850">
                 <Radio className="w-4 h-4 text-amber-600 dark:text-amber-300" />
                 <span>{tag}</span>
             </div>
@@ -34,7 +34,7 @@ export default function TagConflictState({
                 This transponder is already assigned to another item in the registry:
             </p>
 
-            <div className="mt-3 bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="mt-3 bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
                 <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
                     <span>EXISTING ASSIGNMENT</span>
                     <span>SKU: {conflictItem.sku || 'N/A'}</span>

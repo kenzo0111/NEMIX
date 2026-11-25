@@ -38,7 +38,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 
     return (
         <>
-            <div onClick={toggleOpen}>{children}</div>
+            <div onClick={toggleOpen} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleOpen(); } }}>{children}</div>
 
             {open && (
                 <div
@@ -53,7 +53,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 const Content = ({
     align = 'right',
     width = '48',
-    contentClasses = 'py-1 bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800',
+    contentClasses = 'py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800',
     children,
 }: PropsWithChildren<{
     align?: 'left' | 'right';

@@ -15,8 +15,8 @@ export default function ScannerErrorState({
     onReset,
 }: ScannerErrorStateProps) {
     return (
-        <div className="text-center py-7 px-6 bg-gradient-to-b from-red-50/40 via-white to-gray-50/20 rounded-xl border border-red-200 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-red-100/80 text-red-700 flex items-center justify-center mx-auto mb-3 border border-red-200 dark:text-red-300">
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-red-50/40 via-white to-slate-50/20 dark:from-red-950/20 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-red-200 dark:border-red-900/60 shadow-sm">
+            <div className="w-12 h-12 rounded-xl bg-red-100/80 dark:bg-red-950/50 text-red-700 flex items-center justify-center mx-auto mb-3 border border-red-200 dark:border-red-900/50 dark:text-red-300">
                 <AlertCircle className="w-6 h-6 text-red-700 dark:text-red-300" />
             </div>
 
@@ -29,7 +29,7 @@ export default function ScannerErrorState({
             </p>
 
             {tag && (
-                <div className="mt-3 tabular-nums text-sm font-semibold text-slate-800 bg-white px-3 py-1.5 rounded-lg border border-red-200 inline-block shadow-sm dark:text-slate-300 dark:bg-slate-900">
+                <div className="mt-3 tabular-nums text-sm font-semibold text-slate-800 bg-white px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50 inline-block shadow-sm dark:text-slate-200 dark:bg-slate-850">
                     Captured Tag: {tag}
                 </div>
             )}

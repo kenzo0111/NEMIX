@@ -7,18 +7,18 @@ interface Props {
 
 export default function PolicyNotice({ className = '' }: Props) {
     return (
-        <div className={`bg-white rounded-xl border border-slate-200/90 border-l-4 border-l-red-900 shadow-sm p-5 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 border-l-4 border-l-red-900 dark:border-l-red-600 shadow-sm p-5 ${className}`}>
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0 mt-0.5 dark:text-red-300">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/50 flex items-center justify-center shrink-0 mt-0.5">
                         <ShieldAlert className="w-4 h-4" />
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-lg font-semibold font-sans text-slate-900 normal-case tracking-normal dark:text-slate-300">
+                            <h3 className="text-lg font-semibold font-sans text-slate-900 normal-case tracking-normal dark:text-slate-100">
                                 Institutional Account Accountability Policy
                             </h3>
-                            <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200 dark:text-slate-300">
+                            <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 font-semibold border border-slate-200 dark:border-slate-700 dark:text-slate-300">
                                 COA Circular 2020-006
                             </span>
                         </div>
@@ -28,9 +28,9 @@ export default function PolicyNotice({ className = '' }: Props) {
                     </div>
                 </div>
 
-                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600 shrink-0 self-start dark:text-slate-300 dark:bg-slate-900">
+                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 shrink-0 self-start dark:text-slate-300">
                     <FileCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />
-                    <span className="font-semibold text-slate-800 dark:text-slate-300">Ledger Immutability Enforced</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">Ledger Immutability Enforced</span>
                 </div>
             </div>
         </div>

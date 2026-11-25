@@ -17,25 +17,25 @@ export default function ScannerConnectionStatus({
         connected: {
             label: 'Hardware Online',
             dotClass: 'bg-emerald-500',
-            badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200/90',
+            badgeClass: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200/90 dark:border-emerald-800/60',
             icon: Wifi,
         },
         degraded: {
             label: 'Signal Degraded',
             dotClass: 'bg-amber-500 animate-pulse',
-            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/90',
+            badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/90 dark:border-amber-800/60',
             icon: Radio,
         },
         connecting: {
             label: 'Connecting...',
             dotClass: 'bg-amber-400 animate-pulse',
-            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/90',
+            badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/90 dark:border-amber-800/60',
             icon: RefreshCw,
         },
         offline: {
             label: 'Reader Disconnected',
             dotClass: 'bg-slate-400',
-            badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+            badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700',
             icon: WifiOff,
         },
     }[connectionState];

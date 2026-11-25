@@ -45,11 +45,12 @@ export default function SidebarUser({
                 <Link
                     href={route('profile.edit')}
                     aria-current={isAccountSettingsActive ? 'page' : undefined}
-                    className={`p-2 rounded-lg transition-colors ${isAccountSettingsActive
+                    aria-label="Account Settings"
+                    className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${isAccountSettingsActive
     ? "bg-red-900 text-amber-300" : "text-red-200/70 hover:text-white hover:bg-white/5"}`}
                     title="Account Settings"
                 >
-                    <User className="w-4 h-4" />
+                    <User className="w-4 h-4" aria-hidden="true" />
                 </Link>
 
                 {/* Theme Toggle Icon in Collapsed State */}
@@ -72,10 +73,11 @@ export default function SidebarUser({
                 <button
                     type="button"
                     onClick={onOpenLogoutModal}
-                    className="p-2 rounded-lg text-red-200/70 hover:text-amber-300 hover:bg-white/5 transition-colors cursor-pointer"
+                    aria-label="Sign Out"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-red-200/70 hover:text-amber-300 hover:bg-white/5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     title="Sign Out"
                 >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-4 h-4" aria-hidden="true" />
                 </button>
             </div>
         );

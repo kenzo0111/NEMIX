@@ -18,9 +18,9 @@ export default function AssignmentSuccessState({
     onViewItem,
 }: AssignmentSuccessStateProps) {
     return (
-        <div className="text-center py-7 px-6 bg-gradient-to-b from-emerald-50/40 via-white to-gray-50/20 rounded-xl border border-emerald-200 shadow-sm">
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-emerald-50/40 via-white to-slate-50/20 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-emerald-200 dark:border-emerald-900/60 shadow-sm">
             {/* Success Icon */}
-            <div className="w-12 h-12 rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto mb-3 border border-emerald-200 shadow-sm dark:text-emerald-300">
+            <div className="w-12 h-12 rounded-xl bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-700 flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800/60 shadow-sm dark:text-emerald-300">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
             </div>
 
@@ -29,11 +29,11 @@ export default function AssignmentSuccessState({
             </h3>
 
             <p className="leading-relaxed text-sm text-slate-600 mt-1 dark:text-slate-300">
-                Tag <span className="tabular-nums font-semibold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 dark:text-slate-300">{tag}</span> is now linked.
+                Tag <span className="tabular-nums font-semibold text-slate-900 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 dark:text-slate-200">{tag}</span> is now linked.
             </p>
 
             {/* Linked Item Summary Box */}
-            <div className="my-4 bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="my-4 bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
                 <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
                     <span>RECORD LINKED</span>
                     <span className="text-emerald-700 font-semibold flex items-center gap-1 font-sans dark:text-emerald-300">

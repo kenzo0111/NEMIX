@@ -19,19 +19,20 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
     };
 
     return (
-        <div className="p-6 bg-gradient-to-b from-gray-50/70 via-white to-gray-50/30 rounded-xl border border-slate-200/90 max-w-md mx-auto w-full shadow-sm">
-            <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+        <div className="p-6 bg-gradient-to-b from-slate-50/70 via-white to-slate-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 max-w-md mx-auto w-full shadow-sm">
+            <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md bg-red-50 text-red-900 flex items-center justify-center dark:text-red-300">
+                    <div className="w-6 h-6 rounded-md bg-red-50 dark:bg-red-950/40 text-red-900 flex items-center justify-center dark:text-red-300">
                         <Keyboard className="w-3.5 h-3.5" />
                     </div>
-                    <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-800 tabular-nums dark:text-slate-300">
+                    <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-800 tabular-nums dark:text-slate-100">
                         Manual Tag Entry
                     </h3>
                 </div>
                 <Button variant="secondary"
                     type="button"
                     onClick={onCancel}
+                    aria-label="Cancel manual tag entry"
                     className=""
                 >
                     <X className="w-4 h-4" />

@@ -29,21 +29,21 @@ export default function TagDetectedState({
     };
 
     return (
-        <div className="text-center py-6 px-4 bg-gradient-to-b from-emerald-50/30 via-white to-gray-50/20 rounded-xl border border-emerald-200/90 shadow-sm">
+        <div className="text-center py-6 px-4 bg-gradient-to-b from-emerald-50/30 via-white to-slate-50/20 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-emerald-200/90 dark:border-emerald-900/60 shadow-sm">
             {/* Status Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 mb-3 shadow-sm dark:text-emerald-300">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 mb-3 shadow-sm dark:text-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
                 <span>RFID Signal Captured</span>
             </div>
 
             {/* Prominent Scanned Tag Card */}
             <div className="my-2 max-w-sm mx-auto">
-                <div className="bg-white px-5 py-3 rounded-xl border-2 border-emerald-500/80 shadow-sm flex items-center justify-between gap-3 dark:bg-slate-900">
+                <div className="bg-white px-5 py-3 rounded-xl border-2 border-emerald-500/80 shadow-sm flex items-center justify-between gap-3 dark:bg-slate-850">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center dark:text-emerald-300">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 flex items-center justify-center dark:text-emerald-300">
                             <Radio className="w-4 h-4" />
                         </div>
-                        <span className="tabular-nums text-xl font-semibold text-slate-900 tracking-normal dark:text-slate-300">
+                        <span className="tabular-nums text-xl font-semibold text-slate-900 tracking-normal dark:text-slate-100">
                             {tag}
                         </span>
                     </div>
@@ -52,6 +52,7 @@ export default function TagDetectedState({
                         type="button"
                         onClick={handleCopy}
                         title={copied ? 'Copied!' : 'Copy Tag ID'}
+                        aria-label={copied ? 'Copied Tag ID' : 'Copy Tag ID'}
                         className=""
                     >
                         {copied ? (
@@ -65,14 +66,14 @@ export default function TagDetectedState({
 
             {/* Association Connection Arrow */}
             <div className="my-2 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
-                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:text-emerald-300">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50/80 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800/60 dark:text-emerald-300">
                     <Link2 className="w-3 h-3" />
                     <span>Associating with target item</span>
                 </div>
             </div>
 
             {/* Target Item Preview Box */}
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
                 <div className="flex items-center justify-between mb-1">
                     <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold dark:text-slate-300">
                         Target Inventory Record
