@@ -1,4 +1,6 @@
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import StatusBadge from '@/Components/ui/status-badge';
 import React, { useMemo, useState } from 'react';
 import { UserProfileDetails, LoginTrailItem } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
@@ -41,7 +43,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
         <div className={`space-y-6 ${className}`}>
             {/* KPI Security Metrics Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                <Card className="p-3.5 sm:p-4">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Shield className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Security Level</span>
@@ -51,9 +53,9 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         <span>Protected</span>
                     </div>
                     <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">2-Step Email Verification</span>
-                </div>
+                </Card>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                <Card className="p-3.5 sm:p-4">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Laptop className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Active Devices</span>
@@ -62,9 +64,9 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         {Math.max(activeSessions.length, 1)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Live</span>
                     </div>
                     <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">Verified Sessions</span>
-                </div>
+                </Card>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                <Card className="p-3.5 sm:p-4">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Activity className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Audit Records</span>
@@ -73,9 +75,9 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         {loginHistory.length} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Entries</span>
                     </div>
                     <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">Immutable System Ledger</span>
-                </div>
+                </Card>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                <Card className="p-3.5 sm:p-4">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <KeyRound className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Credentials</span>
@@ -85,11 +87,11 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         <span>Current</span>
                     </div>
                     <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">COA Password Standard</span>
-                </div>
+                </Card>
             </div>
 
             {/* Active Browser Sessions */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <Card className="overflow-hidden">
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -160,10 +162,10 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         </div>
                     )}
                 </div>
-            </div>
+            </Card>
 
             {/* Authentication Audit Trail */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <Card className="overflow-hidden">
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -192,7 +194,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         <div className="space-y-3">
                             <div className="w-full min-w-0 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
                                 <table className="ui-data-table w-full min-w-[37.5rem] divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                                    <thead className="bg-slate-50 dark:bg-slate-850">
+                                    <thead className="border-b border-slate-200 dark:border-slate-800">
                                         <tr>
                                             <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Verification Status</SortableTableHeader>
                                             <SortableTableHeader column="ip" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Client IP Address</SortableTableHeader>
@@ -204,15 +206,9 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                         {displayedHistory.map((item) => (
                                             <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-850/50 transition-colors">
                                                 <td className="px-4 py-3.5 whitespace-nowrap align-middle">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold ${item.status === 'Success'
-    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60" : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60"}`}
-                                                    >
-                                                        <span
-                                                            className={`w-1.5 h-1.5 rounded-full ${item.status === 'Success' ? "bg-emerald-600" : "bg-rose-600"}`}
-                                                        />
-                                                        <span>{item.status}</span>
-                                                    </span>
+                                                    <StatusBadge tone={item.status === 'Success' ? 'success' : 'danger'}>
+                                                        {item.status}
+                                                    </StatusBadge>
                                                 </td>
                                                 <td className="px-4 py-3.5 tabular-nums text-slate-800 dark:text-slate-200 font-semibold whitespace-nowrap align-middle">
                                                     {item.ip_address}
@@ -253,7 +249,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         </p>
                     )}
                 </div>
-            </div>
+            </Card>
 
             {/* Account Management Policy Notice */}
             <PolicyNotice />

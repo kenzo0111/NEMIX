@@ -24,7 +24,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
             {/* Table */}
             <div className="overflow-x-auto min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[53rem]">
-                    <thead className="bg-slate-50/75 dark:bg-slate-900/75 border-b border-slate-200 dark:border-slate-800">
+                    <thead className="border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[12.5rem]">
                                 Supplier

@@ -55,6 +55,18 @@ test('select errors and disabled controls use shared theme tokens and retain the
     assert.equal(styles.groupHeading({}).color, 'var(--brand-text)');
 });
 
+test('react-select controls across modals do not define arbitrary 38px heights', () => {
+    const fs = require('node:fs');
+    const files = [
+        'resources/js/Pages/AccessControl/ManageStaffs/components/CreateStaffModal.tsx',
+        'resources/js/Pages/AccessControl/ManageStaffs/components/EditStaffModal.tsx',
+    ];
+    for (const file of files) {
+        const content = fs.readFileSync(file, 'utf8');
+        assert.doesNotMatch(content, /minHeight:\s*['"]38px['"]/);
+    }
+});
+
 test('the configured Tailwind compiler generates the shared control, status and dialog rules', async () => {
     const fs = require('node:fs');
     const postcss = require('postcss');

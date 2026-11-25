@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
 import StatusBadge from '@/Components/ui/status-badge';
 import { RFIDInventoryItem } from '../types';
-import { institutionalSelectStyles } from '../utils/selectStyles';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
 
 export interface ItemOption {
     value: number;

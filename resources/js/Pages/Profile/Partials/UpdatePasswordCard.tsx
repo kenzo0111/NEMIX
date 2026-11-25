@@ -1,3 +1,4 @@
+import { Card } from '@/Components/ui/card';
 import React from 'react';
 import { usePasswordOtpFlow } from '../hooks/usePasswordOtpFlow';
 import PasswordCredentialsStep from '../components/Security/PasswordCredentialsStep';
@@ -23,7 +24,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
         <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 ${className}`}>
             {/* Left Column: Security Advisory & Policy */}
             <div className="lg:col-span-4 space-y-6">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+                <Card className="overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/60 flex items-center gap-2">
                         <Shield className="w-4 h-4 text-red-900 dark:text-red-400" />
                         <h3 className="text-lg font-semibold font-sans text-slate-900 dark:text-slate-100 normal-case tracking-normal">
@@ -78,12 +79,12 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                     <div className="p-4 bg-slate-50/80 dark:bg-slate-850/60 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400">
                         Institutional Email: <span className="tabular-nums font-semibold text-slate-700 dark:text-slate-300">{userEmail || 'Configured address'}</span>
                     </div>
-                </div>
+                </Card>
             </div>
 
             {/* Right Column: Interactive Password Flow Form */}
             <div className="lg:col-span-8">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+                <Card className="overflow-hidden">
                     {/* Top Decorative Line */}
                     <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -183,7 +184,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                             <PasswordSuccessStep onDone={flow.handleResetAll} />
                         )}
                     </div>
-                </div>
+                </Card>
             </div>
         </div>
     );

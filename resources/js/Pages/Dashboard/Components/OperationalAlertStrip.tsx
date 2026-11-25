@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Radio, ArrowRight, FileText, AlertTriangle } from 'lucide-react';
+import StatusBadge from '@/Components/ui/status-badge';
 
 interface OperationalAlertStripProps {
     showRfidAlert?: boolean;
@@ -35,9 +36,9 @@ export default function OperationalAlertStrip({
                         </div>
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-sm font-semibold normal-case tracking-normal bg-amber-200/80 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-1.5 py-0.5 rounded">
+                                <StatusBadge tone="warning">
                                     Optional RFID Tagging
-                                </span>
+                                </StatusBadge>
                                 <span className="text-sm font-semibold text-amber-950 dark:text-amber-200 truncate">
                                     {untaggedRfidCount} {untaggedRfidCount === 1 ? 'item is' : 'items are'} managed without RFID tags. Tagging is optional.
                                 </span>
@@ -64,9 +65,9 @@ export default function OperationalAlertStrip({
                         </div>
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-sm font-semibold normal-case tracking-normal bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 px-1.5 py-0.5 rounded">
+                                <StatusBadge tone="neutral">
                                     Supplier Notice
-                                </span>
+                                </StatusBadge>
                                 <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                                     {pendingSupplierCount} supplier {pendingSupplierCount === 1 ? 'application requires' : 'applications require'} accreditation review
                                 </span>

@@ -39,7 +39,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
             {/* Table */}
             <div className="overflow-x-auto min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[60rem] divide-y divide-slate-200 dark:divide-slate-800">
-                    <thead className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800">
+                    <thead className="border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-semibold tracking-normal text-left text-slate-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[12.5rem]">
                                 Item Received

@@ -12,6 +12,7 @@ import CoordinatorPortalHeader from '../../Coordinator/components/CoordinatorPor
 import { panel, secondaryButton } from '../../Coordinator/inventory';
 import { SupplyRequest } from '../types';
 import { RequestStatusBadge } from './RequestStatusBadge';
+import StatusBadge from '@/Components/ui/status-badge';
 import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 
@@ -205,7 +206,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                         <>
                             <div className="hidden overflow-x-auto lg:block w-full min-w-0">
                                 <table className="ui-data-table w-full text-left text-sm min-w-[60rem] border-collapse">
-                                    <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                                    <thead className="border-b border-slate-200 dark:border-slate-800">
                                         <tr>
                                             <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[7.5rem]">
                                                 Request
@@ -239,9 +240,9 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                                         <div className="flex flex-col gap-1 items-start">
                                                             <span>{reference(request)}</span>
                                                             {urgent && (
-                                                                <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-sm font-semibold tracking-normal normal-case shadow-sm">
+                                                                <StatusBadge tone="danger">
                                                                     ⚡ Urgent
-                                                                </span>
+                                                                </StatusBadge>
                                                             )}
                                                         </div>
                                                     </th>
@@ -280,9 +281,9 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                                     <div className="flex items-center gap-2">
                                                         <h2 className="text-xl font-semibold">{reference(request)}</h2>
                                                         {urgent && (
-                                                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-sm font-semibold tracking-normal normal-case">
+                                                            <StatusBadge tone="danger">
                                                                 ⚡ Urgent
-                                                            </span>
+                                                            </StatusBadge>
                                                         )}
                                                     </div>
                                                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatScreenDate(request.date_requested || request.created_at)}</p>

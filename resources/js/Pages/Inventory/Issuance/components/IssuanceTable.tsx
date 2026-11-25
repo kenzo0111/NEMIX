@@ -37,7 +37,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
             {/* Table Container */}
             <div className="overflow-x-auto min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[60rem]">
-                    <thead className="bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                    <thead className="border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-slate-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 RIS No.

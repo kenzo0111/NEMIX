@@ -1,4 +1,6 @@
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import StatusBadge from '@/Components/ui/status-badge';
 import React, { FormEventHandler } from 'react';
 import { useForm, usePage, Link } from '@inertiajs/react';
 import { PageProps } from '@/types';
@@ -67,7 +69,7 @@ export default function UpdateProfileInformationCard({
         <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 ${className}`}>
             {/* Left Column: Official Personnel Dossier Card */}
             <div className="lg:col-span-4 space-y-6">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+                <Card className="overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/60 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-red-900 dark:text-red-400" />
@@ -140,12 +142,12 @@ export default function UpdateProfileInformationCard({
                         <span className="font-semibold text-red-950 dark:text-red-300 block mb-0.5">COA Accountability Notice:</span>
                         Official name and institutional email are legally binding on Property Acknowledgement Receipts (PAR) and Inventory Custodian Slips (ICS).
                     </div>
-                </div>
+                </Card>
             </div>
 
             {/* Right Column: Profile Edit Form */}
             <div className="lg:col-span-8">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+                <Card className="overflow-hidden">
                     {/* Top Decorative Line */}
                     <div className="h-1 bg-red-900 w-full" />
 
@@ -166,10 +168,9 @@ export default function UpdateProfileInformationCard({
                         </div>
 
                         {isDirty && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium tabular-nums bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/50">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                            <StatusBadge tone="warning">
                                 Unsaved changes
-                            </span>
+                            </StatusBadge>
                         )}
                     </div>
 
@@ -366,7 +367,7 @@ export default function UpdateProfileInformationCard({
                             </div>
                         </form>
                     </div>
-                </div>
+                </Card>
             </div>
         </div>
     );

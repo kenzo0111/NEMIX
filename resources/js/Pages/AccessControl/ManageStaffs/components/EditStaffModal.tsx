@@ -5,6 +5,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import Select, { StylesConfig } from 'react-select';
+import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { Edit2, User, Mail, X } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { EditStaffFormData, SelectOption, Staff } from '../types';
@@ -17,38 +18,7 @@ interface EditStaffModalProps {
 }
 
 const modalSelectStyles: StylesConfig<SelectOption, false> = {
-    control: (provided, state) => ({
-        ...provided,
-        borderRadius: '0.5rem',
-        borderColor: state.isFocused ? '#7f1d1d' : 'var(--border-color, #e5e7eb)',
-        boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-        '&:hover': { borderColor: '#7f1d1d' },
-        minHeight: '38px',
-        fontSize: '0.875rem',
-        backgroundColor: 'var(--surface-card, #ffffff)',
-        color: 'var(--text-primary, #111827)',
-    }),
-    singleValue: (provided) => ({
-        ...provided,
-        color: 'var(--text-primary, #111827)',
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? 'rgba(127, 29, 29, 0.15)' : 'var(--surface-card, #ffffff)',
-        color: state.isSelected ? '#ffffff' : 'var(--text-primary, #1f2937)',
-        cursor: 'pointer',
-        fontSize: '0.875rem',
-        fontWeight: state.isSelected ? '600' : '500',
-    }),
-    menu: (provided) => ({
-        ...provided,
-        zIndex: 60,
-        borderRadius: '0.5rem',
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        backgroundColor: 'var(--surface-card, #ffffff)',
-        border: '1px solid var(--border-color, #e5e7eb)',
-    }),
+    ...getInstitutionalSelectStyles<SelectOption, false>(),
     menuPortal: (provided) => ({
         ...provided,
         zIndex: 9999,
