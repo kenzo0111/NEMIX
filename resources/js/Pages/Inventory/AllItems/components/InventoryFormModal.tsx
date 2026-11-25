@@ -240,10 +240,8 @@ export default function InventoryFormModal({
                         {/* 1. Item Information Card */}
                         <div className="space-y-5">
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                                <Field id="inventory_item_name" label={<>
-                                        Item Name <span className="text-red-600" aria-hidden="true">*</span>
-                                        <span className="sr-only"> (required)</span>
-                                    </>} error={errors.name} ><input
+                                <Field id="inventory_item_name" label="Item Name" required error={errors.name}>
+                                    <input
                                         id="inventory_item_name"
                                         name="name"
                                         type="text"
@@ -252,21 +250,16 @@ export default function InventoryFormModal({
                                         placeholder="e.g. A4 Bond Paper 80 GSM"
                                         required
                                         aria-required="true"
-                                        aria-invalid={Boolean(errors.name)}
-                                        aria-describedby={errors.name ? 'inventory_item_name-error' : undefined}
                                         disabled={processing}
                                         className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.name ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
-                                    /></Field>
+                                    />
+                                </Field>
 
-                                <Field id="inventory_unit_of_issue" label={<>
-                                        Unit of Issue <span className="text-red-600" aria-hidden="true">*</span>
-                                        <span className="sr-only"> (required)</span>
-                                    </>} error={errors.unit_of_issue} ><Select
+                                <Field id="inventory_unit_of_issue" label="Unit of Issue" required error={errors.unit_of_issue}>
+                                    <Select
                                         inputId="inventory_unit_of_issue"
                                         name="unit_of_issue"
                                         aria-label="Unit of Issue"
-                                        aria-invalid={Boolean(errors.unit_of_issue)}
-                                        aria-describedby={errors.unit_of_issue ? 'inventory_unit_of_issue-error' : undefined}
                                         value={selectedUnitOption}
                                         onChange={(opt) => setData('unit_of_issue', opt ? opt.value : '')}
                                         options={unitOptions}
@@ -280,33 +273,45 @@ export default function InventoryFormModal({
                                         isClearable
                                         classNamePrefix="react-select"
                                         isDisabled={processing}
-                                    /></Field>
-
-                                <div className="sm:col-span-2">
-                                    <label htmlFor="inventory_weekly_limit" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Weekly limit per user ({data.unit_of_issue || 'units'})</label>
-                                    <input id="inventory_weekly_limit" type="number" min={0} max={1000000} step={1} value={data.weekly_request_limit} onChange={event => setData('weekly_request_limit', event.target.value)} disabled={processing} className="ui-field w-full rounded-lg border-slate-300 bg-white text-sm dark:bg-slate-800 dark:text-slate-100" />
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Each user's allowance resets on Monday. Zero blocks requests; a blank limit must be configured before this item can be requested.</p>
-                                    {errors.weekly_request_limit && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{errors.weekly_request_limit}</p>}
-                                    <label htmlFor="inventory_description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Description / Specifications <span className="text-slate-500 dark:text-slate-400 font-normal">(Optional)</span>
-                                    </label>
-                                    <textarea
-                                        id="inventory_description"
-                                        name="description"
-                                        value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
-                                        placeholder="Specifications, dimensions, material, or packaging details..."
-                                        rows={3}
-                                        disabled={processing}
-                                        aria-invalid={Boolean(errors.description)}
-                                        aria-describedby={errors.description ? 'inventory_description-error' : undefined}
-                                        className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-normal text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.description ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
                                     />
-                                    {errors.description && (
-                                        <p id="inventory_description-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
-                                            {errors.description}
-                                        </p>
-                                    )}
+                                </Field>
+
+                                <div className="sm:col-span-2 space-y-5">
+                                    <Field
+                                        id="inventory_weekly_limit"
+                                        label={`Weekly limit per user (${data.unit_of_issue || 'units'})`}
+                                        hint="Each user's allowance resets on Monday. Zero blocks requests; a blank limit must be configured before this item can be requested."
+                                        error={errors.weekly_request_limit}
+                                    >
+                                        <input
+                                            id="inventory_weekly_limit"
+                                            type="number"
+                                            min={0}
+                                            max={1000000}
+                                            step={1}
+                                            value={data.weekly_request_limit}
+                                            onChange={event => setData('weekly_request_limit', event.target.value)}
+                                            disabled={processing}
+                                            className="ui-field w-full px-3 py-2.5 rounded-lg border-slate-300 dark:border-slate-700 bg-white text-sm dark:bg-slate-800 dark:text-slate-100"
+                                        />
+                                    </Field>
+
+                                    <Field
+                                        id="inventory_description"
+                                        label="Description / Specifications (Optional)"
+                                        error={errors.description}
+                                    >
+                                        <textarea
+                                            id="inventory_description"
+                                            name="description"
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            placeholder="Specifications, dimensions, material, or packaging details..."
+                                            rows={3}
+                                            disabled={processing}
+                                            className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-normal text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.description ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
+                                        />
+                                    </Field>
                                 </div>
                             </div>
                         </div>
@@ -347,41 +352,41 @@ export default function InventoryFormModal({
                                 </div>
                             </div>
                         ) : (
-                            <div className="border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-950/30">
-                                <Button variant="secondary"
+                            <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/40 dark:bg-slate-900/40 overflow-hidden transition-colors">
+                                <button
                                     type="button"
                                     onClick={() => setIsBatchExpanded(!isBatchExpanded)}
-                                    className="w-full flex items-center justify-between text-left"
+                                    className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-900 focus-visible:ring-inset cursor-pointer"
                                     aria-expanded={isBatchExpanded}
                                 >
-                                    <div>
+                                    <div className="flex flex-col gap-0.5">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                                                 Opening stock
                                             </span>
-                                            <span className="text-sm normal-case font-semibold tracking-normal px-1.5 py-0.5 text-slate-500 dark:text-slate-400 bg-slate-200/70 dark:bg-slate-700 rounded">
+                                            <span className="text-xs font-semibold px-2 py-0.5 text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 rounded-md border border-slate-300/60 dark:border-slate-700">
                                                 Optional
                                             </span>
                                             {Number(data.stock) > 0 && (
-                                                <span className="text-sm font-semibold text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/50 px-2 py-0.5 rounded-full tabular-nums">
-                                                    {data.stock} units
+                                                <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full tabular-nums">
+                                                    {data.stock} {data.unit_of_issue || 'units'}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
                                             {isBatchExpanded
-                                                ? 'Record the supplier, quantity, and unit cost.'
+                                                ? 'Record initial inventory, supplier, and unit cost.'
                                                 : 'Optional. You can receive stock later.'}
                                         </p>
                                     </div>
-                                    <div className="p-1 rounded-md text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 dark:text-slate-300">
+                                    <div className="p-1 rounded-md text-slate-400 dark:text-slate-500 shrink-0">
                                         {isBatchExpanded ? (
                                             <ChevronUp className="w-4 h-4" />
                                         ) : (
                                             <ChevronDown className="w-4 h-4" />
                                         )}
                                     </div>
-                                </Button>
+                                </button>
 
                                 {isBatchExpanded && (
                                     <div className="p-5 border-t border-slate-200/70 dark:border-slate-800 space-y-5">
