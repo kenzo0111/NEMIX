@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
+import StatusBadge from '@/Components/ui/status-badge';
 import { RFIDInventoryItem } from '../types';
 import { institutionalSelectStyles } from '../utils/selectStyles';
 
@@ -56,9 +57,27 @@ export default function ItemSelector({
                 }}
                 placeholder="Search by item name or property number..."
                 isClearable={false}
-                formatOptionLabel={(option: ItemOption) => {
+                formatOptionLabel={(option: ItemOption, { context }) => {
                     const item = option.item;
                     const isTagged = Boolean(item.rfid_tag);
+
+                    if (context === 'value') {
+                        return (
+                            <div className="flex items-center justify-between gap-2 min-w-0">
+                                <span className="truncate font-medium text-slate-900 dark:text-slate-100 text-sm">
+                                    {item.name}
+                                    {item.sku ? (
+                                        <span className="ml-1.5 text-slate-500 dark:text-slate-400 font-normal tabular-nums">
+                                            ({item.sku})
+                                        </span>
+                                    ) : null}
+                                </span>
+                                <StatusBadge tone={isTagged ? 'success' : 'warning'} className="shrink-0">
+                                    {isTagged ? 'Tagged' : 'Untagged'}
+                                </StatusBadge>
+                            </div>
+                        );
+                    }
 
                     return (
                         <div className="flex items-center justify-between py-1">
@@ -89,16 +108,9 @@ export default function ItemSelector({
                                 </div>
                             </div>
 
-                            {/* Crisp status pill */}
-                            <span
-                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${isTagged
-    ? "text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/90 dark:border-emerald-800/60" : "text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60"}`}
-                            >
-                                <span
-                                    className={`w-1.5 h-1.5 rounded-full ${isTagged ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-500"}`}
-                                />
-                                <span>{isTagged ? 'Tagged' : 'Untagged'}</span>
-                            </span>
+                            <StatusBadge tone={isTagged ? 'success' : 'warning'} className="shrink-0">
+                                {isTagged ? 'Tagged' : 'Untagged'}
+                            </StatusBadge>
                         </div>
                     );
                 }}

@@ -94,16 +94,17 @@ export default function SelectedItemSummary({
                                     {item.sku || 'N/A'}
                                 </span>
                                 {item.sku && (
-                                    <Button variant="secondary"
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={() => handleCopy(item.sku!, 'sku')}
                                         title={copiedSku ? 'Copied!' : 'Copy Property No'}
-                                        className="ml-0.5"
+                                        aria-label="Copy Property No"
+                                        className="ml-0.5 !min-h-7 !h-7 !w-7 !p-0"
                                     >
                                         {copiedSku ? (
-                                            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                            <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                         ) : (
-                                            <Copy className="w-3 h-3" />
+                                            <Copy className="w-3.5 h-3.5" />
                                         )}
                                     </Button>
                                 )}
