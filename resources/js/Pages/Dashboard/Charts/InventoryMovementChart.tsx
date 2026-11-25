@@ -52,7 +52,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
 
     if (data.length === 0) {
         return (
-            <div className="h-64 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 border border-dashed border-gray-200 dark:border-slate-800 rounded-lg">
+            <div className="h-64 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
                 <p className="leading-relaxed text-sm font-medium">No inventory movement recorded for this period.</p>
             </div>
         );

@@ -40,9 +40,9 @@ export default function InventoryToolbar({
     }));
 
     return (
-        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
             <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100">All items</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">All items</h2>
             </div>
 
             {/* Filter Controls & Actions */}
@@ -62,7 +62,7 @@ export default function InventoryToolbar({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search name or SKU..."
                         aria-label="Search inventory by name or SKU"
-                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-gray-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500"
                     />
                 </div>
 

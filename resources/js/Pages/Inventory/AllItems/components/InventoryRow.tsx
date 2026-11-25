@@ -22,20 +22,20 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
     const canDelete = !readOnly && can('inventory.destroy');
 
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
+        <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0 group">
             {/* 1. Stock Number (Desktop) */}
-            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm tabular-nums font-semibold text-gray-800 dark:text-slate-200">
-                <span className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-gray-200 dark:border-slate-700">
+            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm tabular-nums font-semibold text-slate-800 dark:text-slate-200">
+                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                     {item.sku || 'N/A'}
                 </span>
             </td>
 
             {/* 2. Item Name & Mobile Stock No / RFID Badge */}
             <td className="px-4 sm:px-5 py-3.5 align-middle min-w-[200px]">
-                <div className="text-sm font-semibold text-gray-900 dark:text-slate-100 leading-snug break-words">{item.name}</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words">{item.name}</div>
                 <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                     {item.sku && (
-                        <span className="md:hidden tabular-nums text-sm font-semibold text-gray-700 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-slate-700">
+                        <span className="md:hidden tabular-nums text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             {item.sku}
                         </span>
                     )}
@@ -49,25 +49,25 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             </td>
 
             {/* 3. Description / Specification (Desktop) */}
-            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-400 min-w-[180px] max-w-xs break-words" title={item.description || ''}>
+            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-slate-600 dark:text-slate-400 min-w-[180px] max-w-xs break-words" title={item.description || ''}>
                 {item.description || '—'}
             </td>
 
             {/* 4. Unit of Issue (Desktop) */}
-            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-gray-700 dark:text-slate-300 font-medium normal-case tabular-nums">
+            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-slate-700 dark:text-slate-300 font-medium normal-case tabular-nums">
                 {item.unit_of_issue || '—'}
             </td>
 
             {/* 5. On Hand Stock */}
-            <td className="px-4 sm:px-5 py-3.5 align-middle text-sm text-gray-900 dark:text-slate-100 font-semibold tabular-nums whitespace-nowrap">
+            <td className="px-4 sm:px-5 py-3.5 align-middle text-sm text-slate-900 dark:text-slate-100 font-semibold tabular-nums whitespace-nowrap">
                 {formatNumber(item.on_hand ?? item.stock)}{' '}
-                <span className="text-gray-500 dark:text-slate-400 text-sm font-normal font-sans">
+                <span className="text-slate-500 dark:text-slate-400 text-sm font-normal font-sans">
                     {item.unit_of_issue ? item.unit_of_issue.toLowerCase() : 'units'}
                 </span>
             </td>
 
             {/* 6. Total Inventory Value (Desktop) */}
-            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-gray-900 dark:text-slate-100 font-semibold tabular-nums whitespace-nowrap">
+            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-slate-900 dark:text-slate-100 font-semibold tabular-nums whitespace-nowrap">
                 {formatCurrency(item.inventory_value ?? item.amount)}
             </td>
 
@@ -110,7 +110,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
                     {(canTag || (canDelete && onDelete)) && (
                         <Menu as="div" className="relative inline-block text-left">
                             <MenuButton
-                                className="min-h-[2.25rem] min-w-[2.25rem] h-[2.25rem] w-[2.25rem] p-2 text-slate-500 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer flex items-center justify-center dark:text-slate-300"
+                                className="min-h-[2.25rem] min-w-[2.25rem] h-[2.25rem] w-[2.25rem] p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer flex items-center justify-center dark:text-slate-300"
                                 title="More actions"
                                 aria-label="More actions"
                             >
@@ -126,7 +126,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
                                         {({ focus }) => (
                                             <Link
                                                 href={route('rfid-scanner.index', { item_id: item.id })}
-                                                className={`${focus ? "bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-slate-100" : "text-gray-700 dark:text-slate-300"} flex items-center gap-2 w-full px-3 py-2 text-sm font-medium`}
+                                                className={`${focus ? "bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100" : "text-slate-700 dark:text-slate-300"} flex items-center gap-2 w-full px-3 py-2 text-sm font-medium`}
                                             >
                                                 <Tag className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                                                 <span>Tag RFID</span>

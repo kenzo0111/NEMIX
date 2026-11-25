@@ -126,14 +126,14 @@ export default function CreateStaffModal({
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
                             <UserPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">Add Staff Account</h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">Add Staff Account</h3>
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
                                 Register a university staff member and assign an administrative role.
                             </p>
                         </div>
@@ -155,7 +155,7 @@ export default function CreateStaffModal({
                         <div>
                             <label
                                 htmlFor="create-staff-name"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
                             >
                                 Full Name <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
@@ -172,7 +172,7 @@ export default function CreateStaffModal({
                                         if (errors.name) clearErrors('name');
                                     }}
                                     placeholder="e.g. Dr. Maria Santos"
-                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`)}
+                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                     autoFocus
                                 />
@@ -186,7 +186,7 @@ export default function CreateStaffModal({
                         <div>
                             <label
                                 htmlFor="create-staff-email"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
                             >
                                 Email Address <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
@@ -203,14 +203,14 @@ export default function CreateStaffModal({
                                         if (errors.email) clearErrors('email');
                                     }}
                                     placeholder="e.g. maria.santos@university.edu"
-                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`)}
+                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                 />
                             </div>
                             {errors.email && (
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{errors.email}</p>
                             )}
-                            <div className="mt-2 text-sm text-gray-500 dark:text-slate-400 flex items-center gap-1.5 bg-gray-50 dark:bg-slate-800/60 p-2 rounded-md border border-gray-200/60 dark:border-slate-700">
+                            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2 rounded-md border border-slate-200/60 dark:border-slate-700">
                                 <Info className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                                 <span>A registration invitation link will be dispatched to this email address.</span>
                             </div>
@@ -242,7 +242,7 @@ export default function CreateStaffModal({
                     </div>
 
                     {/* Modal Actions */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 gap-2.5">
                         <Button variant="secondary"
                             type="button"
                             onClick={handleClose}

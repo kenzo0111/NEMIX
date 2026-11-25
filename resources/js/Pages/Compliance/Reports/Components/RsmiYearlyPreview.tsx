@@ -20,7 +20,7 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
 
     if (!yearlyData || !Array.isArray(yearlyData.months)) {
         return (
-            <div className="p-8 text-center text-sm text-gray-500">
+            <div className="p-8 text-center text-sm text-slate-500">
                 No yearly RSMI package data available.
             </div>
         );
@@ -37,25 +37,25 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
     return (
         <div className="w-full space-y-6">
             {/* Screen-Only Header & Navigation Bar */}
-            <div className="bg-white rounded-xl border border-gray-200/90 p-4 shadow-sm print:hidden compliance-print-hide space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+            <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-sm print:hidden compliance-print-hide space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-base font-semibold text-gray-900 font-sans tracking-tight">
+                            <h4 className="text-base font-semibold text-slate-900 font-sans tracking-tight">
                                 Yearly RSMI report package — {yearlyData.year}
                             </h4>
                             <span className="px-2 py-0.5 bg-red-50 text-red-900 border border-red-200 rounded text-sm tabular-nums font-semibold">
                                 Appendix 64 Package
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-gray-500 mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 mt-1">
                             {totalActiveMonths} Active Monthly Periods • {totalFormsCount} Official Forms Generated
                         </p>
                     </div>
 
                     <div className="flex items-center gap-1.5 text-sm">
                         <span className="text-slate-500 font-medium text-sm">Filter View:</span>
-                        <span className="font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-sm">
+                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-sm">
                             {selectedMonthFilter === 'ALL'
                                 ? 'All 12 Months'
                                 : `${MONTH_NAMES[selectedMonthFilter - 1]} ${yearlyData.year}`}
@@ -109,9 +109,9 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                         return (
                             <div
                                 key={`empty-month-${m.month}`}
-                                className="p-4 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center text-sm text-slate-500 font-medium print:hidden compliance-print-hide my-3"
+                                className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center text-sm text-slate-500 font-medium print:hidden compliance-print-hide my-3"
                             >
-                                <span className="font-semibold text-gray-600">{m.month_name} {yearlyData.year}</span> — No RSMI issuance records recorded for this monthly reporting period.
+                                <span className="font-semibold text-slate-600">{m.month_name} {yearlyData.year}</span> — No RSMI issuance records recorded for this monthly reporting period.
                             </div>
                         );
                     }
@@ -124,7 +124,7 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                                     <span className="font-sans font-semibold text-sm text-red-950 normal-case tracking-normal">
                                         {m.month_name} {yearlyData.year}
                                     </span>
-                                    <span className="text-sm text-gray-500 font-medium">
+                                    <span className="text-sm text-slate-500 font-medium">
                                         ({m.period_label})
                                     </span>
                                 </div>
@@ -139,7 +139,7 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                                     key={`form-${m.month}-${formIdx}-${form.serialNo}`}
                                     className="rsmi-yearly-page-break print:break-before-page print:page-break-before-always mb-8 print:mb-0"
                                 >
-                                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500">Loading form template...</div>}>
+                                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500">Loading form template...</div>}>
                                         <RSMIFormPaper data={form} />
                                     </Suspense>
                                 </div>

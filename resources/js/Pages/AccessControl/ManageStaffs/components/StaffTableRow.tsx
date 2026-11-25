@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 import React from 'react';
 import { Shield, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -52,7 +53,7 @@ export default function StaffTableRow({
         : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
 
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group">
+        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 group">
             {/* Staff Member */}
             <td className="px-6 py-3.5 align-middle min-w-[12.5rem]">
                 <div className="flex items-center gap-3">
@@ -63,7 +64,7 @@ export default function StaffTableRow({
                     </div>
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm break-words">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm break-words">
                                 {staff.name}
                             </span>
                             {isSelf && (
@@ -72,7 +73,7 @@ export default function StaffTableRow({
                                 </span>
                             )}
                         </div>
-                        <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
+                        <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                             {staff.email}
                         </span>
                     </div>
@@ -92,17 +93,17 @@ export default function StaffTableRow({
                         {staff.role}
                     </span>
                 ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                         {staff.role}
                     </span>
                 )}
             </td>
 
             {/* Delivery Unit / Office Head */}
-            <td className="px-6 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-300 min-w-[12.5rem] break-words">
-                <span className="font-medium text-gray-900 dark:text-slate-100">{staff.department || '—'}</span>
+            <td className="px-6 py-3.5 align-middle text-sm text-slate-600 dark:text-slate-300 min-w-[12.5rem] break-words">
+                <span className="font-medium text-slate-900 dark:text-slate-100">{staff.department || '—'}</span>
                 {staff.designation && <span className="block text-sm font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
-                {staff.office_head && <span className="block text-sm text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
+                {staff.office_head && <span className="block text-sm text-slate-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
             </td>
 
             {/* Verification Status */}
@@ -122,17 +123,9 @@ export default function StaffTableRow({
 
             {/* Account Status */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap">
-                {isActive ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0"></span>
-                        Active
-                    </span>
-                ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
-                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-slate-500 shrink-0"></span>
-                        Disabled
-                    </span>
-                )}
+                <StatusBadge tone={isActive ? 'success' : 'neutral'}>
+                    {isActive ? 'Active' : 'Disabled'}
+                </StatusBadge>
             </td>
 
             {/* Actions: Direct action buttons */}

@@ -171,7 +171,7 @@ export default function InventoryFormModal({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Modal Header */}
-                <DialogHeader className="shrink-0 flex items-center justify-between px-6 py-5 sm:px-8 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="shrink-0 flex items-center justify-between px-6 py-5 sm:px-8 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {isEditing ? (
@@ -181,10 +181,10 @@ export default function InventoryFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 tracking-tight font-sans truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight font-sans truncate">
                                 {isEditing ? 'Edit Item Master' : 'Register Item Master'}
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                                 {isEditing
                                     ? 'Update standardized item master specifications.'
                                     : 'Add item details. Opening stock can be recorded now or later.'}
@@ -255,7 +255,7 @@ export default function InventoryFormModal({
                                         aria-invalid={Boolean(errors.name)}
                                         aria-describedby={errors.name ? 'inventory_item_name-error' : undefined}
                                         disabled={processing}
-                                        className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.name ? "border-red-300 dark:border-red-700" : "border-gray-300 dark:border-slate-700"}`)}
+                                        className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.name ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
                                     /></Field>
 
                                 <Field id="inventory_unit_of_issue" label={<>
@@ -283,11 +283,11 @@ export default function InventoryFormModal({
                                     /></Field>
 
                                 <div className="sm:col-span-2">
-                                    <label htmlFor="inventory_weekly_limit" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Weekly limit per user ({data.unit_of_issue || 'units'})</label>
-                                    <input id="inventory_weekly_limit" type="number" min={0} max={1000000} step={1} value={data.weekly_request_limit} onChange={event => setData('weekly_request_limit', event.target.value)} disabled={processing} className="ui-field w-full rounded-lg border-gray-300 bg-white text-sm dark:bg-slate-800 dark:text-slate-100" />
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-slate-300">Each user's allowance resets on Monday. Zero blocks requests; a blank limit must be configured before this item can be requested.</p>
+                                    <label htmlFor="inventory_weekly_limit" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Weekly limit per user ({data.unit_of_issue || 'units'})</label>
+                                    <input id="inventory_weekly_limit" type="number" min={0} max={1000000} step={1} value={data.weekly_request_limit} onChange={event => setData('weekly_request_limit', event.target.value)} disabled={processing} className="ui-field w-full rounded-lg border-slate-300 bg-white text-sm dark:bg-slate-800 dark:text-slate-100" />
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Each user's allowance resets on Monday. Zero blocks requests; a blank limit must be configured before this item can be requested.</p>
                                     {errors.weekly_request_limit && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{errors.weekly_request_limit}</p>}
-                                    <label htmlFor="inventory_description" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                                    <label htmlFor="inventory_description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                         Description / Specifications <span className="text-slate-500 dark:text-slate-400 font-normal">(Optional)</span>
                                     </label>
                                     <textarea
@@ -300,7 +300,7 @@ export default function InventoryFormModal({
                                         disabled={processing}
                                         aria-invalid={Boolean(errors.description)}
                                         aria-describedby={errors.description ? 'inventory_description-error' : undefined}
-                                        className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-normal text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.description ? "border-red-300 dark:border-red-700" : "border-gray-300 dark:border-slate-700"}`)}
+                                        className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-normal text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${errors.description ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
                                     />
                                     {errors.description && (
                                         <p id="inventory_description-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
@@ -313,33 +313,33 @@ export default function InventoryFormModal({
 
                         {/* 2. Opening stock / Stock Baseline (Accordion Card) */}
                         {isEditing ? (
-                            <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl p-4 bg-gray-50/50 dark:bg-slate-900/50 space-y-3">
-                                <div className="flex items-center justify-between pb-2 border-b border-gray-200/70 dark:border-slate-800">
-                                    <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
+                            <div className="border border-slate-200/90 dark:border-slate-800 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-800">
+                                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                                         Current Stock & Valuation
                                     </span>
-                                    <span className="text-sm text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm text-slate-500 dark:text-slate-400">
                                         Aggregated from active batches
                                     </span>
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-3">
-                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">On Hand</p>
-                                        <p className="leading-relaxed text-sm font-semibold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
+                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium">On Hand</p>
+                                        <p className="leading-relaxed text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-1">
                                             {data.stock} {data.unit_of_issue || 'units'}
                                         </p>
                                     </div>
 
-                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">Unit Cost</p>
-                                        <p className="leading-relaxed text-sm font-semibold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
+                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium">Unit Cost</p>
+                                        <p className="leading-relaxed text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-1">
                                             ₱{Number(data.unit_cost || 0).toFixed(2)}
                                         </p>
                                     </div>
 
-                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">Valuation</p>
+                                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium">Valuation</p>
                                         <p className="leading-relaxed text-sm font-semibold tabular-nums text-red-950 dark:text-red-400 mt-1">
                                             ₱{computedBatchTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </p>
@@ -347,7 +347,7 @@ export default function InventoryFormModal({
                                 </div>
                             </div>
                         ) : (
-                            <div className="border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50/50 dark:bg-slate-950/30">
+                            <div className="border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-950/30">
                                 <Button variant="secondary"
                                     type="button"
                                     onClick={() => setIsBatchExpanded(!isBatchExpanded)}
@@ -356,10 +356,10 @@ export default function InventoryFormModal({
                                 >
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                                                 Opening stock
                                             </span>
-                                            <span className="text-sm normal-case font-semibold tracking-normal px-1.5 py-0.5 text-gray-500 dark:text-slate-400 bg-gray-200/70 dark:bg-slate-700 rounded">
+                                            <span className="text-sm normal-case font-semibold tracking-normal px-1.5 py-0.5 text-slate-500 dark:text-slate-400 bg-slate-200/70 dark:bg-slate-700 rounded">
                                                 Optional
                                             </span>
                                             {Number(data.stock) > 0 && (
@@ -368,13 +368,13 @@ export default function InventoryFormModal({
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                                             {isBatchExpanded
                                                 ? 'Record the supplier, quantity, and unit cost.'
                                                 : 'Optional. You can receive stock later.'}
                                         </p>
                                     </div>
-                                    <div className="p-1 rounded-md text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 dark:text-slate-300">
+                                    <div className="p-1 rounded-md text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 dark:text-slate-300">
                                         {isBatchExpanded ? (
                                             <ChevronUp className="w-4 h-4" />
                                         ) : (
@@ -384,7 +384,7 @@ export default function InventoryFormModal({
                                 </Button>
 
                                 {isBatchExpanded && (
-                                    <div className="p-5 border-t border-gray-200/70 dark:border-slate-800 space-y-5">
+                                    <div className="p-5 border-t border-slate-200/70 dark:border-slate-800 space-y-5">
                                         <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-5">
                                             <Field id="inventory_supplier_id" label={<>
                                                     Preferred Supplier {Number(data.stock) > 0 && <span className="text-red-600" aria-hidden="true">*</span>}
@@ -411,7 +411,7 @@ export default function InventoryFormModal({
                                                 /></Field>
 
                                             <div>
-                                                <label htmlFor="inventory_supplier_stock_no" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                                                <label htmlFor="inventory_supplier_stock_no" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                     Supplier Stock No. / SKU
                                                 </label>
                                                 <div className="relative">
@@ -424,7 +424,7 @@ export default function InventoryFormModal({
                                                         placeholder={data.supplier_id ? 'Generating SKU...' : 'Auto-generated with vendor'}
                                                         aria-invalid={Boolean(errors.supplier_stock_no)}
                                                         aria-describedby={errors.supplier_stock_no ? 'inventory_supplier_stock_no-error' : undefined}
-                                                        className={"ui-field " + (`w-full px-3 py-2 pr-8 bg-gray-50 dark:bg-slate-800/60 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 cursor-not-allowed ${errors.supplier_stock_no ? "border-red-300 dark:border-red-700" : "border-gray-200 dark:border-slate-700"}`)}
+                                                        className={"ui-field " + (`w-full px-3 py-2 pr-8 bg-slate-50 dark:bg-slate-800/60 border rounded-lg text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 cursor-not-allowed ${errors.supplier_stock_no ? "border-red-300 dark:border-red-700" : "border-slate-200 dark:border-slate-700"}`)}
                                                     />
                                                     <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                                         {isGeneratingStockNo ? (
@@ -460,7 +460,7 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.stock)}
                                                     aria-describedby={errors.stock ? 'inventory_stock-error' : undefined}
-                                                    className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${errors.stock ? "border-red-300 dark:border-red-700" : "border-gray-300 dark:border-slate-700"}`)}
+                                                    className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${errors.stock ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
                                                 /></Field>
 
                                             <Field id="inventory_unit_cost" label={<>
@@ -483,14 +483,14 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.unit_cost)}
                                                     aria-describedby={errors.unit_cost ? 'inventory_unit_cost-error' : undefined}
-                                                    className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${errors.unit_cost ? "border-red-300 dark:border-red-700" : "border-gray-300 dark:border-slate-700"}`)}
+                                                    className={"ui-field " + (`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${errors.unit_cost ? "border-red-300 dark:border-red-700" : "border-slate-300 dark:border-slate-700"}`)}
                                                 /></Field>
 
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                     Batch Total
                                                 </label>
-                                                <div className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-lg text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 flex items-center justify-between">
+                                                <div className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-sm tabular-nums font-semibold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                                                     <span>₱</span>
                                                     <span>{computedBatchTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                 </div>
@@ -503,7 +503,7 @@ export default function InventoryFormModal({
                     </div>
 
                     {/* Keep actions visible while the form body scrolls. */}
-                    <div className="shrink-0 px-6 py-4 sm:px-8 bg-gray-50/80 dark:bg-slate-950/60 border-t border-gray-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                    <div className="shrink-0 px-6 py-4 sm:px-8 bg-slate-50/80 dark:bg-slate-950/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                         <Button variant="secondary"
                             type="button"
                             onClick={onClose}

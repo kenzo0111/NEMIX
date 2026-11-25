@@ -379,7 +379,7 @@ export function RequestFormModal({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {isRestocked ? (
@@ -391,14 +391,14 @@ export function RequestFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {isRestocked
                                     ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
                                     : isPreRequest
                                         ? (request ? `Edit Pre-Request #${request.id}` : 'Create Multi-Item Pre-Request')
                                         : (request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)')}
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                                 {isRestocked
                                     ? 'Supplies have arrived and have been restocked by Central Supply. Review line items and submit your official requisition.'
                                     : isPreRequest
@@ -467,7 +467,7 @@ export function RequestFormModal({
                     </div>}
                     {/* SECTION 1: Recipient Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 1. Requesting Office
                             </h4>
@@ -487,7 +487,7 @@ export function RequestFormModal({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
 
                             <Field id="req_date_requested" label={<>
@@ -502,7 +502,7 @@ export function RequestFormModal({
                                     aria-invalid={Boolean(form.errors.date_requested)}
                                     value={form.data.date_requested}
                                     onChange={(e) => form.setData('date_requested', e.target.value)}
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_requested ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_requested ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
 
                             <Field id="req_department" label={<>
@@ -534,14 +534,14 @@ export function RequestFormModal({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty, Coordinator"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 2: Accounting Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 2. Accounting Information
                             </h4>
@@ -563,7 +563,7 @@ export function RequestFormModal({
                                 /></Field>
 
                             <div>
-                                <label htmlFor="req_purpose" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_purpose" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                     Purpose <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -577,7 +577,7 @@ export function RequestFormModal({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 />
                                 {form.errors.purpose && (
                                     <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
@@ -595,7 +595,7 @@ export function RequestFormModal({
                                                 const clean = form.data.purpose.replace(/^\[URGENT\]\s*/i, '');
                                                 form.setData('purpose', isUrgent ? `[URGENT] ${clean}` : clean);
                                             }}
-                                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer dark:text-red-300"
+                                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                                         />
                                         <div className="text-sm">
                                             <label htmlFor="req_urgent_toggle" className="font-semibold text-red-950 dark:text-red-300 cursor-pointer flex items-center gap-1.5">
@@ -613,7 +613,7 @@ export function RequestFormModal({
 
                     {/* SECTION 3: Items Requested */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 3. Items Requested
                             </h4>
@@ -633,7 +633,7 @@ export function RequestFormModal({
                             </div>
                         )}
 
-                        <p className="mb-3 text-sm text-gray-500 dark:text-slate-400">
+                        <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
                             Requisitions are subject to available warehouse stock and your weekly item allowance. Approved quantities are deducted immediately.
                         </p>
                         <div className="space-y-3">
@@ -666,14 +666,14 @@ export function RequestFormModal({
                                 return (
                                     <div
                                         key={index}
-                                        className="p-3.5 bg-gray-50/70 dark:bg-slate-900/70 border border-gray-200 dark:border-slate-800 rounded-lg transition-all"
+                                        className="p-3.5 bg-slate-50/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-lg transition-all"
                                     >
                                         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
                                             {/* Item selection */}
                                             <div className="flex-1 w-full min-w-0">
                                                 <label
                                                     htmlFor={`req_item_${index}`}
-                                                    className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
+                                                    className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"
                                                 >
                                                     Item #{index + 1} <span className="text-red-600 dark:text-red-300">*</span>
                                                 </label>
@@ -697,23 +697,23 @@ export function RequestFormModal({
 
                                             {/* Available stock display */}
                                             <div className="w-full sm:w-36 shrink-0">
-                                                <span className="block text-sm font-semibold text-gray-500 dark:text-slate-400 mb-1">
+                                                <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">
                                                     On-Hand Stock
                                                 </span>
-                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-800 dark:text-slate-200">
+                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-800 dark:text-slate-200">
                                                     <span>{selectedItem ? selectedItem.stock : '—'}</span>
-                                                    <span className="text-sm text-gray-500 font-normal font-sans dark:text-slate-300">
+                                                    <span className="text-sm text-slate-500 font-normal font-sans dark:text-slate-300">
                                                         {selectedItem ? (selectedItem.unit_of_issue || 'pcs') : ''}
                                                     </span>
                                                 </div>
-                                                {selectedItem && <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">Weekly limit: {selectedItem.weekly_request_limit ?? 'Not configured'} · Remaining: {request?.items?.find(line => line.item_id === selectedItem.id)?.quota_remaining ?? selectedItem.quota_remaining ?? '—'}</p>}
+                                                {selectedItem && <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">Weekly limit: {selectedItem.weekly_request_limit ?? 'Not configured'} · Remaining: {request?.items?.find(line => line.item_id === selectedItem.id)?.quota_remaining ?? selectedItem.quota_remaining ?? '—'}</p>}
                                             </div>
 
                                             {/* Quantity input */}
                                             <div className="w-full sm:w-28 shrink-0">
                                                 <label
                                                     htmlFor={`req_qty_${index}`}
-                                                    className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
+                                                    className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"
                                                 >
                                                     Qty <span className="text-red-600 dark:text-red-300">*</span>
                                                 </label>
@@ -729,7 +729,7 @@ export function RequestFormModal({
                                                     value={line.quantity}
                                                     onChange={(e) => handleChangeQuantity(index, e.target.value)}
                                                     placeholder="Qty"
-                                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${errorQty ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${errorQty ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                                 />
                                             </div>
 
@@ -751,7 +751,7 @@ export function RequestFormModal({
                                             </p>
                                         )}
                                         {selectedItem && !unavailable && !errorQty && (
-                                            <p id={`req_qty_help_${index}`} className="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                                            <p id={`req_qty_help_${index}`} className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                                                 {isPreRequest ? 'Pre-request demand quantity up to 10,000 units.' : `Maximum request: ${maxQuantity} ${selectedItem.unit_of_issue || 'units'}.`}
                                             </p>
                                         )}
@@ -771,7 +771,7 @@ export function RequestFormModal({
 
                     {/* SECTION 4: Authorization (Signatories) */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 4. Authorization (System Signatories)
                             </h4>
@@ -779,34 +779,34 @@ export function RequestFormModal({
                         <div className="space-y-4">
                             {/* Approved By Row */}
                             <div>
-                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Approved By (Section B)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by_designation}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Approved Date (Read-Only)
                                         </label>
                                         <input
@@ -819,7 +819,7 @@ export function RequestFormModal({
                                                         : 'Pending Head of Office Approval')
                                             }
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -827,34 +827,34 @@ export function RequestFormModal({
 
                             {/* Issued By Row */}
                             <div>
-                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Issued By (Section C)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_name}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_position}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Issued Date (Read-Only)
                                         </label>
                                         <input
@@ -867,7 +867,7 @@ export function RequestFormModal({
                                                         : 'Pending Item Release')
                                             }
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -909,7 +909,7 @@ export function RequestFormModal({
 
                         {isSpecifyOther && (
                             <div className="rounded-lg p-3.5 bg-red-50/50 dark:bg-red-950/20 border border-red-200/80 dark:border-red-900/40 space-y-1.5 transition-all">
-                                <label htmlFor="req_specify_other_document" className="block text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                <label htmlFor="req_specify_other_document" className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
                                     Specify Other Document Type <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -927,7 +927,7 @@ export function RequestFormModal({
                                         form.setData('supporting_document_type', trimmed ? `Specify Other: ${trimmed}` : 'Specify Other');
                                     }}
                                     placeholder="e.g. Special Order No. 12, Approved Project Contract, Board Resolution..."
-                                    className="ui-field w-full h-10 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm"
+                                    className="ui-field w-full h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm"
                                 />
                                 <p className="text-sm text-slate-500 dark:text-slate-400">
                                     Please enter the specific name, title, or reference number of this authorization document.
@@ -956,7 +956,7 @@ export function RequestFormModal({
                         {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm text-slate-600 dark:text-slate-400">Current: <a className="underline font-medium text-slate-800 dark:text-slate-200" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
                     </section>}
                     {/* Footer Actions */}
-                    <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}

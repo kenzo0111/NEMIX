@@ -47,7 +47,7 @@ export default function SupportingDocumentPanel({ request, review = false }: {
                         id={`inspect_confirmed_${request.id}`}
                         checked={inspectConfirmed}
                         onChange={(e) => setInspectConfirmed(e.target.checked)}
-                        className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer dark:text-red-300"
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                     />
                     <label htmlFor={`inspect_confirmed_${request.id}`} className="text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer leading-relaxed">
                         I personally inspected the physical supporting documents and confirmed that these details and authority signatures match this requisition.

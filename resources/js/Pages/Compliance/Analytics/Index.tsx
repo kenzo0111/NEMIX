@@ -268,19 +268,18 @@ function DataTable({
                     </tbody>
                 </table>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-300">
-                <span>{filtered.length} records</span>
+            <div className="ui-pagination rounded-b-xl">
+                <span className="text-slate-600 dark:text-slate-400 font-medium tabular-nums">{filtered.length} records</span>
                 <div className="flex items-center gap-3">
-                    <Button variant="secondary" disabled={page === 0} onClick={() => setPage(page - 1)} className="">
+                    <Button variant="secondary" disabled={page === 0} onClick={() => setPage(page - 1)}>
                         Previous
                     </Button>
-                    <span>
-                        Page {page + 1} of {Math.max(1, Math.ceil(filtered.length / 10))}
+                    <span className="text-slate-600 dark:text-slate-400 tabular-nums">
+                        Page <strong className="text-slate-900 dark:text-slate-100">{page + 1}</strong> of <strong className="text-slate-900 dark:text-slate-100">{Math.max(1, Math.ceil(filtered.length / 10))}</strong>
                     </span>
                     <Button variant="secondary"
                         disabled={(page + 1) * 10 >= filtered.length}
                         onClick={() => setPage(page + 1)}
-                        className=""
                     >
                         Next
                     </Button>

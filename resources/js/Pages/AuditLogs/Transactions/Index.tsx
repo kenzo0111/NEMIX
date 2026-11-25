@@ -154,17 +154,17 @@ export default function TransactionAuditIndex({
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-activity-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Institutional Header Banner */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-sm">
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
                                     <ScrollText className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                                         Transaction Audit Ledger
                                     </span>
-                                    <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-400">•</span>
-                                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
+                                    <span className="hidden sm:inline-block mx-2 text-slate-300 dark:text-slate-400">•</span>
+                                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                                         Official read-only system activity and audit trail
                                     </span>
                                 </div>

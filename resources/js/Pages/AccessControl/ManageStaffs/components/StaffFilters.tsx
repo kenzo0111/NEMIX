@@ -32,7 +32,7 @@ export default function StaffFilters({
     const isFiltered = Boolean(searchQuery || statusFilter);
 
     return (
-        <div className="table-toolbar flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-sm">
+        <div className="table-toolbar flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-sm">
             {/* Search and Status Dropdown */}
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 flex-1">
                 {/* Search Input */}
@@ -42,7 +42,7 @@ export default function StaffFilters({
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search staff, department, head..."
-                        className="ui-field w-full pl-9 pr-8 py-2 text-sm font-medium border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors"
+                        className="ui-field w-full pl-9 pr-8 py-2 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
                     />
                     <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     {searchQuery && (

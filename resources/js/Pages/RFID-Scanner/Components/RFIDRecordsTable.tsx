@@ -175,27 +175,27 @@ export default function RFIDRecordsTable({
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/90 dark:border-slate-800 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 overflow-hidden">
             {/* Header: Collapsible section */}
-            <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/80 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/80 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800">
                 <Button variant="secondary"
                     type="button"
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className="flex items-center gap-3 text-left group"
                 >
-                    <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:border-red-900/40 transition-colors">
+                    <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:border-red-900/40 transition-colors">
                         <TableProperties className="w-4 h-4 text-red-950 dark:text-red-400" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 RFID Assignment Registry
                             </h3>
                             <span className="text-sm tabular-nums font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
                                 {taggedPercent}% Tagged
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium">
                             {taggedCount} of {items.length} items configured • Click to {isCollapsed ? 'view records table' : 'hide'}
                         </p>
                     </div>
@@ -204,13 +204,13 @@ export default function RFIDRecordsTable({
                 <div className="flex items-center gap-3">
                     {/* Mini progress bar */}
                     <div className="hidden sm:flex items-center gap-2">
-                        <div className="w-24 h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-24 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-emerald-600 rounded-full transition-all duration-500"
                                 style={{ width: `${taggedPercent}%` }}
                             />
                         </div>
-                        <span className="text-sm tabular-nums text-gray-500 dark:text-slate-400">
+                        <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400">
                             {taggedCount}/{items.length}
                         </span>
                     </div>
@@ -234,7 +234,7 @@ export default function RFIDRecordsTable({
             {!isCollapsed && (
                 <div>
                     {/* Compact Filter Toolbar */}
-                    <div className="table-toolbar px-4 sm:px-6 py-3.5 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="table-toolbar px-4 sm:px-6 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 max-w-none sm:max-w-sm">
                             <div className="relative w-full">
                                 <input
@@ -243,7 +243,7 @@ export default function RFIDRecordsTable({
                                     value={localSearch}
                                     onChange={(e) => setLocalSearch(e.target.value)}
                                     placeholder="Search by name, property no, or tag..."
-                                    className="ui-field h-10 w-full pl-8 pr-7 text-sm bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-lg placeholder-gray-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
+                                    className="ui-field h-10 w-full pl-8 pr-7 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
                                 />
                                 <Search className="pointer-events-none w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                                 {localSearch && (
@@ -266,7 +266,7 @@ export default function RFIDRecordsTable({
                         </form>
 
                         {/* Segmented Filter Control */}
-                        <div className="inline-flex rounded-lg border border-gray-200/90 dark:border-slate-700 p-1 bg-gray-100/80 dark:bg-slate-800/80 text-sm shadow-sm overflow-x-auto justify-between sm:justify-start">
+                        <div className="inline-flex rounded-lg border border-slate-200/90 dark:border-slate-700 p-1 bg-slate-100/80 dark:bg-slate-800/80 text-sm shadow-sm overflow-x-auto justify-between sm:justify-start">
                             <Button variant="primary"
                                 type="button"
                                 onClick={() => handleServerFilterChange('all')}
@@ -274,7 +274,7 @@ export default function RFIDRecordsTable({
                                 className="inline-flex items-center gap-1.5"
                             >
                                 <span>All</span>
-                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 tabular-nums">
+                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 tabular-nums">
                                     {items.length}
                                 </span>
                             </Button>
@@ -305,9 +305,9 @@ export default function RFIDRecordsTable({
 
                     {/* Table View */}
                     <div className="overflow-x-auto w-full min-w-0">
-                        <table className="ui-data-table w-full min-w-[53rem] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800 border-collapse">
+                        <table className="ui-data-table w-full min-w-[53rem] text-left text-sm divide-y divide-slate-200 dark:divide-slate-800 border-collapse">
                             <thead>
-                                <tr className="bg-gray-50/60 dark:bg-slate-950 text-gray-500 dark:text-slate-400 font-semibold text-sm border-b border-gray-200 dark:border-slate-800">
+                                <tr className="bg-slate-50/60 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-semibold text-sm border-b border-slate-200 dark:border-slate-800">
                                     <SortableTableHeader column="name" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 whitespace-nowrap min-w-[12.5rem] align-middle">Item Description</SortableTableHeader>
                                     <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 tabular-nums whitespace-nowrap align-middle">Property No.</SortableTableHeader>
                                     <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 tabular-nums whitespace-nowrap align-middle">RFID Tag ID</SortableTableHeader>
@@ -315,13 +315,13 @@ export default function RFIDRecordsTable({
                                     <th scope="col" className="py-3.5 px-6 text-right font-semibold text-sm whitespace-nowrap min-w-[10rem] align-middle">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
+                            <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                 {displayItems.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="py-10 text-center">
                                             <div className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
-                                                <Filter className="w-6 h-6 mb-2 text-gray-300 dark:text-slate-400" />
-                                                <p className="leading-relaxed text-sm font-medium text-gray-600 dark:text-slate-300">No matching items found</p>
+                                                <Filter className="w-6 h-6 mb-2 text-slate-300 dark:text-slate-400" />
+                                                <p className="leading-relaxed text-sm font-medium text-slate-600 dark:text-slate-300">No matching items found</p>
                                                 <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">Try adjusting your search or status filter</p>
                                             </div>
                                         </td>
@@ -334,10 +334,10 @@ export default function RFIDRecordsTable({
                                         return (
                                             <tr
                                                 key={item.id}
-                                                className={`transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 ${isSelected ? "bg-red-50/70 dark:bg-red-950/40" : "hover:bg-red-50/20 dark:hover:bg-red-950/20"}`}
+                                                className={`transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0 ${isSelected ? "bg-red-50/70 dark:bg-red-950/40" : "hover:bg-red-50/20 dark:hover:bg-red-950/20"}`}
                                             >
                                                 <td className="py-3.5 px-6 align-middle min-w-[12.5rem] break-words">
-                                                    <div className="font-medium text-gray-900 dark:text-slate-100 text-sm">
+                                                    <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">
                                                         {item.name}
                                                     </div>
                                                     {item.supplier_name && (
@@ -346,8 +346,8 @@ export default function RFIDRecordsTable({
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="py-3.5 px-6 align-middle tabular-nums text-gray-600 dark:text-slate-400 text-sm">
-                                                    <span className="bg-gray-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-gray-200/80 dark:border-slate-700 text-gray-700 dark:text-slate-300">
+                                                <td className="py-3.5 px-6 align-middle tabular-nums text-slate-600 dark:text-slate-400 text-sm">
+                                                    <span className="bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-300">
                                                         {item.sku || 'N/A'}
                                                     </span>
                                                 </td>
@@ -364,7 +364,7 @@ export default function RFIDRecordsTable({
                                                             {copiedTag === item.rfid_tag ? (
                                                                 <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 ml-0.5" />
                                                             ) : (
-                                                                <Copy className="w-3 h-3 text-slate-500 dark:text-slate-400 group-hover:text-gray-700 dark:group-hover:text-slate-300 ml-0.5" />
+                                                                <Copy className="w-3 h-3 text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 ml-0.5" />
                                                             )}
                                                         </Button>
                                                     ) : (
@@ -412,11 +412,11 @@ export default function RFIDRecordsTable({
 
                     {/* Server-side Pagination footer if paginator present */}
                     {pagination && pagination.last_page > 1 && (
-                        <div className="ui-pagination px-4 sm:px-6 py-3.5 bg-gray-50/70 dark:bg-slate-950/70 border-t border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-600 dark:text-slate-400 text-center sm:text-left">
+                        <div className="ui-pagination px-4 sm:px-6 py-3.5 bg-slate-50/70 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
                             <div>
-                                Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{pagination.from ?? 0}</span> to{' '}
-                                <span className="font-semibold text-gray-900 dark:text-slate-100">{pagination.to ?? 0}</span> of{' '}
-                                <span className="font-semibold text-gray-900 dark:text-slate-100">{pagination.total}</span> records
+                                Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.from ?? 0}</span> to{' '}
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.to ?? 0}</span> of{' '}
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">{pagination.total}</span> records
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Button variant="secondary"
@@ -427,7 +427,7 @@ export default function RFIDRecordsTable({
                                 >
                                     Previous
                                 </Button>
-                                <span className="px-2 tabular-nums text-gray-700 dark:text-slate-300 font-semibold">
+                                <span className="px-2 tabular-nums text-slate-700 dark:text-slate-300 font-semibold">
                                     {pagination.current_page} / {pagination.last_page}
                                 </span>
                                 <Button variant="secondary"

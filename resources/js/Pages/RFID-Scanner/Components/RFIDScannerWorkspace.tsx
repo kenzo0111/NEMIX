@@ -54,7 +54,7 @@ export default function RFIDScannerWorkspace({
     const hasSelectedItem = workflowState.type !== 'idle';
 
     return (
-        <div data-tour="system-admin-rfid-scanner" className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-slate-800 flex flex-col justify-between min-h-[420px]">
+        <div data-tour="system-admin-rfid-scanner" className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-h-[420px]">
             {/* Hidden hardware scanner keystroke receiver */}
             <input
                 type="text"
@@ -67,21 +67,21 @@ export default function RFIDScannerWorkspace({
             />
 
             {/* Header: Title and Connection Indicator */}
-            <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-gray-100 dark:border-slate-800 mb-6">
+            <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0 shadow-sm">
                         <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 RFID Reader Station
                             </h2>
-                            <span className="text-sm normal-case tabular-nums px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 font-semibold border border-gray-200/70 dark:border-slate-700">
+                            <span className="text-sm normal-case tabular-nums px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold border border-slate-200/70 dark:border-slate-700">
                                 Live HID Wedge
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                             {hasSelectedItem
                                 ? 'Armed for input: scan tag via handheld reader or type code'
                                 : 'Awaiting item selection from catalog to arm scanner'}

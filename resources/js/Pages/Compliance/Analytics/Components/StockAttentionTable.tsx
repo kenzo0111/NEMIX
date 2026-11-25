@@ -35,12 +35,12 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
 
     return (
         <Card>
-            <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <CardTitle className="text-sm font-semibold text-gray-900 dark:text-slate-100 font-sans">
+                    <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Stock Requiring Attention
                     </CardTitle>
-                    <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
+                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                         Inventory items reaching or below safety replenishment thresholds
                     </CardDescription>
                 </div>
@@ -57,7 +57,7 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                     <div className="w-full min-w-0 overflow-x-auto">
                         <Table className="min-w-[40.625rem]">
                             <TableHeader>
-                                <TableRow className="bg-gray-50/60 dark:bg-slate-800/60 hover:bg-gray-50/60 dark:hover:bg-slate-800/60">
+                                <TableRow className="bg-slate-50/60 dark:bg-slate-800/60 hover:bg-slate-50/60 dark:hover:bg-slate-800/60">
                                     <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pl-6 py-3.5 align-middle">Item Name & SKU</SortableTableHeader>
                                     <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Stock On Hand</SortableTableHeader>
                                     <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3.5 align-middle">Unit of Issue</SortableTableHeader>
@@ -69,17 +69,17 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                 {sortedRows.map((item) => {
                                     const isOut = Number(item.stock) <= 0;
                                     return (
-                                        <TableRow key={item.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/50">
+                                        <TableRow key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
                                             <TableCell className="pl-6 py-3.5 align-middle">
                                                 <div>
-                                                    <p className="leading-relaxed font-semibold text-gray-900 dark:text-slate-100 text-sm">{item.name}</p>
-                                                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">SKU: {item.sku || 'N/A'}</p>
+                                                    <p className="leading-relaxed font-semibold text-slate-900 dark:text-slate-100 text-sm">{item.name}</p>
+                                                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums">SKU: {item.sku || 'N/A'}</p>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right py-3.5 font-semibold tabular-nums text-sm text-gray-900 dark:text-slate-100 align-middle">
+                                            <TableCell className="text-right py-3.5 font-semibold tabular-nums text-sm text-slate-900 dark:text-slate-100 align-middle">
                                                 {Number(item.stock).toLocaleString('en-PH')}
                                             </TableCell>
-                                            <TableCell className="text-center py-3.5 text-sm text-gray-600 dark:text-slate-400 align-middle">
+                                            <TableCell className="text-center py-3.5 text-sm text-slate-600 dark:text-slate-400 align-middle">
                                                 {item.unitOfIssue || 'Units'}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
@@ -90,7 +90,7 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                                     {isOut ? 'Critical / Out of Stock' : 'Low Stock'}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-right pr-6 py-3.5 tabular-nums text-sm text-gray-700 dark:text-slate-300 align-middle">
+                                            <TableCell className="text-right pr-6 py-3.5 tabular-nums text-sm text-slate-700 dark:text-slate-300 align-middle">
                                                 {formatCurrency(Number(item.amount || 0))}
                                             </TableCell>
                                         </TableRow>
@@ -102,8 +102,8 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                 ) : (
                     <div className="py-12 px-6 flex flex-col items-center justify-center text-center">
                         <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
-                        <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">All Stock Levels Normal</h4>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-sm">
+                        <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">All Stock Levels Normal</h4>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
                             No inventory items are currently at or below safety replenishment levels.
                         </p>
                     </div>

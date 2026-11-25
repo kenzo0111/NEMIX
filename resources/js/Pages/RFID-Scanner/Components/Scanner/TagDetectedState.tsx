@@ -43,7 +43,7 @@ export default function TagDetectedState({
                         <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center dark:text-emerald-300">
                             <Radio className="w-4 h-4" />
                         </div>
-                        <span className="tabular-nums text-xl font-semibold text-gray-900 tracking-normal dark:text-slate-300">
+                        <span className="tabular-nums text-xl font-semibold text-slate-900 tracking-normal dark:text-slate-300">
                             {tag}
                         </span>
                     </div>
@@ -72,16 +72,16 @@ export default function TagDetectedState({
             </div>
 
             {/* Target Item Preview Box */}
-            <div className="bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
                 <div className="flex items-center justify-between mb-1">
                     <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold dark:text-slate-300">
                         Target Inventory Record
                     </span>
-                    <span className="text-sm tabular-nums text-gray-500 dark:text-slate-300">
+                    <span className="text-sm tabular-nums text-slate-500 dark:text-slate-300">
                         SKU: {item.sku || 'N/A'}
                     </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{item.name}</p>
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
                 {item.supplier_name && (
                     <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-300">
                         Supplier: {item.supplier_name}
@@ -97,7 +97,7 @@ export default function TagDetectedState({
                     disabled={isAssigning}
                     className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <RotateCcw className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                     <span>Rescan</span>
                 </Button>
                 {can('rfid.assign') && <Button variant="primary"

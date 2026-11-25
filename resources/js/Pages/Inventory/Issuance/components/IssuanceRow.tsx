@@ -20,36 +20,36 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
     const totalQty = issuance.total_quantity ?? issuance.quantity ?? 0;
 
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
+        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0 group">
             {/* RIS / Issuance Number */}
-            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
+            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums tracking-normal">
                 {formatRisNumber(issuance.ris_number)}
             </td>
 
             {/* Recipient / Office (Normal text, no decorative circular avatars) */}
             <td className="px-4 lg:px-6 py-3.5 align-middle text-sm min-w-[11.25rem] max-w-xs break-words">
-                <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
+                <div className="font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                     {issuance.recipient}
                 </div>
                 {issuance.department && (
-                    <div className="text-sm text-gray-500 dark:text-slate-400 mt-0.5 leading-tight">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                         {issuance.department}
                     </div>
                 )}
             </td>
 
             {/* Items Issued */}
-            <td className="px-4 lg:px-6 py-3.5 align-middle text-sm text-gray-800 dark:text-slate-200 font-medium min-w-[11.25rem] max-w-sm break-words line-clamp-2" title={issuance.item}>
+            <td className="px-4 lg:px-6 py-3.5 align-middle text-sm text-slate-800 dark:text-slate-200 font-medium min-w-[11.25rem] max-w-sm break-words line-clamp-2" title={issuance.item}>
                 {issuance.item || 'N/A'}
             </td>
 
             {/* Total Quantity */}
-            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-900 dark:text-slate-100 font-semibold tabular-nums">
+            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-slate-900 dark:text-slate-100 font-semibold tabular-nums">
                 {totalQty} <span className="text-slate-500 dark:text-slate-400 text-sm font-normal font-sans">pcs</span>
             </td>
 
             {/* Date Issued */}
-            <td className="hidden md:table-cell px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
+            <td className="hidden md:table-cell px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums">
                 {displayDate}
             </td>
 

@@ -41,18 +41,18 @@ export default function RoleTable({
         <section
             data-tour="system-admin-role-directory"
             aria-labelledby="roles-heading"
-            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/90 dark:border-slate-800 overflow-hidden flex flex-col"
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col"
         >
             {/* Header with Search and Create Action */}
-            <div className="table-toolbar p-4 sm:p-5 border-b border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900">
+            <div className="table-toolbar p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900">
                 <div className="min-w-0">
                     <h2
                         id="roles-heading"
-                        className="text-xl font-semibold text-gray-900 dark:text-slate-100 truncate"
+                        className="text-xl font-semibold text-slate-900 dark:text-slate-100 truncate"
                     >
                         Configured Roles
                     </h2>
-                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Choose a role to review and change what its staff can do.
                     </p>
                 </div>
@@ -65,7 +65,7 @@ export default function RoleTable({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Search roles..."
                             aria-label="Search roles"
-                            className="ui-field w-full pl-8 pr-7 py-2 text-sm border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
+                            className="ui-field w-full pl-8 pr-7 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
                         />
                         <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
@@ -97,7 +97,7 @@ export default function RoleTable({
             <div className="overflow-x-auto flex-1 min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[48rem]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/90 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/90 text-sm font-semibold tracking-normal text-slate-600 dark:text-slate-300 normal-case">
                             <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[12.5rem]">
                                 Role
                             </SortableTableHeader>
@@ -107,12 +107,12 @@ export default function RoleTable({
                             <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[7.5rem]">
                                 Type
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap min-w-[10rem] text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                            <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap min-w-[10rem] text-sm font-semibold tracking-normal text-slate-600 dark:text-slate-300 normal-case">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200/80 dark:divide-slate-800 text-sm">
+                    <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800 text-sm">
                         {sortedRows.length > 0 ? (
                             sortedRows.map((role) => {
                                 const assignedCount =
@@ -122,7 +122,7 @@ export default function RoleTable({
                                 return (
                                     <tr
                                         key={role.id}
-                                        className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
+                                        className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 group"
                                     >
                                         {/* Role Name, Icon & Details */}
                                         <td className="px-6 py-3.5 align-middle min-w-[12.5rem]">
@@ -138,7 +138,7 @@ export default function RoleTable({
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm break-words">
+                                                    <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm break-words">
                                                         {role.name}
                                                     </span>
                                                     <div className="flex items-center gap-2 mt-0.5 text-sm text-slate-500 dark:text-slate-400">
@@ -147,8 +147,8 @@ export default function RoleTable({
                                                         </span>
                                                         {role.users_count !== undefined && (
                                                             <>
-                                                                <span className="text-gray-300 dark:text-slate-400">•</span>
-                                                                <span className="inline-flex items-center gap-1 text-gray-500 dark:text-slate-400 font-medium">
+                                                                <span className="text-slate-300 dark:text-slate-400">•</span>
+                                                                <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 font-medium">
                                                                     <Users className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                                                                     {role.users_count}{' '}
                                                                     {role.users_count === 1 ? 'user' : 'users'}
@@ -162,7 +162,7 @@ export default function RoleTable({
 
                                         {/* Permissions Count */}
                                         <td className="px-6 py-3.5 align-middle">
-                                            <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                                            <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
                                                 {assignedCount} {assignedCount === 1 ? 'permission' : 'permissions'}
                                             </span>
                                         </td>
@@ -175,8 +175,8 @@ export default function RoleTable({
                                                     System Role
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-slate-500"></span>
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500"></span>
                                                     Custom Role
                                                 </span>
                                             )}
@@ -216,10 +216,10 @@ export default function RoleTable({
                             })
                         ) : (
                             <tr>
-                                <td colSpan={4} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={4} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center gap-2">
-                                        <Search className="w-8 h-8 text-gray-300 dark:text-slate-400" />
-                                        <p className="leading-relaxed font-semibold text-gray-700 dark:text-slate-300 text-sm">
+                                        <Search className="w-8 h-8 text-slate-300 dark:text-slate-400" />
+                                        <p className="leading-relaxed font-semibold text-slate-700 dark:text-slate-300 text-sm">
                                             No roles match your search criteria.
                                         </p>
                                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
@@ -243,9 +243,9 @@ export default function RoleTable({
             </div>
 
             {/* Footer count */}
-            <div className="ui-pagination px-6 py-3.5 border-t border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-900/60 flex items-center justify-between">
-                <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
-                    Showing <span className="font-semibold text-gray-800 dark:text-slate-200">{roles.length}</span> configured {roles.length === 1 ? 'role' : 'roles'}
+            <div className="ui-pagination px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex items-center justify-between">
+                <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                    Showing <span className="font-semibold text-slate-800 dark:text-slate-200">{roles.length}</span> configured {roles.length === 1 ? 'role' : 'roles'}
                 </span>
             </div>
         </section>

@@ -187,7 +187,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
     ].filter(Boolean).length;
 
     return (
-        <div className={`table-toolbar bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 ${coordinatorLayout ? "rounded-xl shadow-sm p-4 sm:p-6" : "rounded-lg shadow-sm p-4"} space-y-3`}>
+        <div className={`table-toolbar bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 ${coordinatorLayout ? "rounded-xl shadow-sm p-4 sm:p-6" : "rounded-lg shadow-sm p-4"} space-y-3`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search Input matching system-wide toolbars */}
                 <div className="relative flex-1 min-w-[260px] max-w-md">
@@ -199,7 +199,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search name, email, or IP address..."
-                        className="ui-field table-control w-full pl-9 pr-8 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-normal text-slate-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                     {search && (
                         <Button variant="ghost" size="icon"
@@ -271,29 +271,29 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
 
             {/* Custom Date Range Row */}
             {showCustomDates && (
-                <div className="pt-2.5 border-t border-gray-100 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm bg-gray-50/60 dark:bg-slate-800/50 p-2.5 rounded-md">
-                    <span className="font-semibold text-gray-700 dark:text-slate-300 inline-flex items-center gap-1">
+                <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm bg-slate-50/60 dark:bg-slate-800/50 p-2.5 rounded-md">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
                         <CalendarIcon className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         Custom Date Range:
                     </span>
                     <div className="flex items-center gap-2">
-                        <label htmlFor="date_from" className="text-gray-500 dark:text-slate-400 font-medium text-sm">From</label>
+                        <label htmlFor="date_from" className="text-slate-500 dark:text-slate-400 font-medium text-sm">From</label>
                         <input
                             id="date_from"
                             type="date"
                             value={filters.date_from || ''}
                             onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                            className="ui-field table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                            className="ui-field table-control px-2.5 text-sm font-medium border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <label htmlFor="date_to" className="text-gray-500 dark:text-slate-400 font-medium text-sm">To</label>
+                        <label htmlFor="date_to" className="text-slate-500 dark:text-slate-400 font-medium text-sm">To</label>
                         <input
                             id="date_to"
                             type="date"
                             value={filters.date_to || ''}
                             onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                            className="ui-field table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                            className="ui-field table-control px-2.5 text-sm font-medium border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                         />
                     </div>
                 </div>

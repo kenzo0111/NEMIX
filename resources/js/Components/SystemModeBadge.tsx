@@ -197,7 +197,7 @@ export default function SystemModeBadge() {
 
       {/* Popover Switcher & Dynamic Runtime Diagnostics Panel */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-gray-950 border border-red-900/80 shadow-2xl text-gray-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150 xl:left-auto xl:right-0">
+        <div className="absolute left-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-slate-950 border border-red-900/80 shadow-2xl text-slate-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150 xl:left-auto xl:right-0">
           {/* Diagnostics Panel Header */}
           <div className="bg-red-950/90 border-b border-red-900 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -213,18 +213,18 @@ export default function SystemModeBadge() {
           </div>
 
           {/* Spacious Operational Diagnostics Grid */}
-          <div className="p-4 bg-gray-950 border-b border-gray-800/80 space-y-3">
+          <div className="p-4 bg-slate-950 border-b border-slate-800/80 space-y-3">
             {/* Metric Tiles (2x2 Grid) */}
             <div className="grid grid-cols-2 gap-2.5 tabular-nums text-sm">
-              <div className="p-2.5 rounded-lg bg-gray-900/80 border border-gray-800 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                   <Cpu className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>Node</span>
                 </div>
-                <strong className="text-gray-100 font-semibold">{serverNode}</strong>
+                <strong className="text-slate-100 font-semibold">{serverNode}</strong>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-gray-900/80 border border-gray-800 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                   <Activity className="w-4 h-4 text-sky-400 shrink-0" />
                   <span>Latency</span>
@@ -234,7 +234,7 @@ export default function SystemModeBadge() {
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-gray-900/80 border border-gray-800 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                   <Radio className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Status</span>
@@ -244,17 +244,17 @@ export default function SystemModeBadge() {
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-gray-900/80 border border-gray-800 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                   <ShieldCheck className="w-4 h-4 text-purple-400 shrink-0" />
                   <span>Security</span>
                 </div>
-                <strong className="text-gray-200 text-sm">{securityStatus}</strong>
+                <strong className="text-slate-200 text-sm">{securityStatus}</strong>
               </div>
             </div>
 
             {/* Database / Environment Detail Bar */}
-            <div className="p-2.5 rounded-lg bg-gray-900/80 border border-gray-800 flex items-center justify-between text-sm tabular-nums">
+            <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between text-sm tabular-nums">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                 <Database className="w-4 h-4 text-indigo-400 shrink-0" />
                 <span>Target Environment</span>
@@ -263,10 +263,10 @@ export default function SystemModeBadge() {
             </div>
 
             {/* Last Audit Action Bar */}
-            <div className="px-3 py-2 rounded-lg bg-gray-900/40 border border-gray-800/60 flex items-center justify-between text-sm text-slate-500 tabular-nums dark:text-slate-300">
+            <div className="px-3 py-2 rounded-lg bg-slate-900/40 border border-slate-800/60 flex items-center justify-between text-sm text-slate-500 tabular-nums dark:text-slate-300">
               <div className="flex items-center gap-1.5 min-w-0">
                 <UserCheck className="w-3.5 h-3.5 text-slate-500 shrink-0 dark:text-slate-300" />
-                <span className="truncate">Changed By: <strong className="text-gray-200 font-semibold">{changedBy}</strong></span>
+                <span className="truncate">Changed By: <strong className="text-slate-200 font-semibold">{changedBy}</strong></span>
               </div>
               <span className="shrink-0 text-slate-500 ml-2 dark:text-slate-300">{changedAt}</span>
             </div>
@@ -275,7 +275,7 @@ export default function SystemModeBadge() {
           {/* Mode Selector Section */}
           <div className="p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold normal-case tracking-normal text-gray-300 tabular-nums">
+              <div className="text-sm font-semibold normal-case tracking-normal text-slate-300 tabular-nums">
                 Select Active Operating Mode
               </div>
               {!isSystemAdmin && (
@@ -308,7 +308,7 @@ export default function SystemModeBadge() {
                     onClick={() => handleSelectModeClick(modeKey)}
                     className={`w-full text-left p-3 rounded-lg border transition-all flex items-center justify-between gap-3 ${isSelected
     ? `${item.badgeBg} ${item.badgeBorder} text-white shadow-md ring-1 ring-amber-400/50` : isSystemAdmin
-    ? "bg-gray-900/60 border-gray-800 hover:bg-gray-800 hover:border-gray-700 text-gray-200 cursor-pointer" : "bg-gray-900/20 border-gray-900 text-gray-500 cursor-not-allowed opacity-50"}`}
+    ? "bg-slate-900/60 border-slate-800 hover:bg-slate-800 hover:border-slate-700 text-slate-200 cursor-pointer" : "bg-slate-900/20 border-slate-900 text-slate-500 cursor-not-allowed opacity-50"}`}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2.5">
@@ -327,7 +327,7 @@ export default function SystemModeBadge() {
                         <Check className="w-4 h-4" />
                       </span>
                     ) : !isSystemAdmin ? (
-                      <Lock className="w-4 h-4 text-gray-600 shrink-0 dark:text-slate-300" />
+                      <Lock className="w-4 h-4 text-slate-600 shrink-0 dark:text-slate-300" />
                     ) : null}
                   </button>
                 );
@@ -336,8 +336,8 @@ export default function SystemModeBadge() {
           </div>
 
           {/* Footer Diagnostic Bar */}
-          <div className="bg-gray-900/90 px-4 py-2.5 border-t border-gray-800 flex items-center justify-between text-sm tabular-nums text-slate-500 dark:text-slate-300">
-            <span>CONFIG ID: <strong className="text-gray-300">SYS-CONFIG-01</strong></span>
+          <div className="bg-slate-900/90 px-4 py-2.5 border-t border-slate-800 flex items-center justify-between text-sm tabular-nums text-slate-500 dark:text-slate-300">
+            <span>CONFIG ID: <strong className="text-slate-300">SYS-CONFIG-01</strong></span>
             <span className="text-emerald-400 font-semibold normal-case tracking-normal">{activeMode}</span>
           </div>
         </div>
@@ -346,7 +346,7 @@ export default function SystemModeBadge() {
       {/* Mode Change Confirmation Flow Modal */}
       {confirmingMode && targetConfig && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-gray-950 border border-red-900/80 rounded-xl shadow-2xl text-gray-100 overflow-hidden font-sans text-sm">
+          <div className="w-full max-w-lg bg-slate-950 border border-red-900/80 rounded-xl shadow-2xl text-slate-100 overflow-hidden font-sans text-sm">
             {/* Modal Header */}
             <div className="bg-red-950 border-b border-red-900 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -358,7 +358,7 @@ export default function SystemModeBadge() {
               <button
                 type="button"
                 onClick={() => setConfirmingMode(null)}
-                className="text-slate-500 hover:text-gray-200 p-1 rounded dark:text-slate-300"
+                className="text-slate-500 hover:text-slate-200 p-1 rounded dark:text-slate-300"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -366,12 +366,12 @@ export default function SystemModeBadge() {
 
             {/* Modal Content */}
             <div className="p-6 space-y-4">
-              <div className="p-4 bg-gray-900 rounded-lg border border-gray-800 space-y-2">
+              <div className="p-4 bg-slate-900 rounded-lg border border-slate-800 space-y-2">
                 <div className="text-sm text-slate-500 dark:text-slate-300">
                   You are switching the system operating mode from:
                 </div>
                 <div className="flex items-center gap-2.5 tabular-nums font-semibold text-sm">
-                  <span className="px-3 py-1.5 rounded bg-gray-800 border border-gray-700 text-gray-300">
+                  <span className="px-3 py-1.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
                     {activeMode}
                   </span>
                   <span className="text-amber-400 text-sm">➔</span>
@@ -394,7 +394,7 @@ export default function SystemModeBadge() {
 
               {/* Reason for change field for Audit Log */}
               <div className="space-y-1.5">
-                <label className="block text-sm tabular-nums font-semibold normal-case tracking-normal text-gray-300">
+                <label className="block text-sm tabular-nums font-semibold normal-case tracking-normal text-slate-300">
                   Reason for Mode Change (Recorded in Audit Log)
                 </label>
                 <input
@@ -402,22 +402,22 @@ export default function SystemModeBadge() {
                   value={reasonInput}
                   onChange={(e) => setReasonInput(e.target.value)}
                   placeholder="e.g. Scheduled System Audit / Staff Training Session..."
-                  className="ui-field w-full px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-100 placeholder-gray-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none font-sans"
+                  className="ui-field w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none font-sans"
                 />
               </div>
 
               <p className="leading-relaxed text-sm text-slate-500 tabular-nums dark:text-slate-300">
-                This action will be authenticated under administrator <strong className="text-gray-200">{pageProps.auth?.user?.name}</strong> and logged in the official audit trail ledger.
+                This action will be authenticated under administrator <strong className="text-slate-200">{pageProps.auth?.user?.name}</strong> and logged in the official audit trail ledger.
               </p>
             </div>
 
             {/* Modal Actions */}
-            <div className="bg-gray-900 px-6 py-4 border-t border-gray-800 flex items-center justify-end gap-3 tabular-nums">
+            <div className="bg-slate-900 px-6 py-4 border-t border-slate-800 flex items-center justify-end gap-3 tabular-nums">
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => setConfirmingMode(null)}
-                className="px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-800 text-gray-300 font-semibold transition-colors text-sm"
+                className="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -425,7 +425,7 @@ export default function SystemModeBadge() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmModeSwitch}
-                className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold transition-colors flex items-center gap-2 shadow-sm text-sm"
+                className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold transition-colors flex items-center gap-2 shadow-sm text-sm"
               >
                 {isSubmitting ? (
                   <>

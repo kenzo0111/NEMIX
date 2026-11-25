@@ -98,16 +98,16 @@ export default function AddSignatoryDialog({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
                             <UserPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Add New Signatory
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
                                 Register authorized personnel to the official directory.
                             </p>
                         </div>
@@ -134,7 +134,7 @@ export default function AddSignatoryDialog({
                         )}
 
                         <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
                                 Full Name <span className="text-red-600 dark:text-red-300">*</span>
                             </label>
                             <input
@@ -143,14 +143,14 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setName(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. JUAN DELA CRUZ, PhD"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
                                 autoFocus
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
                                 Official Designation / Title <span className="text-red-600 dark:text-red-300">*</span>
                             </label>
                             <input
@@ -159,13 +159,13 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setDesignation(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5">
                                 Office / Department <span className="text-slate-500 dark:text-slate-400 text-sm font-normal normal-case">(Optional)</span>
                             </label>
                             <input
@@ -174,13 +174,13 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setOffice(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. Supply & Property Management Office (SPMO)"
-                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
+                                className="ui-field w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors shadow-sm disabled:bg-slate-50 dark:disabled:bg-slate-800"
                             />
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
                         <Button variant="secondary"
                             type="button"
                             onClick={onClose}

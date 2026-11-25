@@ -9,7 +9,7 @@ interface ScannerReadyStateProps {
 
 export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerReadyStateProps) {
     return (
-        <div className="text-center py-8 px-5 bg-gradient-to-b from-gray-50/40 via-white to-gray-50/20 rounded-xl border border-gray-200/90 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="text-center py-8 px-5 bg-gradient-to-b from-gray-50/40 via-white to-gray-50/20 rounded-xl border border-slate-200/90 flex flex-col items-center justify-center relative overflow-hidden">
             {/* Target Item Ribbon */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-sm font-medium mb-5 dark:text-red-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-800 animate-pulse" />
@@ -29,10 +29,10 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
 
             {/* Title & Status */}
             <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-900 font-sans dark:text-slate-300">
+                <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-300">
                     Scanner Active & Listening
                 </h3>
-                <p className="text-sm text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed dark:text-slate-300">
+                <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed dark:text-slate-300">
                     Present the physical RFID card or tag to the handheld reader trigger.
                 </p>
             </div>
@@ -43,10 +43,10 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
                 <span>USB HID Reader Synchronized</span>
             </div>
 
-            <div className="w-32 border-t border-gray-100 my-4" />
+            <div className="w-32 border-t border-slate-100 my-4" />
 
             {/* Manual entry fallback option */}
-            <div className="flex items-center justify-center gap-1.5 text-sm text-gray-500 dark:text-slate-300">
+            <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500 dark:text-slate-300">
                 <span>Scanner unavailable?</span>
                 <Button variant="secondary"
                     type="button"

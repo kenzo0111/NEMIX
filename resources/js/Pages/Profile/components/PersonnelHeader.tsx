@@ -1,3 +1,4 @@
+import StatusBadge from '@/Components/ui/status-badge';
 import React from 'react';
 import { UserProfileDetails } from '../types';
 
@@ -46,25 +47,15 @@ export default function PersonnelHeader({ profile }: Props) {
 
                 {/* Inline Restrained Status Overview Strip */}
                 <div className="flex flex-wrap items-center gap-2 self-start md:self-auto shrink-0">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
-                        <span className={`h-2 w-2 rounded-full ${isActive ? "bg-emerald-400" : "bg-slate-400"}`} />
-                        <span className="text-red-200">Account:</span>
-                        <span className={`font-semibold tabular-nums ${isActive ? "text-emerald-300" : "text-slate-300"}`}>
-                            {isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
-                        <span className="h-2 w-2 rounded-full bg-amber-400" />
-                        <span className="text-red-200">Role:</span>
-                        <span className="font-semibold text-amber-300 tabular-nums">{profile.role || 'Personnel'}</span>
-                    </div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
-                        <span className={`h-2 w-2 rounded-full ${isVerified ? "bg-emerald-400" : "bg-amber-400"}`} />
-                        <span className="text-red-200">Identity:</span>
-                        <span className={`font-semibold tabular-nums ${isVerified ? "text-emerald-300" : "text-amber-300"}`}>
-                            {isVerified ? 'Verified' : 'Pending'}
-                        </span>
-                    </div>
+                    <StatusBadge tone={isActive ? 'success' : 'neutral'}>
+                        Account: {isActive ? 'Active' : 'Inactive'}
+                    </StatusBadge>
+                    <StatusBadge tone="warning">
+                        Role: {profile.role || 'Personnel'}
+                    </StatusBadge>
+                    <StatusBadge tone={isVerified ? 'success' : 'warning'}>
+                        Identity: {isVerified ? 'Verified' : 'Pending'}
+                    </StatusBadge>
                 </div>
             </div>
         </div>

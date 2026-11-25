@@ -155,17 +155,17 @@ export default function LoginAuditIndex({
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-login-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Subtle Institutional Security Header Banner */}
-                        <div className={`${isCoordinator ? "hidden" : "flex"} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-sm`}>
+                        <div className={`${isCoordinator ? "hidden" : "flex"} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-sm`}>
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/40">
                                     <ShieldCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                                         Authentication Audit Ledger
                                     </span>
-                                    <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-700">•</span>
-                                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
+                                    <span className="hidden sm:inline-block mx-2 text-slate-300 dark:text-slate-700">•</span>
+                                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                                         Official read-only authentication audit trail
                                     </span>
                                 </div>
@@ -182,7 +182,7 @@ export default function LoginAuditIndex({
                                     className="inline-flex items-center gap-1.5"
                                     title="Print or export official authentication audit ledger"
                                 >
-                                    <Printer className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
+                                    <Printer className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                     <span>Print Ledger</span>
                                 </Button>
                             </div>

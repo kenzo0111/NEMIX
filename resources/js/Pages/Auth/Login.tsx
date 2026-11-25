@@ -64,11 +64,11 @@ export default function Login({
                     <InputLabel
                         htmlFor="email"
                         value="Official Email Address"
-                        className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans"
+                        className="text-slate-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans"
                     />
                     <div className="relative rounded-lg shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
-                            <Mail className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                            <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                         </div>
                         <AuthTextInput aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined}
                             id="email"
@@ -105,9 +105,9 @@ export default function Login({
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
-                            className="w-4 h-4 rounded border-stone-300 dark:border-slate-700 text-[#7B1113] dark:text-red-300 focus:ring-[#7B1113]/30 dark:focus:ring-red-500/40"
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-red-900 dark:text-red-300 focus:ring-red-900/30 dark:focus:ring-red-300/40"
                         />
-                        <span className="text-sm text-stone-700 dark:text-slate-300 font-medium font-sans">
+                        <span className="text-sm text-slate-700 dark:text-slate-300 font-medium font-sans">
                             Remember me
                         </span>
                     </label>
@@ -115,7 +115,7 @@ export default function Login({
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="text-sm font-semibold text-[#7B1113] dark:text-red-400 hover:text-[#5e0d0f] dark:hover:text-red-300 hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded-sm py-2 px-1 font-sans"
+                            className="text-sm font-semibold text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-900 dark:focus-visible:ring-red-300 rounded-sm py-2 px-1 font-sans"
                         >
                             Forgot password?
                         </Link>

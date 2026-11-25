@@ -164,7 +164,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 key={`rsmi-page-${idx}`}
                                 className="rsmi-yearly-page-break print:break-before-page print:page-break-before-always mb-8 print:mb-0"
                             >
-                                <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                                <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                                     <RSMIFormPaper data={form} />
                                 </Suspense>
                             </div>
@@ -175,7 +175,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
             if (normalized.rsmiData) {
                 return (
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <RSMIFormPaper data={normalized.rsmiData} />
                     </Suspense>
                 );
@@ -185,7 +185,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
         if (formData.type === 'RPCI' && normalized.rpciData) {
             return (
                 <div className="min-w-[1000px] print:min-w-0 overflow-x-auto print:overflow-visible">
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
                 </div>
@@ -195,7 +195,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
         if (formData.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
                 <div className="min-w-[750px] print:min-w-0 overflow-x-auto print:overflow-visible">
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
                 </div>
@@ -204,7 +204,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
         if ((formData.type === 'MR' || formData.type === 'MOR') && normalized.mrData) {
             return (
-                <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                     <MRFormPaper data={normalized.mrData} />
                 </Suspense>
             );
@@ -221,12 +221,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             closeable={!isSubmitting}
             ariaLabel="Generate Official Report"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-gray-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
                 {/* Modal Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0 print:hidden compliance-print-hide">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0 print:hidden compliance-print-hide">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 flex items-center justify-center text-red-900 dark:text-red-300 shadow-sm shrink-0">
                             {currentStep === 'configure' ? (
@@ -241,10 +241,10 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {currentStep === 'configure' ? 'Generate Official COA Report' : `${formData.type} Report Preview`}
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
                                 {currentStep === 'configure'
                                     ? 'Step 1 of 2: Configure reporting criteria and required parameters'
                                     : `Step 2 of 2: Authoritative preview for Reference ${previewDataset?.reference || formData.reference || 'Pending'}`}
@@ -254,10 +254,10 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                     <div className="flex items-center gap-2.5 shrink-0 ml-2">
                         {/* 2-Step Interactive Badge */}
-                        <div className="hidden sm:flex items-center bg-gray-100 dark:bg-slate-800 p-0.5 rounded-lg border border-gray-200/80 dark:border-slate-700">
+                        <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200/80 dark:border-slate-700">
                             <span
                                 className={`px-2.5 py-1 rounded-md text-sm font-semibold transition-all ${currentStep === 'configure'
-    ? "bg-white dark:bg-slate-900 text-red-900 dark:text-red-300 shadow-sm font-semibold" : "text-gray-500 dark:text-slate-400"}`}
+    ? "bg-white dark:bg-slate-900 text-red-900 dark:text-red-300 shadow-sm font-semibold" : "text-slate-500 dark:text-slate-400"}`}
                             >
                                 1. Configure
                             </span>
@@ -284,12 +284,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                 </DialogHeader>
 
                 {/* Modal Content */}
-                <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 bg-gray-50/40 dark:bg-slate-950/60">
+                <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-50/40 dark:bg-slate-950/60">
                     {currentStep === 'configure' ? (
                         <div className="space-y-4">
                             {/* Card 1: Report Specification & Document Metadata */}
-                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-4">
-                                <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-slate-800">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-4">
+                                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
                                     <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                         <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                         1. Report Specification
@@ -299,7 +299,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                                 {/* Report Type */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                         Report Type <span className="text-red-700 dark:text-red-300">*</span>
                                     </label>
                                     <Select
@@ -310,7 +310,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                         isSearchable={false}
                                     />
                                     {formData.type && (
-                                        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1.5 leading-relaxed bg-gray-50/80 dark:bg-slate-800/80 p-2 rounded-md border border-gray-100 dark:border-slate-700">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed bg-slate-50/80 dark:bg-slate-800/80 p-2 rounded-md border border-slate-100 dark:border-slate-700">
                                             {REPORT_TYPE_OPTIONS.find((opt) => opt.value === formData.type)?.description}
                                         </p>
                                     )}
@@ -319,7 +319,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 {/* Document Title & Date */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Document Title
                                         </label>
                                         <input
@@ -327,27 +327,27 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                             value={formData.title}
                                             onChange={(e) => updateField('title', e.target.value)}
                                             placeholder="e.g. RSMI - Monthly Supplies Issuance"
-                                            className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                            className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Report Generation Date
                                         </label>
                                         <input
                                             type="date"
                                             value={formData.generatedDate}
                                             onChange={(e) => updateField('generatedDate', e.target.value)}
-                                            className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                            className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Card 2: Coverage Period Selection */}
-                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 space-y-3.5 shadow-sm">
-                                <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-slate-800">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-3.5 shadow-sm">
+                                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
                                     <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                         <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                         2. Audit Coverage Period
@@ -357,7 +357,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Period Format
                                         </label>
                                         <Select
@@ -371,14 +371,14 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                                     {formData.periodType === 'specific' && (
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                 Audit Date
                                             </label>
                                             <input
                                                 type="date"
                                                 value={formData.date}
                                                 onChange={(e) => updateField('date', e.target.value)}
-                                                className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                                className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                             />
                                         </div>
                                     )}
@@ -386,7 +386,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     {formData.periodType === 'monthly' && (
                                         <div className="flex items-center gap-2 w-full">
                                             <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     Month
                                                 </label>
                                                 <Select
@@ -398,7 +398,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                                 />
                                             </div>
                                             <div className="w-28">
-                                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     Year
                                                 </label>
                                                 <input
@@ -407,7 +407,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                                     max="2100"
                                                     value={formData.selectedYear}
                                                     onChange={(e) => updateField('selectedYear', parseInt(e.target.value, 10))}
-                                                    className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                                 />
                                             </div>
                                         </div>
@@ -415,7 +415,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                                     {formData.periodType === 'yearly' && (
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                 Fiscal Year
                                             </label>
                                             <input
@@ -424,7 +424,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                                 max="2100"
                                                 value={formData.selectedYear}
                                                 onChange={(e) => updateField('selectedYear', parseInt(e.target.value, 10))}
-                                                className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                                className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                             />
                                         </div>
                                     )}
@@ -432,25 +432,25 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     {formData.periodType === 'range' && (
                                         <div className="flex items-center gap-2 w-full">
                                             <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     From
                                                 </label>
                                                 <input
                                                     type="date"
                                                     value={formData.startDate}
                                                     onChange={(e) => updateField('startDate', e.target.value)}
-                                                    className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     To
                                                 </label>
                                                 <input
                                                     type="date"
                                                     value={formData.endDate}
                                                     onChange={(e) => updateField('endDate', e.target.value)}
-                                                    className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                                 />
                                             </div>
                                         </div>
@@ -460,8 +460,8 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                             {/* Card 3: Form-Specific Parameters (Conditional) */}
                             {formData.type === 'STOCK_CARD' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
-                                    <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                             3. Ledger Item Specification
@@ -469,7 +469,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                         <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Required for Stock Card</span>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                             Target Item <span className="text-red-700 dark:text-red-300">*</span>
                                         </label>
                                         <Select
@@ -487,7 +487,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                             styles={customSelectStyles}
                                             isClearable
                                         />
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1.5">
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1.5">
                                             The Stock Card requires a specific item to compute chronological receipts, issuances, and running balances.
                                         </p>
                                     </div>
@@ -495,8 +495,8 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
 
                             {formData.type === 'MR' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
-                                    <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                             3. Property Recipient Filter
@@ -504,7 +504,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                         <span className="text-sm font-medium text-red-700 dark:text-red-300">Required for MR</span>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                             End User / Accountable Officer
                                         </label>
                                         <Select
@@ -520,8 +520,8 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
 
                             {formData.type === 'RPCI' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
-                                    <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                             3. Supplier Filter
@@ -529,7 +529,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Optional</span>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                             Supplier
                                         </label>
                                         <Select
@@ -560,7 +560,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                     ) : (
                         <div className="space-y-4 print:space-y-0">
                             {/* Summary metrics header banner */}
-                            <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 border-l-4 border-l-red-900 rounded-xl shadow-sm text-sm print:hidden compliance-print-hide">
+                            <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-red-900 rounded-xl shadow-sm text-sm print:hidden compliance-print-hide">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 flex items-center justify-center shrink-0">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -571,10 +571,10 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums block">
                                             Authoritative Dataset Summary
                                         </span>
-                                        <p className="font-semibold text-gray-900 dark:text-slate-100 mt-0.5">
+                                        <p className="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">
                                             <span className="font-semibold text-red-950 dark:text-red-300">{previewDataset?.summary?.recordCount ?? 0}</span> records identified
                                             {previewDataset?.summary?.totalUnits !== undefined && (
-                                                <> • <span className="font-semibold text-gray-800 dark:text-slate-200">{previewDataset.summary.totalUnits}</span> total units</>
+                                                <> • <span className="font-semibold text-slate-800 dark:text-slate-200">{previewDataset.summary.totalUnits}</span> total units</>
                                             )}
                                             {previewDataset?.summary?.totalAmount !== undefined && (
                                                 <> • <span className="font-semibold text-emerald-800 dark:text-emerald-400 tabular-nums">₱{Number(previewDataset.summary.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></>
@@ -584,11 +584,11 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 </div>
 
                                 <div className="flex items-center gap-2 tabular-nums text-sm">
-                                    <div className="px-2.5 py-1 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-md text-gray-600 dark:text-slate-300">
-                                        Ref: <strong className="text-gray-900 dark:text-slate-100">{previewDataset?.reference || formData.reference}</strong>
+                                    <div className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-600 dark:text-slate-300">
+                                        Ref: <strong className="text-slate-900 dark:text-slate-100">{previewDataset?.reference || formData.reference}</strong>
                                     </div>
-                                    <div className="px-2.5 py-1 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-md text-gray-600 dark:text-slate-300">
-                                        Coverage: <strong className="text-gray-900 dark:text-slate-100">{previewDataset?.coverageLabel}</strong>
+                                    <div className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-600 dark:text-slate-300">
+                                        Coverage: <strong className="text-slate-900 dark:text-slate-100">{previewDataset?.coverageLabel}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -604,7 +604,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 ref={reportPaperRef}
                                 className="bg-slate-100/90 dark:bg-slate-950 p-4 sm:p-7 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white print:block print:w-full print:shadow-none print:m-0 print:overflow-visible"
                             >
-                                <div className="shadow-md rounded-sm border border-gray-200/60 bg-white text-gray-900 print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible dark:text-slate-300 dark:bg-slate-900">
+                                <div className="shadow-md rounded-sm border border-slate-200/60 bg-white text-slate-900 print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible dark:text-slate-300 dark:bg-slate-900">
                                     <div className="compliance-print-area">
                                         {renderOfficialPaper()}
                                     </div>
@@ -615,7 +615,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                 </DialogBody>
 
                 {/* Modal Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-gray-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
                     {currentStep === 'preview' ? (
                         <Button variant="secondary"
                             type="button"
@@ -673,7 +673,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     disabled={isSubmitting || (formData.type === 'MR' && !previewDataset?.mr?.items?.length)}
                                     className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
                                 >
-                                    <svg className="w-3.5 h-3.5 text-gray-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                     </svg>
                                     <span>Print Preview</span>

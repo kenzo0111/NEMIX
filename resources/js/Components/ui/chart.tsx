@@ -157,7 +157,7 @@ const ChartTooltipContent = React.forwardRef<
 
       if (labelFormatter) {
         return (
-          <div className={cn("font-semibold text-gray-900 dark:text-slate-100", labelClassName)}>
+          <div className={cn("font-semibold text-slate-900 dark:text-slate-100", labelClassName)}>
             {labelFormatter(value, payload)}
           </div>
         )
@@ -167,7 +167,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-semibold text-gray-900 dark:text-slate-100", labelClassName)}>{value}</div>
+      return <div className={cn("font-semibold text-slate-900 dark:text-slate-100", labelClassName)}>{value}</div>
     }, [
       label,
       labelFormatter,
@@ -187,7 +187,7 @@ const ChartTooltipContent = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={cn("grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm shadow-md", className)}
+        className={cn("grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm shadow-md", className)}
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
@@ -199,7 +199,7 @@ const ChartTooltipContent = React.forwardRef<
             return (
               <div
                 key={item.dataKey || index}
-                className={cn("flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-gray-500 dark:[&>svg]:text-gray-400", indicator === "dot" && "items-center")}
+                className={cn("flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-slate-500 dark:[&>svg]:text-slate-400", indicator === "dot" && "items-center")}
               >
                 {formatter && item?.value !== undefined && item.name ? (
                   formatter(item.value, item.name, item, index, item.payload)
@@ -230,12 +230,12 @@ const ChartTooltipContent = React.forwardRef<
                     >
                       <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
-                        <span className="text-gray-600 dark:text-slate-400 font-medium">
+                        <span className="text-slate-600 dark:text-slate-400 font-medium">
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
                       {item.value !== undefined && (
-                        <span className="tabular-nums font-semibold text-gray-900 dark:text-slate-100 ml-2">
+                        <span className="tabular-nums font-semibold text-slate-900 dark:text-slate-100 ml-2">
                           {typeof item.value === "number"
                             ? item.value.toLocaleString('en-PH')
                             : item.value}
@@ -289,7 +289,7 @@ const ChartLegendContent = React.forwardRef<
           return (
             <div
               key={item.value}
-              className={cn("flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-gray-500 dark:[&>svg]:text-gray-400")}
+              className={cn("flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-slate-500 dark:[&>svg]:text-slate-400")}
             >
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
@@ -301,7 +301,7 @@ const ChartLegendContent = React.forwardRef<
                   }}
                 />
               )}
-              <span className="text-gray-700 dark:text-slate-300">{itemConfig?.label}</span>
+              <span className="text-slate-700 dark:text-slate-300">{itemConfig?.label}</span>
             </div>
           )
         })}

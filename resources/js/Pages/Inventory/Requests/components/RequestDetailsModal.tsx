@@ -52,16 +52,16 @@ export function RequestDetailsModal({
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Supply Request Details">
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-                <DialogHeader className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 shrink-0">
+                <DialogHeader className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center text-red-950 dark:text-red-400 border border-red-100 dark:border-red-900/40">
                             <ClipboardList className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold font-sans text-gray-900 dark:text-slate-100">
+                            <h3 className="text-lg font-semibold font-sans text-slate-900 dark:text-slate-100">
                                 {request.ris_number ? `Official RIS No. ${request.ris_number}` : `Supply Request #${request.id}`}
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                 Requisition details, custodian remarks, and item quantities (Req #{request.id})
                             </p>
                         </div>
@@ -88,7 +88,7 @@ export function RequestDetailsModal({
                     )}
                     <SupportingDocumentPanel request={request} />
                     {/* Status & RIS Header */}
-                    <div className="p-4 rounded-lg bg-gray-50/70 dark:bg-slate-800/40 border border-gray-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                    <div className="p-4 rounded-lg bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 mb-1 dark:text-slate-300">
                                 Current Status
@@ -105,18 +105,18 @@ export function RequestDetailsModal({
                         </div>
                     </div>
 
-                    <p className="text-sm text-gray-500 dark:text-slate-400">Submitted by: <strong>{request.requester?.name || 'Unavailable account'}</strong></p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Submitted by: <strong>{request.requester?.name || 'Unavailable account'}</strong></p>
                     {/* Request Metadata */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                 Requested by
                             </span>
-                            <span className="font-semibold text-gray-900 dark:text-slate-100">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100">
                                 {request.recipient || request.requester?.name || 'N/A'}
                             </span>
                             {request.recipient_designation && (
-                                <span className="block text-sm text-gray-500 dark:text-slate-400">
+                                <span className="block text-sm text-slate-500 dark:text-slate-400">
                                     {request.recipient_designation}
                                 </span>
                             )}
@@ -125,7 +125,7 @@ export function RequestDetailsModal({
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                 Office / Department
                             </span>
-                            <span className="font-semibold text-gray-900 dark:text-slate-100">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100">
                                 {request.department}
                             </span>
                         </div>
@@ -133,7 +133,7 @@ export function RequestDetailsModal({
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                 Date Requested
                             </span>
-                            <span className="tabular-nums text-gray-800 dark:text-slate-200">
+                            <span className="tabular-nums text-slate-800 dark:text-slate-200">
                                 {formatScreenDate(request.date_requested || request.created_at) || request.date_requested || request.created_at}
                             </span>
                         </div>
@@ -141,7 +141,7 @@ export function RequestDetailsModal({
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                 Fund Cluster
                             </span>
-                            <span className="font-medium text-gray-800 dark:text-slate-200">
+                            <span className="font-medium text-slate-800 dark:text-slate-200">
                                 {getFundClusterDisplay(request.fund_cluster) || '01 - Regular Agency Fund'}
                             </span>
                         </div>
@@ -149,7 +149,7 @@ export function RequestDetailsModal({
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                 Requisition Purpose
                             </span>
-                            <p className="mt-0.5 text-gray-800 dark:text-slate-200 leading-relaxed bg-gray-50 dark:bg-slate-950 p-2.5 rounded border border-gray-200 dark:border-slate-800">
+                            <p className="mt-0.5 text-slate-800 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-950 p-2.5 rounded border border-slate-200 dark:border-slate-800">
                                 {request.purpose}
                             </p>
                         </div>
@@ -157,11 +157,11 @@ export function RequestDetailsModal({
 
                     {/* Requested & Approved Items Table */}
                     <div>
-                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 Requested Items ({request.items.length})
                             </h4>
-                            <div className="text-right text-sm tabular-nums text-gray-500 dark:text-slate-300">
+                            <div className="text-right text-sm tabular-nums text-slate-500 dark:text-slate-300">
                                 <span>Total Requested: <strong>{totalRequested}</strong></span>
                                 {isApprovedOrIssued && (
                                     <span className="ml-3 text-red-950 dark:text-red-400 font-semibold">
@@ -171,9 +171,9 @@ export function RequestDetailsModal({
                             </div>
                         </div>
 
-                        <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
+                        <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                             <table className="ui-data-table w-full text-left text-sm min-w-[32rem]">
-                                <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums">
+                                <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
                                         <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3.5 py-3 align-middle">Item Description</SortableTableHeader>
                                         <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3.5 py-3 align-middle">SKU</SortableTableHeader>
@@ -181,13 +181,13 @@ export function RequestDetailsModal({
                                         <SortableTableHeader column="approved" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3.5 py-3 align-middle">Approved / Final Qty</SortableTableHeader>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {sortedRows.map((line) => (
-                                        <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/40">
-                                            <td className="px-3.5 py-3 font-medium text-gray-900 dark:text-slate-100 align-middle">
+                                        <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                                            <td className="px-3.5 py-3 font-medium text-slate-900 dark:text-slate-100 align-middle">
                                                 {line.item?.name || 'Unavailable item'}
                                             </td>
-                                            <td className="px-3.5 py-3 tabular-nums text-gray-500 align-middle dark:text-slate-300">
+                                            <td className="px-3.5 py-3 tabular-nums text-slate-500 align-middle dark:text-slate-300">
                                                 {line.item?.sku || '—'}
                                             </td>
                                             <td className="px-3.5 py-3 text-right tabular-nums align-middle">
@@ -214,7 +214,7 @@ export function RequestDetailsModal({
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 Custodian Remarks &amp; Instructions
                             </h4>
-                            <p className="text-gray-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-red-200/60 dark:border-red-900/60">
+                            <p className="text-slate-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-red-200/60 dark:border-red-900/60">
                                 "{request.review_remarks}"
                             </p>
                         </div>
@@ -231,11 +231,11 @@ export function RequestDetailsModal({
                                     <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                         Property Custodian (Issued By)
                                     </span>
-                                    <span className="font-semibold text-gray-800 dark:text-slate-200">
+                                    <span className="font-semibold text-slate-800 dark:text-slate-200">
                                         {request.issuance.issued_by_name || defaultIssuedBy || 'Supply Storekeeper'}
                                     </span>
                                     {(request.issuance.issued_by_position || defaultIssuedByDesignation) && (
-                                        <span className="block text-sm text-gray-500 dark:text-slate-300">
+                                        <span className="block text-sm text-slate-500 dark:text-slate-300">
                                             {request.issuance.issued_by_position || defaultIssuedByDesignation}
                                         </span>
                                     )}
@@ -244,7 +244,7 @@ export function RequestDetailsModal({
                                     <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                         Date Released
                                     </span>
-                                    <span className="tabular-nums text-gray-800 dark:text-slate-200">
+                                    <span className="tabular-nums text-slate-800 dark:text-slate-200">
                                         {request.issuance.date_issued ? formatScreenDate(request.issuance.date_issued) : '—'}
                                     </span>
                                 </div>
@@ -253,7 +253,7 @@ export function RequestDetailsModal({
                                         <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-300">
                                             Custodian Remarks &amp; Instructions
                                         </span>
-                                        <p className="mt-0.5 text-gray-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-emerald-200/70 dark:border-emerald-900/60">
+                                        <p className="mt-0.5 text-slate-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-emerald-200/70 dark:border-emerald-900/60">
                                             "{request.review_remarks}"
                                         </p>
                                     </div>
@@ -272,7 +272,7 @@ export function RequestDetailsModal({
                     )}
                 </DialogBody>
 
-                <DialogFooter className="table-toolbar px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <DialogFooter className="table-toolbar px-6 py-3.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap gap-2">
                         {!readOnly && onEdit && can('inventory.requests.update') && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && <Button variant="primary" type="button" onClick={() => onEdit(request)} className="">Edit request</Button>}
                         {!readOnly && onCancel && can('inventory.requests.cancel') && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && <Button variant="danger" type="button" disabled={busy} onClick={() => onCancel(request)} className="">{busy ? 'Cancelling…' : 'Cancel request'}</Button>}

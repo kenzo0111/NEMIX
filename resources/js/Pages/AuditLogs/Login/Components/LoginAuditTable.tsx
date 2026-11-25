@@ -45,17 +45,17 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
 
     if (records.length === 0) {
         return (
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-12 text-center shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
                 <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                     <div className="p-3 bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/40 rounded-full mb-3">
                         <Shield className="w-8 h-8" />
                     </div>
                     {hasActiveFilters ? (
                         <>
-                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
                                 No authentication records match the selected filters.
                             </h4>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
                                 Please adjust your search keyword, role, status, or date range to inspect other records.
                             </p>
                             {onResetFilters && (
@@ -70,10 +70,10 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                         </>
                     ) : (
                         <>
-                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
                                 No login audit records are available.
                             </h4>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Authentic authentication activity will automatically appear here as system users log in.
                             </p>
                         </>
@@ -84,11 +84,11 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
     }
 
     return (
-        <div className={`w-full min-w-0 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? "rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5" : "rounded-lg shadow-sm"}`}>
+        <div className={`w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? "rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5" : "rounded-lg shadow-sm"}`}>
             <div className="w-full min-w-0 overflow-x-auto">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[53rem]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
+                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 text-sm font-semibold text-slate-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-8 align-middle" aria-label="Expand or collapse row"></th>
                             <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[12.5rem] align-middle">User Details</SortableTableHeader>
                             <SortableTableHeader column="role" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[8.75rem] align-middle">Access Role</SortableTableHeader>
@@ -97,7 +97,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                             <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} align="center" className="py-3 px-4 whitespace-nowrap min-w-[7.5rem] align-middle">Result</SortableTableHeader>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                         {records.map((record) => {
                             const isExpanded = expandedRowId === record.id;
                             const isUnknown = !record.user_id && record.event === 'login_failed';
@@ -132,10 +132,10 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                         </td>
                                         <td className="py-3.5 px-4 align-middle">
                                             <div className="flex flex-col">
-                                                <span className="font-semibold text-gray-900 dark:text-slate-100 group-hover:text-red-950 dark:group-hover:text-red-300 transition-colors">
+                                                <span className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-red-950 dark:group-hover:text-red-300 transition-colors">
                                                     {displayName}
                                                 </span>
-                                                <span className="text-sm text-gray-500 dark:text-slate-400 font-normal">
+                                                <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">
                                                     {displayEmail}
                                                 </span>
                                             </div>
@@ -150,12 +150,12 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 <span className="text-slate-500 dark:text-slate-400 font-medium">—</span>
                                             )}
                                         </td>
-                                        <td className="py-3.5 px-4 text-gray-700 dark:text-slate-300 font-medium tabular-nums align-middle">
+                                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-medium tabular-nums align-middle">
                                             {formattedDate}
                                         </td>
                                         <td className="py-3.5 px-4 align-middle">
                                             <div className="inline-flex items-center gap-1.5">
-                                                <span className="tabular-nums text-sm text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 px-2 py-0.5 rounded shadow-sm">
+                                                <span className="tabular-nums text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 px-2 py-0.5 rounded shadow-sm">
                                                     {rawIp}
                                                 </span>
                                                 {rawIp !== '—' && (
@@ -181,40 +181,40 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
 
                                     {/* Expandable row with verified technical details */}
                                     {isExpanded && (
-                                        <tr className="bg-gray-50/60 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800">
+                                        <tr className="bg-slate-50/60 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800">
                                             <td colSpan={6} className="px-6 py-4">
-                                                <div className="bg-white dark:bg-slate-900 rounded-md border border-gray-200/80 dark:border-slate-800 p-3.5 shadow-sm">
-                                                    <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-gray-100 dark:border-slate-800 text-sm font-semibold text-gray-700 dark:text-slate-300">
+                                                <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200/80 dark:border-slate-800 p-3.5 shadow-sm">
+                                                    <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-100 dark:border-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300">
                                                         <Laptop className="w-4 h-4 text-red-900 dark:text-red-400" />
                                                         <span>Authentication Audit Forensics (Record #{record.id})</span>
                                                     </div>
                                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                                                         <div>
-                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Account Mapping</span>
-                                                            <span className="text-gray-900 dark:text-slate-100 font-medium">
+                                                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">Account Mapping</span>
+                                                            <span className="text-slate-900 dark:text-slate-100 font-medium">
                                                                 {record.user_id ? (
                                                                     <>User ID: <span className="tabular-nums font-semibold text-red-900 dark:text-red-400">#{record.user_id}</span></>
                                                                 ) : (
-                                                                    <span className="italic text-gray-500 dark:text-slate-400">Unmatched / Non-system account</span>
+                                                                    <span className="italic text-slate-500 dark:text-slate-400">Unmatched / Non-system account</span>
                                                                 )}
                                                             </span>
                                                         </div>
                                                         <div>
-                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Source IP</span>
-                                                            <span className="tabular-nums text-gray-900 dark:text-slate-100 font-medium">{rawIp}</span>
+                                                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">Source IP</span>
+                                                            <span className="tabular-nums text-slate-900 dark:text-slate-100 font-medium">{rawIp}</span>
                                                         </div>
                                                         <div>
-                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Canonical Event</span>
-                                                            <span className="tabular-nums text-gray-800 dark:text-slate-200 text-sm bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                                                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">Canonical Event</span>
+                                                            <span className="tabular-nums text-slate-800 dark:text-slate-200 text-sm bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                                                                 {record.event}
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-800">
-                                                        <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
+                                                    <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                                                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
                                                             Client User Agent
                                                         </span>
-                                                        <div className="tabular-nums text-sm text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-950 p-2 rounded border border-gray-200/80 dark:border-slate-800 break-all leading-relaxed select-all">
+                                                        <div className="tabular-nums text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-2 rounded border border-slate-200/80 dark:border-slate-800 break-all leading-relaxed select-all">
                                                             {record.user_agent || 'Client user agent was not recorded for this event.'}
                                                         </div>
                                                     </div>

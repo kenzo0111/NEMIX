@@ -44,11 +44,11 @@ export default function StaffTable({
     onSort,
 }: StaffTableProps) {
     return (
-        <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col w-full min-w-0">
+        <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col w-full min-w-0">
             <div className="overflow-x-auto min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[60rem]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 text-sm font-semibold tracking-normal text-slate-600 dark:text-slate-300 normal-case">
                             <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[12.5rem]">
                                 Staff Member
                             </SortableTableHeader>
@@ -64,12 +64,12 @@ export default function StaffTable({
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[7.5rem]">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case whitespace-nowrap min-w-[14rem]">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-slate-600 dark:text-slate-300 normal-case whitespace-nowrap min-w-[14rem]">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                         {staffs.length > 0 ? (
                             staffs.map((staff) => (
                                 <StaffTableRow
@@ -92,10 +92,10 @@ export default function StaffTable({
                                         <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center mb-3">
                                             <Search className="w-5 h-5" />
                                         </div>
-                                        <p className="leading-relaxed text-sm font-semibold text-gray-900 dark:text-slate-100">
+                                        <p className="leading-relaxed text-sm font-semibold text-slate-900 dark:text-slate-100">
                                             No staff accounts found
                                         </p>
-                                        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                             {hasActiveFilters
                                                 ? 'No staff members match the current search or status filter criteria.'
                                                 : 'There are currently no staff accounts registered in the system.'}
@@ -118,10 +118,10 @@ export default function StaffTable({
             </div>
 
             {/* Table Footer */}
-            <div className="ui-pagination px-4 sm:px-6 py-3.5 border-t border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
+            <div className="ui-pagination px-4 sm:px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500 dark:text-slate-400">
                 <span>
-                    Showing <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">{staffs.length}</span> of{' '}
-                    <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">{totalStaffCount}</span> staff accounts
+                    Showing <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">{staffs.length}</span> of{' '}
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">{totalStaffCount}</span> staff accounts
                 </span>
                 {hasActiveFilters && (
                     <span className="text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 px-2 py-0.5 rounded-md">

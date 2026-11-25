@@ -1,4 +1,5 @@
-import { Button } from '@/Components/ui/button';
+import { Button, actionLinkProps } from '@/Components/ui/button';
+import { DialogBody, DialogFooter, DialogHeader } from '@/Components/ui/dialog-frame';
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CalendarDays, Download, Eye, FileText, LoaderCircle, X } from 'lucide-react';
@@ -68,11 +69,12 @@ export default function StockCardDialog({ stock, onClose }: { stock: Stock | nul
     };
 
     const downloadButton = (
-        <a data-variant="primary" data-size="default"
+        <a
+            {...actionLinkProps('primary')}
             href={invalidRange ? undefined : downloadUrl}
             aria-disabled={invalidRange}
             tabIndex={invalidRange ? -1 : 0}
-            className={"ui-button " + (`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2 ${invalidRange ? "cursor-not-allowed opacity-50" : "hover:bg-red-950"}`)}
+            className={`ui-button min-h-11 ${invalidRange ? 'pointer-events-none cursor-not-allowed opacity-50' : ''}`}
         >
             <Download size={16} />Download PDF
         </a>
@@ -84,21 +86,21 @@ export default function StockCardDialog({ stock, onClose }: { stock: Stock | nul
         maxWidth={step === 'preview' ? '5xl' : 'lg'}
         ariaLabel={step === 'preview' ? 'Preview Stock Card' : 'Generate a Stock Card'}
     >
-        <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-6 dark:border-slate-800">
+        <DialogHeader>
             <div>
-                <p className="mb-2 text-sm font-semibold normal-case tracking-normal text-red-900 dark:text-red-300">Automated Reporting</p>
-                <h2 className="text-xl font-semibold">{step === 'preview' ? 'Stock Card Preview' : 'Generate Stock Card'}</h2>
+                <p className="mb-1 text-sm font-semibold text-red-900 dark:text-red-300">Automated Reporting</p>
+                <h2 className="text-slate-900 dark:text-slate-100">{step === 'preview' ? 'Stock Card Preview' : 'Generate Stock Card'}</h2>
                 <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     {step === 'preview' ? 'Review the official Appendix 58 form before downloading it.' : 'Official Appendix 58 · PDF document'}
                 </p>
             </div>
-            <Button variant="ghost" size="icon" type="button" onClick={closeDialog} aria-label="Close Stock Card dialog" className="">
+            <Button variant="ghost" size="icon" type="button" onClick={closeDialog} aria-label="Close Stock Card dialog">
                 <X size={19} />
             </Button>
-        </div>
+        </DialogHeader>
 
         {step === 'configure' ? <>
-            <div className="space-y-5 p-6">
+            <DialogBody className="space-y-5">
                 <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
                     <FileText size={22} className="shrink-0 text-red-900 dark:text-red-300" />
                     <div>
@@ -131,33 +133,34 @@ export default function StockCardDialog({ stock, onClose }: { stock: Stock | nul
                 {invalidRange && <p id="stock-card-date-error" role="alert" className="text-sm leading-relaxed text-red-700 dark:text-red-300">Choose an end date on or after the start date.</p>}
                 {previewError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm leading-relaxed text-red-800 dark:bg-red-950/40 dark:text-red-200">{previewError}</p>}
                 <p className="rounded-lg bg-slate-50 p-3 text-sm leading-relaxed text-slate-600 dark:bg-slate-800/60 dark:text-slate-400">Receipts, issues, and running balances are filled in automatically. Date-filtered reports include the opening balance for your selected period.</p>
-            </div>
+            </DialogBody>
 
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-950/40">
+            <DialogFooter className="flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Button variant="secondary" type="button" onClick={closeDialog} className={secondaryButton}>Cancel</Button>
                 <div className="flex flex-col gap-2 sm:flex-row">
                     <Button variant="secondary"
                         type="button"
                         onClick={showPreview}
                         disabled={invalidRange || isLoadingPreview || !downloadUrl}
-                        className={`${secondaryButton} min-h-11 `}
+                        loading={isLoadingPreview}
+                        className={`${secondaryButton} min-h-11`}
                     >
-                        {isLoadingPreview ? <LoaderCircle size={16} className="animate-spin" /> : <Eye size={16} />}
+                        {!isLoadingPreview && <Eye size={16} />}
                         {isLoadingPreview ? 'Loading Preview...' : 'View Form'}
                     </Button>
                     {downloadButton}
                 </div>
-            </div>
+            </DialogFooter>
         </> : <>
-            <div className="max-h-[68vh] overflow-auto bg-slate-100 p-3 sm:p-6 dark:bg-slate-950">
-                <div className="mx-auto min-w-[720px] max-w-[794px] bg-white p-4 text-black shadow-md sm:p-6 dark:bg-slate-900">
+            <DialogBody className="max-h-[68vh] overflow-auto bg-slate-100 p-3 sm:p-6 dark:bg-slate-950">
+                <div data-paper-preview className="mx-auto min-w-[720px] max-w-[794px] bg-white p-4 text-black shadow-md sm:p-6">
                     {previewData && <StockCard data={previewData} />}
                 </div>
-            </div>
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-950/40">
+            </DialogBody>
+            <DialogFooter className="flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Button variant="secondary" type="button" onClick={() => setStep('configure')} className={secondaryButton}><ArrowLeft size={16} />Back to Options</Button>
                 {downloadButton}
-            </div>
+            </DialogFooter>
         </>}
     </Modal>;
 }

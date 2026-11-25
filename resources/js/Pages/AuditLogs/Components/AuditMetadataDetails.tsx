@@ -216,28 +216,28 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
         <div className={`space-y-4 ${className}`}>
             {/* 1. Main Audit Summary Banner for Issuance (Requirement 5) */}
             {issuanceSummary && (
-                <div className="p-3.5 bg-gray-50/90 dark:bg-slate-800/80 rounded-md border border-gray-200/90 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                <div className="p-3.5 bg-slate-50/90 dark:bg-slate-800/80 rounded-md border border-slate-200/90 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
                     <div className="space-y-0.5">
                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 block">
                             {issuanceSummary.title}
                         </span>
                         {issuanceSummary.risNumber && (
-                            <div className="text-sm font-semibold tabular-nums text-gray-900 dark:text-slate-100">
+                            <div className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
                                 {issuanceSummary.risNumber}
                             </div>
                         )}
                         {issuanceSummary.recipient && (
-                            <div className="text-sm text-gray-700 dark:text-slate-300">
-                                <span className="font-semibold text-gray-900 dark:text-slate-100">{issuanceSummary.recipient}</span>
+                            <div className="text-sm text-slate-700 dark:text-slate-300">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">{issuanceSummary.recipient}</span>
                                 {issuanceSummary.department && (
-                                    <span className="text-gray-500 dark:text-slate-400"> • {issuanceSummary.department}</span>
+                                    <span className="text-slate-500 dark:text-slate-400"> • {issuanceSummary.department}</span>
                                 )}
                             </div>
                         )}
                     </div>
 
                     {issuanceSummary.stats && (
-                        <div className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm font-semibold text-gray-800 dark:text-slate-200 self-start sm:self-auto shadow-sm">
+                        <div className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-semibold text-slate-800 dark:text-slate-200 self-start sm:self-auto shadow-sm">
                             {issuanceSummary.stats}
                         </div>
                     )}
@@ -246,11 +246,11 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
 
             {/* 2. Action Description (Requirement 26) - plain text only, never raw JSON */}
             {cleanActionDescription && (
-                <div className="p-3 bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60">
-                    <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
+                <div className="p-3 bg-slate-50/60 dark:bg-slate-800/70 rounded-md border border-slate-200 dark:border-slate-700/60">
+                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
                         Action Description
                     </span>
-                    <p className="text-sm text-gray-800 dark:text-slate-200 leading-relaxed font-sans">
+                    <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
                         {cleanActionDescription}
                     </p>
                 </div>
@@ -259,8 +259,8 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {/* 3. Structured Transaction Details Grid (Requirement 1, 2, 3, 13, 14) */}
             {structuredFields && structuredFields.length > 0 ? (
                 <div className="space-y-2.5">
-                    <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Transaction Details
                         </span>
                     </div>
@@ -269,13 +269,13 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                         {structuredFields.map((item) => (
                             <div
                                 key={item.key}
-                                className="bg-gray-50/60 dark:bg-slate-800/70 p-2.5 rounded-md border border-gray-200/80 dark:border-slate-700/60 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800"
+                                className="bg-slate-50/60 dark:bg-slate-800/70 p-2.5 rounded-md border border-slate-200/80 dark:border-slate-700/60 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
                             >
-                                <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium">
+                                <span className="text-slate-500 dark:text-slate-400 text-sm block font-medium">
                                     {item.label}
                                 </span>
                                 <span
-                                    className={`text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1 block break-words ${item.isMonospace ? "tabular-nums" : ""}`}
+                                    className={`text-sm font-semibold text-slate-900 dark:text-slate-100 mt-1 block break-words ${item.isMonospace ? "tabular-nums" : ""}`}
                                 >
                                     {item.value}
                                 </span>
@@ -288,13 +288,13 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {/* 4. Nested Items Section (Requirement 16) */}
             {nestedItems && (
                 <div className="space-y-2 pt-1">
-                    <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Affected Items ({nestedItems.length})
                         </span>
                     </div>
 
-                    <div className="divide-y divide-gray-200 dark:divide-slate-800 rounded-md border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+                    <div className="divide-y divide-slate-200 dark:divide-slate-800 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
                         {nestedItems.map((item, idx) => {
                             const itemName =
                                 (item.item_name as string) ||
@@ -308,14 +308,14 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                             return (
                                 <div
                                     key={idx}
-                                    className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm hover:bg-gray-50/60 dark:hover:bg-slate-800/60 transition-colors"
+                                    className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition-colors"
                                 >
                                     <div>
-                                        <span className="font-semibold text-gray-900 dark:text-slate-100 block">
+                                        <span className="font-semibold text-slate-900 dark:text-slate-100 block">
                                             {itemName}
                                         </span>
                                         {itemCode && (
-                                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
+                                            <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                                                 Code: {itemCode}
                                             </span>
                                         )}
@@ -323,12 +323,12 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
 
                                     <div className="text-left sm:text-right">
                                         {quantity !== null && (
-                                            <span className="font-semibold text-gray-800 dark:text-slate-200 block">
+                                            <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                                                 Quantity: {quantity.toLocaleString('en-US')} {unit}
                                             </span>
                                         )}
                                         {unitCost !== null && !isNaN(unitCost) && (
-                                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums block">
+                                            <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block">
                                                 Cost: ₱{unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                                             </span>
                                         )}
@@ -343,8 +343,8 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {/* 5. Before / After Changes (Requirement 17 & 25) */}
             {diffs && diffs.length > 0 && (
                 <div className="space-y-2 pt-1">
-                    <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Changes & Field Updates
                         </span>
                     </div>
@@ -353,10 +353,10 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                         {diffs.map((diff) => (
                             <div
                                 key={diff.key}
-                                className="p-2.5 bg-gray-50/70 dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/60 rounded-md space-y-1.5 text-sm"
+                                className="p-2.5 bg-slate-50/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 rounded-md space-y-1.5 text-sm"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="font-semibold text-gray-900 dark:text-slate-100">{diff.label}</span>
+                                    <span className="font-semibold text-slate-900 dark:text-slate-100">{diff.label}</span>
                                     {diff.changeText && (
                                         <span
                                             className={`text-sm font-semibold px-1.5 py-0.5 rounded border ${diff.changeDiff && diff.changeDiff < 0
@@ -369,14 +369,14 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
 
                                 <div className="grid grid-cols-2 gap-2 pt-0.5 text-sm">
                                     <div>
-                                        <span className="text-gray-500 dark:text-slate-400 block font-medium">Before</span>
-                                        <span className="tabular-nums text-gray-700 dark:text-slate-300 block truncate" title={diff.before}>
+                                        <span className="text-slate-500 dark:text-slate-400 block font-medium">Before</span>
+                                        <span className="tabular-nums text-slate-700 dark:text-slate-300 block truncate" title={diff.before}>
                                             {diff.before}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500 dark:text-slate-400 block font-medium">After</span>
-                                        <span className="tabular-nums font-semibold text-gray-900 dark:text-slate-100 block truncate" title={diff.after}>
+                                        <span className="text-slate-500 dark:text-slate-400 block font-medium">After</span>
+                                        <span className="tabular-nums font-semibold text-slate-900 dark:text-slate-100 block truncate" title={diff.after}>
                                             {diff.after}
                                         </span>
                                     </div>
@@ -389,19 +389,19 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
 
             {/* 6. Empty Metadata Fallback (Requirement 18) */}
             {!hasAnyDetails && (
-                <div className="p-3 bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60 text-gray-500 dark:text-slate-400 text-sm text-center">
+                <div className="p-3 bg-slate-50/60 dark:bg-slate-800/70 rounded-md border border-slate-200 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 text-sm text-center">
                     No additional transaction details were recorded.
                 </div>
             )}
 
             {/* 7. Collapsible Raw Technical Metadata (Requirement 4 & 15) */}
-            <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                 <Button variant="secondary"
                     type="button"
                     onClick={() => setShowRaw(!showRaw)}
                     className="inline-flex items-center gap-1.5"
                 >
-                    <Code className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
+                    <Code className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>{showRaw ? 'Hide Raw Metadata' : 'View Raw Metadata'}</span>
                     {showRaw ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </Button>

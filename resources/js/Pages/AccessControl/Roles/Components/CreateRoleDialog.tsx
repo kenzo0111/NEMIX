@@ -44,16 +44,16 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
                             <ShieldPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Create Role
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
                                 Register a new institutional access role.
                             </p>
                         </div>
@@ -75,7 +75,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                         <div>
                             <label
                                 htmlFor="create-role-name"
-                                className="block mb-1.5 text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300"
+                                className="block mb-1.5 text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300"
                             >
                                 Role Name <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
@@ -88,7 +88,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                                     if (errors.name) clearErrors('name');
                                 }}
                                 disabled={processing}
-                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 focus:outline-none block w-full p-2.5 transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-sm ${errors.name ? "border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 focus:outline-none block w-full p-2.5 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm ${errors.name ? "border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 placeholder="e.g. Property Custodian or Internal Auditor"
                                 required
                                 autoFocus
@@ -98,7 +98,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                                     {errors.name}
                                 </p>
                             ) : (
-                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1.5">
+                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1.5">
                                     Use a clear, descriptive title representing operational authority.
                                 </p>
                             )}
@@ -106,7 +106,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                     </div>
 
                     {/* Footer */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 gap-2.5">
                         <Button variant="secondary"
                             type="button"
                             onClick={onClose}

@@ -29,7 +29,7 @@ export default function ScannerErrorState({
             </p>
 
             {tag && (
-                <div className="mt-3 tabular-nums text-sm font-semibold text-gray-800 bg-white px-3 py-1.5 rounded-lg border border-red-200 inline-block shadow-sm dark:text-slate-300 dark:bg-slate-900">
+                <div className="mt-3 tabular-nums text-sm font-semibold text-slate-800 bg-white px-3 py-1.5 rounded-lg border border-red-200 inline-block shadow-sm dark:text-slate-300 dark:bg-slate-900">
                     Captured Tag: {tag}
                 </div>
             )}
@@ -48,7 +48,7 @@ export default function ScannerErrorState({
                     onClick={onReset}
                     className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <RotateCcw className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                     <span>Reset</span>
                 </Button>
             </div>

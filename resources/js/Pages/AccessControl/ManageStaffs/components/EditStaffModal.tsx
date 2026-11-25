@@ -137,16 +137,16 @@ export default function EditStaffModal({
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <DialogHeader className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-5 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
                             <Edit2 className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                                 Update account details and Delivery Unit assignment for{' '}
-                                <strong className="text-gray-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
+                                <strong className="text-slate-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
                             </p>
                         </div>
                     </div>
@@ -165,14 +165,14 @@ export default function EditStaffModal({
                     <div className="grid min-h-0 gap-7 overflow-y-auto p-5 sm:p-7 md:grid-cols-2 md:gap-8">
                         <section className="min-w-0 space-y-5" aria-label="Account details">
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-slate-100">Account details</h4>
-                                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Manage the staff member’s identity and system access.</p>
+                                <h4 className="font-semibold text-slate-900 dark:text-slate-100">Account details</h4>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage the staff member’s identity and system access.</p>
                             </div>
                         {/* Full Name */}
                         <div>
                             <label
                                 htmlFor="edit-staff-name"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
                             >
                                 Full Name <span className="text-red-600 dark:text-red-300">*</span>
                             </label>
@@ -188,7 +188,7 @@ export default function EditStaffModal({
                                         setData('name', e.target.value);
                                         if (errors.name) clearErrors('name');
                                     }}
-                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`)}
+                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                     autoFocus
                                 />
@@ -202,7 +202,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-email"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
                             >
                                 Email Address
                             </label>
@@ -215,7 +215,7 @@ export default function EditStaffModal({
                                     id="edit-staff-email"
                                     value={data.email}
                                     readOnly
-                                    className="ui-field w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
+                                    className="ui-field w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
                                 />
                             </div>
                             {errors.email && (
@@ -228,7 +228,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-role"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-slate-700 dark:text-slate-300 mb-1.5"
                             >
                                 System Role <span className="text-red-600 dark:text-red-300">*</span>
                             </label>
@@ -253,7 +253,7 @@ export default function EditStaffModal({
                                         id="edit-staff-role"
                                         value={staff.role}
                                         readOnly
-                                        className="ui-field w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none font-semibold"
+                                        className="ui-field w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 cursor-not-allowed select-none font-semibold"
                                     />
                                     <p className="leading-relaxed mt-1 text-sm text-slate-500 dark:text-slate-400">
                                         {isSelf
@@ -277,7 +277,7 @@ export default function EditStaffModal({
                     </div>
 
                     {/* Modal Actions */}
-                    <div className="flex shrink-0 flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-5 sm:px-7 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
+                    <div className="flex shrink-0 flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-5 sm:px-7 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-slate-850/80 border-t border-slate-200 dark:border-slate-800 gap-2.5">
                         <Button variant="secondary"
                             type="button"
                             onClick={handleClose}

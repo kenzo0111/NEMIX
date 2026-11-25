@@ -141,7 +141,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
         const normalized = normalizeReportPaperData(report, user, publicSettings);
         if (!normalized) {
             return (
-                <div className="p-12 text-center text-sm text-gray-500 dark:text-slate-300">
+                <div className="p-12 text-center text-sm text-slate-500 dark:text-slate-300">
                     Preview not available for this document type.
                 </div>
             );
@@ -160,7 +160,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                                 key={`rsmi-page-${idx}`}
                                 className="rsmi-yearly-page-break print:break-before-page print:page-break-before-always mb-8 print:mb-0"
                             >
-                                <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                                <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                                     <RSMIFormPaper data={form} />
                                 </Suspense>
                             </div>
@@ -171,7 +171,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 
             if (normalized.rsmiData) {
                 return (
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <RSMIFormPaper data={normalized.rsmiData} />
                     </Suspense>
                 );
@@ -181,7 +181,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
         if (report.type === 'RPCI' && normalized.rpciData) {
             return (
                 <div className="min-w-[1000px] print:min-w-0 overflow-x-auto print:overflow-visible">
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
                 </div>
@@ -191,7 +191,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
         if (report.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
                 <div className="min-w-[750px] print:min-w-0 overflow-x-auto print:overflow-visible">
-                    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                         <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
                 </div>
@@ -200,14 +200,14 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 
         if ((report.type === 'MR' || report.type === 'MOR') && normalized.mrData) {
             return (
-                <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500 dark:text-slate-300">Loading form template...</div>}>
+                <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500 dark:text-slate-300">Loading form template...</div>}>
                     <MRFormPaper data={normalized.mrData} />
                 </Suspense>
             );
         }
 
         return (
-            <div className="p-12 text-center text-sm text-gray-500 dark:text-slate-300">
+            <div className="p-12 text-center text-sm text-slate-500 dark:text-slate-300">
                 Preview not available for this document type.
             </div>
         );
@@ -221,12 +221,12 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
             closeable={true}
             ariaLabel="Official COA Document Inspector"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-gray-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0 print:hidden compliance-print-hide">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0 print:hidden compliance-print-hide">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 flex items-center justify-center text-red-900 dark:text-red-300 shadow-sm shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,14 +235,14 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                     Official COA Document Inspector
                                 </h3>
                                 <span className="px-2 py-0.5 bg-red-50 dark:bg-red-950/50 border border-red-200/80 dark:border-red-900/40 text-red-900 dark:text-red-300 tabular-nums font-semibold text-sm rounded-md tracking-normal">
                                     {report.type}
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
                                 Archived state compliance document recorded in university audit ledger.
                             </p>
                         </div>
@@ -261,15 +261,15 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 </DialogHeader>
 
                 {/* Body */}
-                <DialogBody className="p-3 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 dark:bg-slate-950/60 print:p-0 print:overflow-visible print:bg-white print:block print:space-y-0">
+                <DialogBody className="p-3 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/40 dark:bg-slate-950/60 print:p-0 print:overflow-visible print:bg-white print:block print:space-y-0">
                     {/* Report Metadata Summary Card (Read-Only) */}
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-4 shadow-sm print:hidden compliance-print-hide">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-sm print:hidden compliance-print-hide">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                             <div className="space-y-0.5">
                                 <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                     Reference
                                 </span>
-                                <span className="tabular-nums font-semibold text-gray-900 dark:text-slate-100 text-sm">
+                                <span className="tabular-nums font-semibold text-slate-900 dark:text-slate-100 text-sm">
                                     {report.reference}
                                 </span>
                             </div>
@@ -277,7 +277,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                                 <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                     Form Type
                                 </span>
-                                <span className="font-semibold text-gray-900 dark:text-slate-100 block truncate">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100 block truncate">
                                     {reportTypeLabel}
                                 </span>
                             </div>
@@ -285,7 +285,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                                 <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                     Coverage Period
                                 </span>
-                                <span className="font-semibold text-gray-900 dark:text-slate-100 block truncate">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100 block truncate">
                                     {coverageText}
                                 </span>
                             </div>
@@ -293,7 +293,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                                 <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                     Date Recorded
                                 </span>
-                                <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                                     {formatScreenDate(genDate)}
                                 </span>
                             </div>
@@ -305,7 +305,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                         ref={reportContentRef}
                         className="bg-slate-100/90 dark:bg-slate-950 p-4 sm:p-7 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white print:block print:w-full print:shadow-none print:m-0 print:overflow-visible"
                     >
-                        <div className="shadow-md rounded-sm border border-gray-200/60 bg-white text-gray-900 print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible dark:text-slate-300 dark:bg-slate-900">
+                        <div className="shadow-md rounded-sm border border-slate-200/60 bg-white text-slate-900 print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible dark:text-slate-300 dark:bg-slate-900">
                             <div className="compliance-print-area">
                                 {renderOfficialPaper()}
                             </div>
@@ -314,7 +314,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-gray-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
                     <Button variant="secondary"
                         type="button"
                         onClick={onClose}
@@ -329,7 +329,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                             onClick={handlePrint}
                             className="inline-flex items-center justify-center gap-1.5"
                         >
-                            <svg className="w-3.5 h-3.5 text-gray-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
                             <span>Print Form</span>

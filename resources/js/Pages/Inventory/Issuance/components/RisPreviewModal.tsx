@@ -99,14 +99,14 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="4xl" ariaLabel="Requisition and Issue Slip">
-            <div className="ris-print-modal bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden border border-gray-200 dark:border-slate-800 flex flex-col max-h-[92vh]">
+            <div className="ris-print-modal bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh]">
                 {/* Neutral Administrative Header */}
-                <DialogHeader className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-800/75 flex-shrink-0">
+                <DialogHeader className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/75 flex-shrink-0">
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             Requisition and Issue Slip
                         </h3>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                             RIS Reference: <span className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
@@ -125,16 +125,16 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                 </DialogHeader>
 
                 {/* Form Document View Area - Neutral canvas backdrop; ris-print-area remains pure white paper */}
-                <DialogBody className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 dark:bg-slate-950 flex justify-center">
-                    <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit dark:bg-slate-900">
+                <DialogBody className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-slate-100 dark:bg-slate-950 flex justify-center">
+                    <div className="ris-print-area bg-white border border-slate-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit dark:bg-slate-900">
                         {/* Preserve exact RequisitionIssueSlip component layout */}
                         <RequisitionIssueSlip data={risData} />
                     </div>
                 </DialogBody>
 
                 {/* Modal Footer */}
-                <DialogFooter className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
-                    {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700">Download PDF</a>}
+                <DialogFooter className="ris-print-hide px-4 sm:px-6 py-3.5 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
+                    {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">Download PDF</a>}
                     <Button variant="primary"
                         type="button"
                         onClick={handlePrint}

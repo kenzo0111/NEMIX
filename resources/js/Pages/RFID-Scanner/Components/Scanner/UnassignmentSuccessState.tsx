@@ -12,30 +12,30 @@ export default function UnassignmentSuccessState({
     onScanNewTag,
 }: UnassignmentSuccessStateProps) {
     return (
-        <div className="text-center py-7 px-6 bg-gradient-to-b from-gray-50/50 via-white to-gray-50/20 rounded-xl border border-gray-200 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center mx-auto mb-3 border border-gray-200 dark:text-slate-300">
-                <Check className="w-6 h-6 text-gray-700 dark:text-slate-300" />
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-gray-50/50 via-white to-gray-50/20 rounded-xl border border-slate-200 shadow-sm">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center mx-auto mb-3 border border-slate-200 dark:text-slate-300">
+                <Check className="w-6 h-6 text-slate-700 dark:text-slate-300" />
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 font-sans dark:text-slate-300">
+            <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-300">
                 RFID Tag Removed
             </h3>
 
-            <p className="leading-relaxed text-sm text-gray-500 mt-1 dark:text-slate-300">
+            <p className="leading-relaxed text-sm text-slate-500 mt-1 dark:text-slate-300">
                 The RFID tag has been dissociated from:
             </p>
 
-            <div className="my-3.5 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="my-3.5 bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
                 <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold block mb-1 dark:text-slate-300">
                     Inventory Record
                 </span>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{item.name}</p>
-                <p className="leading-relaxed text-sm text-gray-500 tabular-nums mt-1 dark:text-slate-300">
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
+                <p className="leading-relaxed text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-300">
                     Property No: {item.sku || 'N/A'}
                 </p>
             </div>
 
-            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-300">
+            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-300">
                 This item is now untagged and ready for a new tag association.
             </p>
 

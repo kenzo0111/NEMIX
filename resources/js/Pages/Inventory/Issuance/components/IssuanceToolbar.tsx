@@ -25,12 +25,12 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
     const selectedRecipientOption = recipientOptions.find((o) => o.value === recipientFilter) || null;
 
     return (
-        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
             <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                     Issuance records
                 </h2>
-                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                     Supply distributions and issue slips (RIS).
                 </p>
             </div>
@@ -59,7 +59,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search issuance..."
                         aria-label="Search issuance records"
-                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 

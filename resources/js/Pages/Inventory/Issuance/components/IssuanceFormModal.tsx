@@ -149,16 +149,16 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Formal Administrative Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 flex-shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Record Stock Issuance
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                                 Administrative Requisition & Issue Slip (RIS) Entry
                             </p>
                         </div>
@@ -179,7 +179,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                     <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">For Authorized Personnel, Supply Coordinators, and Inventory Staff, release supplies through their approved request in the approval queue. Their weekly allowance is recorded there.</p>
                     {/* SECTION 1: Recipient Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 1. Recipient Information
                             </h4>
@@ -199,7 +199,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
 
                             <Field id="issuance_date_issued" label={<>
@@ -215,7 +215,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     aria-describedby={form.errors.date_issued ? 'issuance_date_issued-error' : undefined}
                                     value={form.data.date_issued}
                                     onChange={(e) => form.setData('date_issued', e.target.value)}
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_issued ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_issued ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
 
                             <Field id="issuance_department" label={<>
@@ -247,14 +247,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 2: Accounting Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 2. Accounting Information
                             </h4>
@@ -287,14 +287,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 3: Items to Issue */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 3. Items to Issue
                             </h4>
@@ -337,7 +337,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                     {/* SECTION 4: Authorization */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                        <div className="pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
                             <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 4. Authorization (System Signatories)
                             </h4>
@@ -345,41 +345,41 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         <div className="space-y-4">
                             {/* Approved By Row */}
                             <div>
-                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Approved By (Section B)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by_designation}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Approved Date (Read-Only)
                                         </label>
                                         <input
                                             type="date"
                                             value={form.data.date_issued}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -387,41 +387,41 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                             {/* Issued By Row */}
                             <div>
-                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Issued By (Section C)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_name}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_position}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                             Issued Date (Read-Only)
                                         </label>
                                         <input
                                             type="date"
                                             value={form.data.date_issued}
                                             readOnly
-                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -430,7 +430,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}

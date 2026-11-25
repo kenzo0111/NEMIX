@@ -151,20 +151,20 @@ export const RfidReceivingModal: React.FC<Props> = ({
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="px-5 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between bg-gray-50 dark:bg-slate-800/70 shrink-0">
+                <DialogHeader className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/70 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-200 dark:border-red-900/50">
                             <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-sm font-semibold ${is100LimitReached
     ? "bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-400 border border-amber-300 dark:border-amber-800" : "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50"}`}>
                                     {scannedItems.length} / 100 Items
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                 Scan to identify each item type, then enter the inspected quantity and actual unit cost.
                             </p>
                         </div>
@@ -193,7 +193,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                     onChange={e => onDeviceChange(e.target.value)}
                                     disabled={processing}
                                     aria-label="Hardware Device"
-                                    className="ui-field rounded-lg border-gray-300 dark:border-slate-700 text-sm py-1 px-2.5 bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
+                                    className="ui-field rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1 px-2.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
                                 >
                                     <option value="">Select a scanner for hardware input</option>
                                     {devices.map(dev => (
@@ -215,7 +215,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                     onChange={e => onStationChange(e.target.value)}
                                     disabled={processing}
                                     title="Match the Station ID assigned to this device in System Settings → RFID"
-                                    className="ui-field w-24 rounded-lg border-gray-300 dark:border-slate-700 text-sm py-1 px-2 bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
+                                    className="ui-field w-24 rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1 px-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
                                 />
                             )}
                         </div>
@@ -265,7 +265,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                             }
                         }}
                     >
-                        <label htmlFor="rfid-receiving-input" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1">
+                        <label htmlFor="rfid-receiving-input" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
                             RFID Tag Scan or Entry
                         </label>
                         <div className="flex gap-2">
@@ -277,7 +277,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 onChange={event => onScanInputChange(event.target.value)}
                                 placeholder={is100LimitReached ? 'Batch limit reached (100 items)' : 'Scan tag with hardware reader or enter tag and press Enter'}
                                 disabled={processing || is100LimitReached}
-                                className="ui-field flex-1 min-w-0 rounded-lg border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 text-sm tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 disabled:bg-gray-100 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed"
+                                className="ui-field flex-1 min-w-0 rounded-lg border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed"
                             />
                             <Button variant="primary"
                                 type="submit"
@@ -305,7 +305,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                     </div>
 
                     {isSearching && (
-                        <p className="leading-relaxed text-sm text-gray-600 dark:text-slate-400 flex items-center gap-2 py-1">
+                        <p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2 py-1">
                             <Loader2 className="w-4 h-4 animate-spin text-red-900 dark:text-red-400" /> Looking up RFID tag in item registry...
                         </p>
                     )}
@@ -323,12 +323,12 @@ export const RfidReceivingModal: React.FC<Props> = ({
                     )}
 
                     {/* Scanned Items Header */}
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                         <div>
-                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                                 Scanned Items ({scannedItems.length})
                             </h4>
-                            <span className="text-sm text-gray-500 dark:text-slate-400">
+                            <span className="text-sm text-slate-500 dark:text-slate-400">
                                 Confirm inspected quantities and costs before receiving · All lines save atomically
                             </span>
                         </div>
@@ -336,9 +336,9 @@ export const RfidReceivingModal: React.FC<Props> = ({
 
                     {/* Scanned Items List */}
                     {scannedItems.length === 0 ? (
-                        <div className="text-sm text-gray-500 dark:text-slate-400 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-xl p-8 text-center bg-gray-50/50 dark:bg-slate-850/40">
+                        <div className="text-sm text-slate-500 dark:text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center bg-slate-50/50 dark:bg-slate-850/40">
                             <Radio className="w-8 h-8 mx-auto text-slate-500 dark:text-slate-400 mb-2" />
-                            <p className="font-semibold text-gray-700 dark:text-slate-300">No RFID tags scanned yet</p>
+                            <p className="font-semibold text-slate-700 dark:text-slate-300">No RFID tags scanned yet</p>
                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                                 Point the station RFID reader at items, scan with a barcode wedge, or type a tag above.
                             </p>
@@ -355,16 +355,16 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 return (
                                     <div
                                         key={`${tag}-${idx}`}
-                                        className={`p-3.5 border rounded-xl space-y-3 transition-colors ${error ? "border-red-300 dark:border-red-800 bg-red-50/30 dark:bg-red-950/30" : "border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-850 hover:border-gray-300 dark:hover:border-slate-700"}`}
+                                        className={`p-3.5 border rounded-xl space-y-3 transition-colors ${error ? "border-red-300 dark:border-red-800 bg-red-50/30 dark:bg-red-950/30" : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 hover:border-slate-300 dark:hover:border-slate-700"}`}
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             {/* Item Information */}
                                             <div className="min-w-0">
                                                 <div className="flex items-start gap-1.5">
                                                     <span className="text-sm tabular-nums font-semibold text-slate-500 dark:text-slate-400 shrink-0 pt-0.5">#{idx + 1}</span>
-                                                    <p className="leading-relaxed text-sm font-semibold text-gray-900 dark:text-slate-100 break-words">{item.name}</p>
+                                                    <p className="leading-relaxed text-sm font-semibold text-slate-900 dark:text-slate-100 break-words">{item.name}</p>
                                                 </div>
-                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-600 dark:text-slate-400 tabular-nums mt-1">
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 dark:text-slate-400 tabular-nums mt-1">
                                                     <span className="font-semibold text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/50 px-1 py-0.5 rounded border border-red-100 dark:border-red-900/50 break-all">{tag}</span>
                                                     <span className="break-all">SKU: {item.sku || 'N/A'}</span>
                                                     <span>Current Stock: {item.stock ?? 0} {item.unit_of_issue || 'pcs'}</span>
@@ -384,7 +384,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
                                         {/* Supplier Dropdown */}
                                         <div className="min-w-0 sm:col-span-5">
-                                            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1">
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
                                                 Supplier <span className="text-red-600 dark:text-red-300">*</span>
                                             </label>
                                             <select aria-invalid={Boolean(hasSupplierError)}
@@ -392,7 +392,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 onChange={event => onSupplierChange(tag, event.target.value ? Number(event.target.value) : '')}
                                                 disabled={processing}
                                                 className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 bg-white dark:bg-slate-800 ${hasSupplierError
-    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
+    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
                                             >
                                                 <option value="">Select supplier...</option>
                                                 {/* Active eligible suppliers */}
@@ -405,7 +405,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 {suppliers
                                                     .filter(s => s.status && s.status !== 'active')
                                                     .map(s => (
-                                                        <option key={s.id} value={s.id} disabled className="text-slate-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800">
+                                                        <option key={s.id} value={s.id} disabled className="text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
                                                             {s.name} (Inactive - Ineligible)
                                                         </option>
                                                     ))}
@@ -416,7 +416,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                         </div>
 
                                         <div className="min-w-0 sm:col-span-3">
-                                            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1">
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
                                                 Inspected Qty <span className="text-red-600 dark:text-red-300">*</span>
                                             </label>
                                             <input
@@ -428,14 +428,14 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 onChange={event => onQuantityChange(tag, event.target.value)}
                                                 disabled={processing}
                                                 aria-invalid={hasQuantityError}
-                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${hasQuantityError ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${hasQuantityError ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                             />
                                             {hasQuantityError && <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-300">{error?.quantity}</p>}
                                         </div>
 
                                         {/* Unit Cost Input with Row-level feedback */}
                                         <div className="min-w-0 sm:col-span-4">
-                                            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1">
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
                                                 Unit Cost (₱) <span className="text-red-600 dark:text-red-300">*</span>
                                             </label>
                                             <input aria-invalid={Boolean(hasCostError)}
@@ -447,8 +447,8 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 onChange={event => onCostChange(tag, event.target.value)}
                                                 disabled={processing}
                                                 placeholder="0.00"
-                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums font-medium bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${hasCostError
-    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
+                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums font-medium bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${hasCostError
+    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
                                             />
                                             {hasCostError && (
                                                 <p className="mt-1 text-sm text-red-600 font-medium leading-tight dark:text-red-300">{error?.cost}</p>
@@ -463,8 +463,8 @@ export const RfidReceivingModal: React.FC<Props> = ({
                     )}
 
                     {/* Date Received */}
-                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1">
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
                             Date Received <span className="text-red-600 dark:text-red-300">*</span>
                         </label>
                         <input
@@ -472,14 +472,14 @@ export const RfidReceivingModal: React.FC<Props> = ({
                             value={dateReceived}
                             onChange={event => onDateChange(event.target.value)}
                             disabled={processing}
-                            className="ui-field block rounded-lg border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 text-sm py-1.5 px-3 focus:border-red-900 focus:ring-1 focus:ring-red-900"
+                            className="ui-field block rounded-lg border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm py-1.5 px-3 focus:border-red-900 focus:ring-1 focus:ring-red-900"
                         />
                     </div>
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="px-5 py-4 bg-gray-50 dark:bg-slate-800/80 border-t border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-                    <div className="text-sm text-gray-500 dark:text-slate-400">
+                <DialogFooter className="px-5 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
                         {scannedItems.length > 0 && !hasRowErrors && (
                             <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
                                 <CheckCircle2 className="w-3.5 h-3.5" /> {scannedItems.length} lines · {totalQuantity} units · ₱{totalCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

@@ -191,10 +191,10 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
     );
 
     return (
-        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-sm p-4 space-y-3 w-full min-w-0">
+        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-sm p-4 space-y-3 w-full min-w-0">
             {/* View Mode Toggle Strip & Search */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-slate-800">
-                <div className="flex items-center gap-1.5 p-1 bg-gray-100/80 dark:bg-slate-800 rounded-md border border-gray-200/80 dark:border-slate-700 self-start sm:self-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800 rounded-md border border-slate-200/80 dark:border-slate-700 self-start sm:self-auto">
                     <Button variant="tab"
                         type="button"
                         onClick={() => handleToggleViewMode('business')}
@@ -218,7 +218,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                     </Button>
                 </div>
 
-                <div className="text-sm text-gray-500 dark:text-slate-400 font-medium">
+                <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                     {viewMode === 'business' ? (
                         <span>Showing consolidated business transaction groups</span>
                     ) : (
@@ -236,7 +236,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search user, action, RIS number, reference, item name..."
-                        className="ui-field table-control w-full pl-9 pr-8 text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-9 pr-8 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-slate-400 dark:placeholder-slate-500"
                     />
                     {search && (
                         <Button variant="secondary" size="icon"
@@ -308,29 +308,29 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
 
             {/* Custom Date Range Row */}
             {showCustomDates && (
-                <div className="pt-2 border-t border-gray-100 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm bg-gray-50/50 dark:bg-slate-800/50 p-2 rounded-md">
-                    <div className="flex items-center gap-1.5 text-gray-600 dark:text-slate-400 font-medium">
-                        <CalendarIcon className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm bg-slate-50/50 dark:bg-slate-800/50 p-2 rounded-md">
+                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
+                        <CalendarIcon className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>Date Range:</span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <label className="text-gray-500 dark:text-slate-400 text-sm font-semibold">From:</label>
+                        <label className="text-slate-500 dark:text-slate-400 text-sm font-semibold">From:</label>
                         <input
                             type="date"
                             value={filters.date_from || ''}
                             onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                            className="ui-field table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
+                            className="ui-field table-control px-2 text-sm border border-slate-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
                         />
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <label className="text-gray-500 dark:text-slate-400 text-sm font-semibold">To:</label>
+                        <label className="text-slate-500 dark:text-slate-400 text-sm font-semibold">To:</label>
                         <input
                             type="date"
                             value={filters.date_to || ''}
                             onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                            className="ui-field table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
+                            className="ui-field table-control px-2 text-sm border border-slate-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
                         />
                     </div>
 

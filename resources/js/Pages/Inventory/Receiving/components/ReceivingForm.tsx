@@ -137,7 +137,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         <form onSubmit={onSubmit} className="space-y-5">
             {/* Item Selection */}
             <div>
-                <label htmlFor="receiving_item_id" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
+                <label htmlFor="receiving_item_id" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
                     Inventory Item <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
@@ -154,7 +154,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                                 RFID-ORIGINATED (LOCKED)
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                             This receipt records a scanned RFID tag. The item is locked to preserve tag traceability.
                         </p>
                     </div>
@@ -182,11 +182,11 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Supplier Selection */}
             <div>
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
-                    <label htmlFor="receiving_supplier_id" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                    <label htmlFor="receiving_supplier_id" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
                         Supplier <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                         <span className="sr-only"> (required)</span>
                     </label>
-                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                         Deliveries can be received from any vendor
                     </span>
                 </div>
@@ -212,7 +212,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Supplier Stock Number (Automatic) */}
             <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                    <label htmlFor="receiving_supplier_stock_no" className="text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                    <label htmlFor="receiving_supplier_stock_no" className="text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
                         Supplier Stock No.
                     </label>
                     <span className="shrink-0 whitespace-nowrap rounded-md border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
@@ -238,7 +238,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         </svg>
                     </div>
                 </div>
-                <p className="min-w-0 text-sm leading-relaxed text-gray-500 dark:text-slate-400 whitespace-normal break-words">
+                <p className="min-w-0 text-sm leading-relaxed text-slate-500 dark:text-slate-400 whitespace-normal break-words">
                     Automatically generated per receiving batch and retained for RPCI reporting.
                 </p>
                 {errors.supplier_stock_no && (
@@ -251,10 +251,10 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 {/* Quantity */}
                 <div>
                     <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="receiving_quantity" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                        <label htmlFor="receiving_quantity" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
                             Quantity Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                         </label>
-                        {isRfidReceipt && <span className="text-sm text-gray-500 dark:text-slate-400">Correct from inspection record</span>}
+                        {isRfidReceipt && <span className="text-sm text-slate-500 dark:text-slate-400">Correct from inspection record</span>}
                     </div>
                     <input
                         id="receiving_quantity"
@@ -269,8 +269,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         value={data.quantity}
                         onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
                         placeholder="e.g. 50"
-                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.quantity
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
+                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.quantity
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                     />
                     {errors.quantity && (
                         <p id="receiving_quantity-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.quantity}</p>
@@ -279,7 +279,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
 
                 {/* Unit Cost */}
                 <div>
-                    <label htmlFor="receiving_unit_cost" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
+                    <label htmlFor="receiving_unit_cost" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
                         Unit Cost (₱)
                     </label>
                     <input
@@ -293,8 +293,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         placeholder="0.00"
                         aria-invalid={Boolean(errors.unit_cost)}
                         aria-describedby={errors.unit_cost ? 'receiving_unit_cost-error' : undefined}
-                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.unit_cost
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
+                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.unit_cost
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                     />
                     {errors.unit_cost && (
                         <p id="receiving_unit_cost-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.unit_cost}</p>
@@ -303,7 +303,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
 
                 {/* Batch Total Amount Preview */}
                 <div>
-                    <label htmlFor="receiving_batch_total" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
+                    <label htmlFor="receiving_batch_total" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
                         Batch Total (₱)
                     </label>
                     <input
@@ -316,14 +316,14 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                                 ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                 : '₱0.00'
                         }
-                        className="ui-field w-full px-3 py-2 bg-gray-100 dark:bg-slate-800/80 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 cursor-not-allowed"
+                        className="ui-field w-full px-3 py-2 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-slate-900 dark:text-slate-100 cursor-not-allowed"
                     />
                 </div>
             </div>
 
             {/* Date Received */}
             <div>
-                <label htmlFor="receiving_date_received" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
+                <label htmlFor="receiving_date_received" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
                     Date Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
@@ -337,8 +337,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     aria-describedby={errors.date_received ? 'receiving_date_received-error' : undefined}
                     value={data.date_received}
                     onChange={(e) => setData('date_received', e.target.value)}
-                    className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none transition-colors ${errors.date_received
-    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
+                    className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none transition-colors ${errors.date_received
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                 />
                 {errors.date_received && (
                     <p id="receiving_date_received-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.date_received}</p>
@@ -346,7 +346,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                 <Button variant="secondary"
                     type="button"
                     onClick={onCancel}

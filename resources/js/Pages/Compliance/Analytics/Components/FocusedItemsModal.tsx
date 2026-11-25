@@ -52,21 +52,21 @@ export default function FocusedItemsModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="3xl" ariaLabel="Inventory Analytics Drill-Down">
-            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-none border border-gray-200 dark:border-slate-800">
+            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-none border border-slate-200 dark:border-slate-800">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Institutional Header */}
-                <DialogHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
+                <DialogHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="p-2 rounded bg-red-950 text-amber-300 border border-red-900 shrink-0">
                             <Package className="h-4 w-4" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans truncate">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans truncate">
                                 Inventory Analytics Drill-Down
                             </h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate">
                                 Compact snapshot of registered stock items and valuation
                             </p>
                         </div>
@@ -94,16 +94,16 @@ export default function FocusedItemsModal({
 
                 {/* Content */}
                 <DialogBody className="flex-1 overflow-y-auto p-4 sm:p-6">
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <span>Showing {items.length} registered items</span>
                         <span className="text-slate-500 dark:text-slate-400 tabular-nums">Select a column heading to sort</span>
                     </div>
 
                     {items.length > 0 ? (
-                        <div className="w-full min-w-0 border border-gray-200 dark:border-slate-800 rounded-md overflow-x-auto">
+                        <div className="w-full min-w-0 border border-slate-200 dark:border-slate-800 rounded-md overflow-x-auto">
                             <Table className="min-w-[36.25rem]">
                                 <TableHeader>
-                                    <TableRow className="bg-gray-50/80 dark:bg-slate-800/80">
+                                    <TableRow className="bg-slate-50/80 dark:bg-slate-800/80">
                                         <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Item / SKU</SortableTableHeader>
                                         <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Stock</SortableTableHeader>
                                         <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Unit Cost</SortableTableHeader>
@@ -113,22 +113,22 @@ export default function FocusedItemsModal({
                                 </TableHeader>
                                 <TableBody>
                                     {sortedRows.map((item) => (
-                                        <TableRow key={item.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50">
+                                        <TableRow key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
                                             <TableCell className="py-3.5 align-middle">
-                                                <p className="leading-relaxed font-semibold text-gray-900 dark:text-slate-100 text-sm truncate max-w-[200px]">
+                                                <p className="leading-relaxed font-semibold text-slate-900 dark:text-slate-100 text-sm truncate max-w-[200px]">
                                                     {item.name}
                                                 </p>
-                                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">
+                                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                                                     {item.sku || 'No SKU'}
                                                 </p>
                                             </TableCell>
-                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 align-middle">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-slate-900 dark:text-slate-100 align-middle">
                                                 {Number(item.stock).toLocaleString('en-PH')}
                                             </TableCell>
-                                            <TableCell className="text-right py-3.5 tabular-nums text-sm text-gray-600 dark:text-slate-400 align-middle">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm text-slate-600 dark:text-slate-400 align-middle">
                                                 {formatCurrency(Number(item.unitCost || 0))}
                                             </TableCell>
-                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 align-middle">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-slate-900 dark:text-slate-100 align-middle">
                                                 {formatCurrency(Number(item.amount || 0))}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
@@ -146,7 +146,7 @@ export default function FocusedItemsModal({
                             </Table>
                         </div>
                     ) : (
-                        <div className="py-12 text-center text-sm text-gray-500 dark:text-slate-400">
+                        <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
                             No inventory records available.
                         </div>
                     )}

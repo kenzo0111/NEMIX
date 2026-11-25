@@ -53,8 +53,8 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
 
     if (!items || items.length === 0) {
         return (
-            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
-                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">No valuation records available.</p>
+            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-6 text-center">
+                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">No valuation records available.</p>
             </div>
         );
     }
@@ -96,11 +96,11 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                         <ChartTooltipContent
                             formatter={(value, name, item) => (
                                 <div className="space-y-0.5">
-                                    <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
+                                    <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                                         {formatCurrency(Number(value))}
                                     </span>
                                     {item.payload?.sku && (
-                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">SKU: {item.payload.sku}</p>
+                                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">SKU: {item.payload.sku}</p>
                                     )}
                                 </div>
                             )}

@@ -46,18 +46,18 @@ export default function SelectedItemSummary({
 
     if (!item) {
         return (
-            <div className="p-7 text-center bg-gray-50/50 dark:bg-slate-950/50 rounded-xl border border-dashed border-gray-200/90 dark:border-slate-800 flex flex-col items-center justify-center min-h-[220px]">
-                <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center mb-3 shadow-sm border border-gray-200/70 dark:border-slate-700">
+            <div className="p-7 text-center bg-slate-50/50 dark:bg-slate-950/50 rounded-xl border border-dashed border-slate-200/90 dark:border-slate-800 flex flex-col items-center justify-center min-h-[220px]">
+                <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center mb-3 shadow-sm border border-slate-200/70 dark:border-slate-700">
                     <Box className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 </div>
-                <p className="leading-relaxed text-sm font-semibold text-gray-800 dark:text-slate-200">
+                <p className="leading-relaxed text-sm font-semibold text-slate-800 dark:text-slate-200">
                     No Item Selected
                 </p>
-                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
                     Search and pick an inventory item from the catalog above to view its details and link an RFID tag.
                 </p>
                 <div className="mt-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-slate-600" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
                     <span>Awaiting item selection</span>
                 </div>
             </div>
@@ -67,13 +67,13 @@ export default function SelectedItemSummary({
     const isTagged = Boolean(item.rfid_tag);
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-gray-200/90 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4">
             {/* Header: Title, SKU & Tag Status Badge */}
             <div>
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm normal-case tabular-nums font-semibold tracking-normal px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200/70 dark:border-slate-700">
+                            <span className="text-sm normal-case tabular-nums font-semibold tracking-normal px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700">
                                 Item #{item.id}
                             </span>
                             {item.status && (
@@ -82,15 +82,15 @@ export default function SelectedItemSummary({
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans leading-snug mt-1.5 truncate">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans leading-snug mt-1.5 truncate">
                             {item.name}
                         </h3>
 
                         {/* Property Number with One-Click Copy */}
-                        <div className="mt-1.5 flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400 tabular-nums">
+                        <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                             <span className="text-sm text-slate-500 dark:text-slate-400">Property No:</span>
-                            <div className="inline-flex items-center gap-1 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/80 dark:hover:bg-slate-700/80 px-2 py-0.5 rounded border border-gray-200 dark:border-slate-700 transition-colors">
-                                <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
+                            <div className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100/80 dark:hover:bg-slate-700/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 transition-colors">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
                                     {item.sku || 'N/A'}
                                 </span>
                                 {item.sku && (
@@ -125,24 +125,24 @@ export default function SelectedItemSummary({
             </div>
 
             {/* Metadata micro-cards grid */}
-            <div className="grid grid-cols-2 gap-2.5 text-sm pt-3 border-t border-gray-100 dark:border-slate-800">
-                <div className="bg-gray-50/60 dark:bg-slate-950/60 p-2.5 rounded-lg border border-gray-100 dark:border-slate-800">
+            <div className="grid grid-cols-2 gap-2.5 text-sm pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="bg-slate-50/60 dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-sm">
                         <Building2 className="w-3 h-3" />
                         <span>Supplier</span>
                     </div>
-                    <span className="font-medium text-gray-800 dark:text-slate-200 truncate block mt-1" title={item.supplier_name || 'N/A'}>
+                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate block mt-1" title={item.supplier_name || 'N/A'}>
                         {item.supplier_name || 'Not assigned'}
                     </span>
                 </div>
 
-                <div className="bg-gray-50/60 dark:bg-slate-950/60 p-2.5 rounded-lg border border-gray-100 dark:border-slate-800">
+                <div className="bg-slate-50/60 dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-sm">
                         <Layers className="w-3 h-3" />
                         <span>Stock Level</span>
                     </div>
-                    <span className="tabular-nums font-semibold text-gray-800 dark:text-slate-200 block mt-1">
-                        {item.stock} <span className="font-sans font-normal text-gray-500 dark:text-slate-400 text-sm">{item.unit_of_issue || 'units'}</span>
+                    <span className="tabular-nums font-semibold text-slate-800 dark:text-slate-200 block mt-1">
+                        {item.stock} <span className="font-sans font-normal text-slate-500 dark:text-slate-400 text-sm">{item.unit_of_issue || 'units'}</span>
                     </span>
                 </div>
             </div>
@@ -161,7 +161,7 @@ export default function SelectedItemSummary({
                     </div>
 
                     <div className="flex items-center justify-between bg-white dark:bg-slate-950 px-3 py-2 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60 shadow-sm">
-                        <div className="flex items-center gap-2 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 tracking-normal">
+                        <div className="flex items-center gap-2 tabular-nums text-sm font-semibold text-slate-900 dark:text-slate-100 tracking-normal">
                             <Radio className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <span>{item.rfid_tag}</span>
                         </div>

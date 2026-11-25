@@ -31,12 +31,12 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
     const selectedFilterOption = filterOptions.find((o) => o.value === selectedType) || filterOptions[0];
 
     return (
-        <div className="table-toolbar px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="table-toolbar px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
             <div className="min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                     Official COA Documents
                 </h3>
-                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                     Find and generate official reports.
                 </p>
             </div>
@@ -60,7 +60,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search documents..."
-                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 

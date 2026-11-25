@@ -87,7 +87,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
         }),
     });
 
-    const inputClass = 'w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors';
+    const inputClass = 'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors';
 
     const handleSelectHead = (option: { value: string; label: string; head?: OfficeHead } | null) => {
         if (!option) {
@@ -135,11 +135,11 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
     const headErrorMessage = errors.office_head_id || errors.office_head_name;
 
     return (
-        <fieldset className="min-w-0 space-y-5 text-gray-700 dark:text-slate-300">
-            <legend className="font-semibold text-gray-900 dark:text-slate-100">
+        <fieldset className="min-w-0 space-y-5 text-slate-700 dark:text-slate-300">
+            <legend className="font-semibold text-slate-900 dark:text-slate-100">
                 {isAuthorizedPersonnel ? 'Office & Designation details' : 'Delivery Unit assignment'}
             </legend>
-            <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">
+            <p className="pt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                 {isAuthorizedPersonnel
                     ? 'Enter the department/office and designation of the Authorized Personnel. Department head assignment is optional.'
                     : required
@@ -189,7 +189,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             className={"ui-field " + (`${inputClass} ${errors.designation ? "border-red-500" : ""}`)}
                             required
                         />
-                        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Official position / designation of the authorized personnel.
                         </p>
                         {errors.designation && (
@@ -198,9 +198,9 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                     </div>
 
                     {/* Optional Department Head for Authorized Personnel */}
-                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">
+                            <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                                 Department / Office Head (Optional)
                             </span>
                             <Button variant="secondary"
@@ -213,10 +213,10 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                         </div>
 
                         {showOptionalHead && (
-                            <div className="space-y-4 p-3 bg-gray-50/70 dark:bg-slate-850/60 rounded-lg border border-gray-200/60 dark:border-slate-800">
+                            <div className="space-y-4 p-3 bg-slate-50/70 dark:bg-slate-850/60 rounded-lg border border-slate-200/60 dark:border-slate-800">
                                 <div>
                                     <div className="flex items-center justify-between mb-1">
-                                        <label htmlFor="staff-office-head" className="block text-sm font-semibold text-gray-700 dark:text-slate-300">
+                                        <label htmlFor="staff-office-head" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                             Department Head (Optional)
                                         </label>
                                         <Button variant="secondary"
@@ -256,7 +256,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 </div>
 
                                 <div>
-                                    <label htmlFor="staff-head-designation" className="block text-2xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                    <label htmlFor="staff-head-designation" className="block text-2xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                         Head’s Designation (Optional)
                                     </label>
                                     {isManualMode ? (
@@ -275,7 +275,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                             value={head?.designation || data.office_head_designation || ''}
                                             readOnly
                                             placeholder="Select an office head to display designation"
-                                            className={"ui-field " + (`${inputClass} text-sm bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`)}
+                                            className={"ui-field " + (`${inputClass} text-sm bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed`)}
                                         />
                                     )}
                                 </div>
@@ -381,7 +381,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 Head’s Designation {required && (isManualMode || Boolean(data.office_head_name)) && '*'}
                             </label>
                             {!isManualMode && head && (
-                                <span className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                     <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                     <span>Linked to official</span>
                                 </span>
@@ -405,7 +405,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 value={head?.designation || data.office_head_designation || ''}
                                 readOnly
                                 placeholder="Select an office head above to display designation"
-                                className={"ui-field " + (`${inputClass} bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`)}
+                                className={"ui-field " + (`${inputClass} bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed`)}
                             />
                         )}
 

@@ -321,7 +321,7 @@ export default function IssuanceIndex({
                 <DashboardContent className="overflow-x-hidden">
 
                     {/* Custodian Workspace View Switcher Tabs */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
                         <div className="flex items-center gap-2">
                             {canReviewRequests && <Button variant="tab"
                                 type="button"
@@ -346,7 +346,7 @@ export default function IssuanceIndex({
                             >
                                 <PackageCheck className="w-4 h-4 text-amber-300" />
                                 <span>Issuance Registry & Slips</span>
-                                <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-semibold">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
                                     {rawList.length}
                                 </span>
                             </Button>
@@ -367,7 +367,7 @@ export default function IssuanceIndex({
 
                     {/* View 2: Official Issuance Registry & Slips Table */}
                     {viewMode === 'issuances' && (
-                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">
                             <IssuanceToolbar
                                 searchTerm={searchTerm}
                                 onSearchChange={handleSearchChange}

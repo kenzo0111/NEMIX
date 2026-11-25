@@ -1,6 +1,8 @@
 import { Button } from '@/Components/ui/button';
+import { DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import React from 'react';
 import Modal from '@/Components/Modal';
+import { AlertTriangle, Check, X } from 'lucide-react';
 
 interface ActionDialogProps {
     show: boolean;
@@ -28,66 +30,57 @@ export const ActionDialog: React.FC<ActionDialogProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="sm" ariaLabel={title}>
-            <div className="overflow-hidden rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm">
-                {/* Thin Type Accent Top Line */}
-                <div className={`h-1.5 w-full shrink-0 ${accentBg}`} />
+            <div className={`h-1.5 w-full shrink-0 ${accentBg}`} />
 
-                <div className="p-5 sm:p-6 text-center flex flex-col items-center">
-                    {type === 'success' && (
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/80 dark:border-emerald-800/50 mb-3.5 text-emerald-600 dark:text-emerald-400 shadow-sm">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                    )}
-                    {type === 'confirm' && (
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100/80 dark:border-amber-800/50 mb-3.5 text-amber-600 dark:text-amber-400 shadow-sm">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                    )}
-                    {type === 'error' && (
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 mb-3.5 text-red-600 dark:text-red-400 shadow-sm">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </div>
-                    )}
-
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight mb-1.5">{title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-5 leading-relaxed font-medium">{message}</p>
-
-                    <div className="flex flex-col-reverse sm:flex-row gap-2.5 justify-center w-full">
-                        {type === 'confirm' ? (
-                            <>
-                                <Button variant="secondary"
-                                    type="button"
-                                    onClick={onClose}
-                                    className="w-full sm:flex-1 text-center"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button variant="primary"
-                                    type="button"
-                                    onClick={onConfirm}
-                                    className="w-full sm:flex-1 text-center"
-                                >
-                                    Confirm
-                                </Button>
-                            </>
-                        ) : (
-                            <Button variant="primary"
-                                type="button"
-                                onClick={onClose}
-                                className="w-full text-center"
-                            >
-                                Close
-                            </Button>
-                        )}
+            <DialogBody className="text-center flex flex-col items-center">
+                {type === 'success' && (
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/80 dark:border-emerald-800/50 mb-3.5 text-emerald-600 dark:text-emerald-400">
+                        <Check className="h-6 w-6" />
                     </div>
-                </div>
-            </div>
+                )}
+                {type === 'confirm' && (
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100/80 dark:border-amber-800/50 mb-3.5 text-amber-600 dark:text-amber-400">
+                        <AlertTriangle className="h-6 w-6" />
+                    </div>
+                )}
+                {type === 'error' && (
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 mb-3.5 text-red-600 dark:text-red-400">
+                        <X className="h-6 w-6" />
+                    </div>
+                )}
+
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight mb-1.5">{title}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{message}</p>
+            </DialogBody>
+
+            <DialogFooter className="flex-col-reverse sm:flex-row justify-center">
+                {type === 'confirm' ? (
+                    <>
+                        <Button variant="secondary"
+                            type="button"
+                            onClick={onClose}
+                            className="w-full sm:flex-1"
+                        >
+                            Cancel
+                        </Button>
+                        <Button variant="primary"
+                            type="button"
+                            onClick={onConfirm}
+                            className="w-full sm:flex-1"
+                        >
+                            Confirm
+                        </Button>
+                    </>
+                ) : (
+                    <Button variant="primary"
+                        type="button"
+                        onClick={onClose}
+                        className="w-full"
+                    >
+                        Close
+                    </Button>
+                )}
+            </DialogFooter>
         </Modal>
     );
 };

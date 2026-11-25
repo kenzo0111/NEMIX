@@ -34,8 +34,8 @@ export default function ScannerConnectionStatus({
         },
         offline: {
             label: 'Reader Disconnected',
-            dotClass: 'bg-gray-400',
-            badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
+            dotClass: 'bg-slate-400',
+            badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
             icon: WifiOff,
         },
     }[connectionState];

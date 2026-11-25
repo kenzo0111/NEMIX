@@ -28,12 +28,12 @@ export default function AssignmentSuccessState({
                 RFID Successfully Assigned
             </h3>
 
-            <p className="leading-relaxed text-sm text-gray-600 mt-1 dark:text-slate-300">
-                Tag <span className="tabular-nums font-semibold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 dark:text-slate-300">{tag}</span> is now linked.
+            <p className="leading-relaxed text-sm text-slate-600 mt-1 dark:text-slate-300">
+                Tag <span className="tabular-nums font-semibold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 dark:text-slate-300">{tag}</span> is now linked.
             </p>
 
             {/* Linked Item Summary Box */}
-            <div className="my-4 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="my-4 bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
                 <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
                     <span>RECORD LINKED</span>
                     <span className="text-emerald-700 font-semibold flex items-center gap-1 font-sans dark:text-emerald-300">
@@ -41,10 +41,10 @@ export default function AssignmentSuccessState({
                         Verified
                     </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{item.name}</p>
-                <div className="flex items-center gap-2 text-sm text-gray-500 tabular-nums mt-1 dark:text-slate-300">
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
+                <div className="flex items-center gap-2 text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-300">
                     <span>Property No:</span>
-                    <span className="text-gray-900 font-semibold dark:text-slate-300">{item.sku || 'N/A'}</span>
+                    <span className="text-slate-900 font-semibold dark:text-slate-300">{item.sku || 'N/A'}</span>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@ export default function AssignmentSuccessState({
                     onClick={() => onViewItem(item)}
                     className="inline-flex items-center justify-center gap-1.5"
                 >
-                    <Eye className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
+                    <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                     <span>View Item</span>
                 </Button>
             </div>

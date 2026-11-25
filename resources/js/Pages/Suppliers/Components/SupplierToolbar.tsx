@@ -16,7 +16,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
 }) => {
     const { can } = useAuthorization();
     return (
-        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 bg-gray-50/40 dark:bg-slate-900/40 border-b border-gray-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3">
+        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 bg-slate-50/40 dark:bg-slate-900/40 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3">
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
                 {/* Search Input */}
                 <div className="relative flex-grow sm:max-w-md w-full">
@@ -30,7 +30,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search supplier, TIN or registration..."
-                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-normal text-slate-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 

@@ -52,11 +52,11 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
     if (visibleItems.length === 0) return null;
 
     return (
-        <nav className="max-w-full overflow-hidden text-sm font-medium text-gray-500 dark:text-slate-400" aria-label="Breadcrumb">
+        <nav className="max-w-full overflow-hidden text-sm font-medium text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
             <ol className="flex min-w-0 items-center gap-1 whitespace-nowrap">
                 {canOpenDashboard && (
                     <li className="flex shrink-0 items-center">
-                        <Link href={route('dashboard')} className="text-slate-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 transition" aria-label="Dashboard">
+                        <Link href={route('dashboard')} className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition" aria-label="Dashboard">
                             <HomeIcon className="w-4 h-4" aria-hidden="true" />
                         </Link>
                     </li>
@@ -67,11 +67,11 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
                         <li key={`${item.name}-${index}`} className="flex min-w-0 items-center">
                             {(canOpenDashboard || index > 0) && <ChevronRightIcon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400 mx-1" aria-hidden="true" />}
                             {href ? (
-                                <Link href={href} className="block min-w-0 max-w-40 sm:max-w-56 truncate text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:underline transition" title={item.name}>
+                                <Link href={href} className="block min-w-0 max-w-40 sm:max-w-56 truncate text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:underline transition" title={item.name}>
                                     {item.name}
                                 </Link>
                             ) : (
-                                <span className="block min-w-0 max-w-40 sm:max-w-56 truncate text-gray-500 dark:text-slate-400" title={item.name}>{item.name}</span>
+                                <span className="block min-w-0 max-w-40 sm:max-w-56 truncate text-slate-500 dark:text-slate-400" title={item.name}>{item.name}</span>
                             )}
                         </li>
                     );

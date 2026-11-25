@@ -39,8 +39,8 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
 
     if (!items || items.length === 0) {
         return (
-            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
-                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">No stock quantity records available.</p>
+            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-6 text-center">
+                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">No stock quantity records available.</p>
             </div>
         );
     }
@@ -82,7 +82,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
                     content={
                         <ChartTooltipContent
                             formatter={(value, name, item) => (
-                                <span className="font-semibold text-gray-900 dark:text-slate-100">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">
                                     {Number(value).toLocaleString('en-PH')} {item.payload?.meta ? `(${item.payload.meta})` : 'units'}
                                 </span>
                             )}

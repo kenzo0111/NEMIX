@@ -63,16 +63,16 @@ export default function ItemSelector({
                     return (
                         <div className="flex items-center justify-between py-1">
                             <div className="min-w-0 pr-3">
-                                <div className="font-medium text-gray-900 dark:text-slate-100 text-sm truncate">
+                                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm truncate">
                                     {item.name}
                                 </div>
-                                <div className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-0.5 tabular-nums">
+                                <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5 tabular-nums">
                                     <span>
-                                        Prop: <strong className="text-gray-700 dark:text-slate-300 font-semibold">{item.sku || 'N/A'}</strong>
+                                        Prop: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{item.sku || 'N/A'}</strong>
                                     </span>
                                     {item.rfid_tag && (
                                         <>
-                                            <span className="text-gray-300 dark:text-slate-400">•</span>
+                                            <span className="text-slate-300 dark:text-slate-400">•</span>
                                             <span className="text-emerald-700 dark:text-emerald-400 font-semibold truncate max-w-[110px]">
                                                 Tag: {item.rfid_tag}
                                             </span>
@@ -80,7 +80,7 @@ export default function ItemSelector({
                                     )}
                                     {item.supplier_name && (
                                         <>
-                                            <span className="text-gray-300 dark:text-slate-400">•</span>
+                                            <span className="text-slate-300 dark:text-slate-400">•</span>
                                             <span className="truncate max-w-[130px] text-slate-500 dark:text-slate-400 font-sans">
                                                 {item.supplier_name}
                                             </span>

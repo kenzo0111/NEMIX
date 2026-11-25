@@ -45,7 +45,7 @@ const getActionBadgeColor = (action: string) => {
     ) {
         return 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300 border-indigo-200/80 dark:border-indigo-800/50';
     }
-    return 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700';
+    return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
 };
 
 export default function PermissionList({
@@ -84,24 +84,24 @@ export default function PermissionList({
         <div className="flex-1 p-5 overflow-y-auto max-h-[460px] flex flex-col justify-between bg-white dark:bg-slate-900">
             <div className="space-y-4">
                 {/* Module Header & Select-All Control */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                                 {moduleName}
                             </h4>
-                            <span className="text-sm font-semibold text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
+                            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
                                 {assignedInModuleCount} of {permissions.length} granted
                             </span>
                         </div>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                             {moduleName === 'Requests'
                                 ? 'Choose what staff can do with supply requests. Viewing your own requests and reviewing others are separate permissions.'
                                 : `Choose the actions this role can perform in ${moduleName}.`}
                         </p>
                     </div>
 
-                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors shadow-sm">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
                         <input
                             type="checkbox"
                             checked={isAllSelected}
@@ -109,9 +109,9 @@ export default function PermissionList({
                                 if (el) el.indeterminate = isPartiallySelected;
                             }}
                             onChange={(e) => onSelectAllModule(e.target.checked)}
-                            className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer dark:text-red-300"
+                            className="w-4 h-4 text-red-900 border-slate-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer dark:text-red-300"
                         />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                             Grant all in {moduleName}
                         </span>
                     </label>
@@ -126,7 +126,7 @@ export default function PermissionList({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={`Search permissions in ${moduleName}...`}
                             aria-label={`Search permissions in ${moduleName}`}
-                            className="ui-field w-full pl-8 pr-7 py-1.5 text-sm border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-sm"
+                            className="ui-field w-full pl-8 pr-7 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
                         />
                         <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
@@ -152,20 +152,20 @@ export default function PermissionList({
                                 <label
                                     key={perm.id}
                                     className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${isChecked
-    ? "bg-red-50/25 dark:bg-red-950/25 border-red-200/90 dark:border-red-900/50 shadow-sm ring-1 ring-red-900/10 dark:ring-red-900/30" : "bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/80 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50/60 dark:hover:bg-slate-800"}`}
+    ? "bg-red-50/25 dark:bg-red-950/25 border-red-200/90 dark:border-red-900/50 shadow-sm ring-1 ring-red-900/10 dark:ring-red-900/30" : "bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50/60 dark:hover:bg-slate-800"}`}
                                 >
                                     <div className="flex items-start gap-3 min-w-0 flex-1">
                                         <input
                                             type="checkbox"
                                             checked={isChecked}
                                             onChange={() => onTogglePermission(perm.id)}
-                                            className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0 dark:text-red-300"
+                                            className="w-4 h-4 mt-0.5 text-red-900 border-slate-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0 dark:text-red-300"
                                         />
                                         <div className="flex flex-col min-w-0 pr-2">
                                             <div className="flex items-center gap-1.5">
                                                 <span
                                                     className={`text-sm ${isChecked
-    ? "text-gray-900 dark:text-slate-100 font-semibold" : "text-gray-800 dark:text-slate-200 font-semibold"}`}
+    ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-800 dark:text-slate-200 font-semibold"}`}
                                                 >
                                                     {perm.display_name}
                                                 </span>
@@ -175,7 +175,7 @@ export default function PermissionList({
                                             </div>
 
                                             {perm.description && (
-                                                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 leading-normal">
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                                                     {perm.description}
                                                 </p>
                                             )}
@@ -195,10 +195,10 @@ export default function PermissionList({
                         })}
                     </div>
                 ) : (
-                    <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">
+                    <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
                         {searchQuery ? (
                             <div className="flex flex-col items-center gap-1.5">
-                                <Search className="w-5 h-5 text-gray-300 dark:text-slate-400" />
+                                <Search className="w-5 h-5 text-slate-300 dark:text-slate-400" />
                                 <span>No permissions match "{searchQuery}"</span>
                                 <Button variant="secondary"
                                     type="button"

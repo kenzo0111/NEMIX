@@ -21,7 +21,7 @@ export default function TagConflictState({
                 <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-300" />
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 font-sans dark:text-slate-300">
+            <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-300">
                 RFID Tag Already In Use
             </h3>
 
@@ -30,16 +30,16 @@ export default function TagConflictState({
                 <span>{tag}</span>
             </div>
 
-            <p className="leading-relaxed text-sm text-gray-500 mt-1 dark:text-slate-300">
+            <p className="leading-relaxed text-sm text-slate-500 mt-1 dark:text-slate-300">
                 This transponder is already assigned to another item in the registry:
             </p>
 
-            <div className="mt-3 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+            <div className="mt-3 bg-white p-3.5 rounded-xl border border-slate-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
                 <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
                     <span>EXISTING ASSIGNMENT</span>
                     <span>SKU: {conflictItem.sku || 'N/A'}</span>
                 </div>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{conflictItem.name}</p>
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{conflictItem.name}</p>
                 {conflictItem.supplier_name && (
                     <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-300">
                         Supplier: {conflictItem.supplier_name}
@@ -61,7 +61,7 @@ export default function TagConflictState({
                     onClick={() => onViewExistingItem(conflictItem)}
                     className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <Eye className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
+                    <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                     <span>View Record</span>
                 </Button>
             </div>

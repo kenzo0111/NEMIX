@@ -24,26 +24,26 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
             {/* Table */}
             <div className="overflow-x-auto min-w-0 w-full">
                 <table className="ui-data-table w-full text-left border-collapse min-w-[53rem]">
-                    <thead className="bg-gray-50/75 dark:bg-slate-900/75 border-b border-gray-200 dark:border-slate-800">
+                    <thead className="bg-slate-50/75 dark:bg-slate-900/75 border-b border-slate-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[12.5rem]">
+                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[12.5rem]">
                                 Supplier
                             </SortableTableHeader>
-                            <SortableTableHeader column="registration" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[9.375rem]">
+                            <SortableTableHeader column="registration" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[9.375rem]">
                                 Registration
                             </SortableTableHeader>
-                            <SortableTableHeader column="classification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[8.75rem]">
+                            <SortableTableHeader column="classification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[8.75rem]">
                                 Classification
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[7.5rem]">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[7.5rem]">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[10rem]">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
+                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                         {suppliers.map((supplier) => (
                             <SupplierRow
                                 key={supplier.id}
@@ -55,7 +55,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
 
                         {suppliers.length === 0 && (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-slate-400 font-medium">
+                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
                                     No consumable office supplies suppliers found matching your criteria.
                                 </td>
                             </tr>
@@ -66,11 +66,11 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
 
             {/* Pagination Controls */}
             {totalCount > 0 && (
-                <div className="ui-pagination flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 text-sm">
-                    <span className="text-gray-600 dark:text-slate-400 font-medium">
-                        Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{startIndex}</span> to{' '}
-                        <span className="font-semibold text-gray-900 dark:text-slate-100">{endIndex}</span> of{' '}
-                        <span className="font-semibold text-gray-900 dark:text-slate-100">{totalCount}</span> suppliers
+                <div className="ui-pagination flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-sm">
+                    <span className="text-slate-600 dark:text-slate-400 font-medium">
+                        Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{startIndex}</span> to{' '}
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">{endIndex}</span> of{' '}
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">{totalCount}</span> suppliers
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -83,9 +83,9 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                         >
                             Previous
                         </Button>
-                        <span className="text-gray-600 dark:text-slate-400 font-medium px-1">
-                            Page <span className="font-semibold text-gray-900 dark:text-slate-100">{currentPage}</span> of{' '}
-                            <span className="font-semibold text-gray-900 dark:text-slate-100">{totalPages}</span>
+                        <span className="text-slate-600 dark:text-slate-400 font-medium px-1">
+                            Page <span className="font-semibold text-slate-900 dark:text-slate-100">{currentPage}</span> of{' '}
+                            <span className="font-semibold text-slate-900 dark:text-slate-100">{totalPages}</span>
                         </span>
                         <Button variant="secondary"
                             type="button"

@@ -33,7 +33,7 @@ export function ItemQuantityDisplay({
 }) {
     if (status === 'Pending' || approved === null || approved === undefined) {
         return (
-            <span className="tabular-nums font-medium text-gray-800 dark:text-slate-200">
+            <span className="tabular-nums font-medium text-slate-800 dark:text-slate-200">
                 {requested} <span className="text-slate-500 text-sm font-sans dark:text-slate-300">{unit}</span>
             </span>
         );
@@ -44,7 +44,7 @@ export function ItemQuantityDisplay({
     return (
         <div className="inline-flex flex-col items-start tabular-nums">
             <div className="flex items-center gap-1.5">
-                <span className={`font-semibold ${isAdjusted ? "text-amber-700 dark:text-amber-400" : "text-gray-900 dark:text-slate-100"}`}>
+                <span className={`font-semibold ${isAdjusted ? "text-amber-700 dark:text-amber-400" : "text-slate-900 dark:text-slate-100"}`}>
                     {approved}
                 </span>
                 <span className="text-slate-500 text-sm font-sans dark:text-slate-300">

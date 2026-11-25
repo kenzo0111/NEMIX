@@ -129,7 +129,7 @@ export default function EditRoleDialog({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div
                             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${isSystemRole
@@ -143,7 +143,7 @@ export default function EditRoleDialog({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
                                     Edit Role & Permissions
                                 </h3>
                                 {isSystemRole ? (
@@ -151,14 +151,14 @@ export default function EditRoleDialog({
                                         System Role
                                     </span>
                                 ) : (
-                                    <span className="text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 px-2 py-0.5 rounded border border-gray-200 dark:border-slate-700">
+                                    <span className="text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                                         Custom Role
                                     </span>
                                 )}
                             </div>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
                                 Configure title and granular capabilities for{' '}
-                                <strong className="text-gray-800 dark:text-slate-200 font-semibold">{role.name}</strong>.
+                                <strong className="text-slate-800 dark:text-slate-200 font-semibold">{role.name}</strong>.
                             </p>
                         </div>
                     </div>
@@ -179,10 +179,10 @@ export default function EditRoleDialog({
                     className="overflow-y-auto grow p-4 sm:p-6 space-y-5 flex flex-col"
                 >
                     {/* Role Name Field */}
-                    <div className="bg-gray-50/70 dark:bg-slate-800/50 border border-gray-200/90 dark:border-slate-700 rounded-lg p-4">
+                    <div className="bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/90 dark:border-slate-700 rounded-lg p-4">
                         <label
                             htmlFor="edit-role-name"
-                            className="block mb-1.5 text-sm font-semibold text-gray-700 dark:text-slate-300"
+                            className="block mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300"
                         >
                             Role Name <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
@@ -193,9 +193,9 @@ export default function EditRoleDialog({
                                 value={data.name}
                                 disabled={isSystemRole}
                                 onChange={(e) => setData('name', e.target.value)}
-                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
-    ? "bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-slate-400 cursor-not-allowed border-gray-200 dark:border-slate-700 pl-8" : errors.name
-    ? "border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
+    ? "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 cursor-not-allowed border-slate-200 dark:border-slate-700 pl-8" : errors.name
+    ? "border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                 required
                             />
                             {isSystemRole && (
@@ -208,7 +208,7 @@ export default function EditRoleDialog({
                             </p>
                         )}
                         {isSystemRole && (
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1.5">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1.5">
                                 System role names are protected and cannot be changed.
                             </p>
                         )}
@@ -216,16 +216,16 @@ export default function EditRoleDialog({
 
                     {/* Permission Section Header */}
                     <div>
-                        <h4 className="text-base font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                        <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal">
                             Permission Assignments
                         </h4>
-                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                             Select the operational actions permitted for this role across system modules.
                         </p>
                     </div>
 
                     {/* Two-Column Permission Layout (Tablet & Desktop: md:flex) */}
-                    <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[400px] shadow-sm">
+                    <div className="border border-slate-200/90 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[400px] shadow-sm">
                         <PermissionModuleList
                             modules={moduleNames}
                             activeModule={activeModuleTab}
@@ -246,9 +246,9 @@ export default function EditRoleDialog({
                 </form>
 
                 {/* Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 dark:border-slate-800 shrink-0 gap-3 bg-gray-50/80 dark:bg-slate-950 sticky bottom-0">
-                    <div className="text-sm text-gray-600 dark:text-slate-400 text-center sm:text-left">
-                        <span className="font-semibold text-gray-900 dark:text-slate-100">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 shrink-0 gap-3 bg-slate-50/80 dark:bg-slate-950 sticky bottom-0">
+                    <div className="text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
                             {data.permissions.length} of {totalSystemPermissionsCount}
                         </span>{' '}
                         permissions assigned

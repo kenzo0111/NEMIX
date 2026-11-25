@@ -98,12 +98,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
             closeable={!isSubmitting}
             ariaLabel="Historical Data Migration Workspace"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-gray-200 dark:border-slate-800">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800">
                 {/* Thin Amber-Maroon Accent Top Line */}
                 <div className="h-1.5 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-center text-amber-900 dark:text-amber-300 shadow-sm shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,14 +112,14 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                     Historical Data Migration Workspace
                                 </h3>
                                 <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 tabular-nums font-semibold text-sm rounded-md tracking-normal">
                                     Legacy Ingestion
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
                                 Extract table rows, map fields, review validation, and import legacy COA records from spreadsheets and supported documents.
                             </p>
                         </div>
@@ -139,10 +139,10 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 </DialogHeader>
 
                 {/* Content */}
-                <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 dark:bg-slate-950/60">
+                <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/40 dark:bg-slate-950/60">
                     {/* Setup Controls Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3.5">
-                        <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3.5">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                             <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                 1. Ingestion Target & Source
@@ -152,7 +152,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                     Form Type <span className="text-red-700 dark:text-red-300">*</span>
                                 </label>
                                 <Select
@@ -168,7 +168,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                     Legacy Source / Archive Batch Identifier
                                 </label>
                                 <input
@@ -176,15 +176,15 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                     value={source}
                                     onChange={(e) => setSource(e.target.value)}
                                     placeholder="e.g. Legacy Excel 2024 Audit Archive"
-                                    className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
+                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {/* File Upload Box */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3">
-                        <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                             <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                 2. Document Upload & Extraction
@@ -194,13 +194,13 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             </span>
                         </div>
 
-                        <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-700 hover:border-red-900/40 dark:hover:border-red-800 bg-gray-50/40 dark:bg-slate-800/40 hover:bg-red-50/10 p-5 transition-all">
+                        <div className="rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-red-900/40 dark:hover:border-red-800 bg-slate-50/40 dark:bg-slate-800/40 hover:bg-red-50/10 p-5 transition-all">
                             <input
                                 type="file"
                                 disabled={isExtracting}
                                 accept=".xlsx,.xls,.csv,.pdf,.docx,.doc"
                                 onChange={handleFileChange}
-                                className="block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-950 file:shadow-sm file:cursor-pointer disabled:opacity-50"
+                                className="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-950 file:shadow-sm file:cursor-pointer disabled:opacity-50"
                             />
 
                             {isExtracting ? (
@@ -212,23 +212,23 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                     <span>{statusMessage || 'Processing and parsing historical document content...'}</span>
                                 </div>
                             ) : fileName ? (
-                                <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 inline-flex">
-                                    <svg className="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div className="mt-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 inline-flex">
+                                    <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <span>Loaded file: <strong className="text-gray-900 dark:text-slate-100">{fileName}</strong></span>
+                                    <span>Loaded file: <strong className="text-slate-900 dark:text-slate-100">{fileName}</strong></span>
                                 </div>
                             ) : null}
                         </div>
                     </div>
 
                     {/* Extraction Summary Badges */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3 shadow-sm">
-                        <div className="bg-gray-50/80 dark:bg-slate-800/80 border border-gray-200/60 dark:border-slate-700 rounded-lg p-2.5 text-center">
-                            <span className="block text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 shadow-sm">
+                        <div className="bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700 rounded-lg p-2.5 text-center">
+                            <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                 Total Detected
                             </span>
-                            <span className="text-lg font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
+                            <span className="text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                                 {validation.totalDetected}
                             </span>
                         </div>
@@ -260,27 +260,27 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                     {/* Field Mapping Schema Matrix */}
                     {groups.length > 0 && (
-                        <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-3.5 space-y-2">
-                            <h4 className="text-base font-semibold normal-case text-gray-700 dark:text-slate-300 tracking-normal">
+                        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3.5 space-y-2">
+                            <h4 className="text-base font-semibold normal-case text-slate-700 dark:text-slate-300 tracking-normal">
                                 Field Mapping Schema ({formType})
                             </h4>
                             <div className="w-full min-w-0 overflow-x-auto">
                                 <table className="ui-data-table w-full text-left text-sm border-collapse min-w-[32rem]">
                                     <thead>
-                                        <tr className="border-b border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
+                                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
                                             <th className="py-3 px-3 align-middle whitespace-nowrap">COA Document Field</th>
                                             <th className="py-3 px-3 align-middle whitespace-nowrap">Mapped Database Field</th>
                                             <th className="py-3 px-3 align-middle whitespace-nowrap">Data Type</th>
                                             <th className="py-3 px-3 align-middle whitespace-nowrap">Sample Detected Value</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                                         {mappingMatrix.map((item, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                                <td className="py-3 px-3 font-semibold text-gray-900 dark:text-slate-100 align-middle">{item.field}</td>
+                                            <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                                                <td className="py-3 px-3 font-semibold text-slate-900 dark:text-slate-100 align-middle">{item.field}</td>
                                                 <td className="py-3 px-3 tabular-nums text-red-900 dark:text-red-300 align-middle">{item.dbField}</td>
-                                                <td className="py-3 px-3 text-gray-500 dark:text-slate-400 align-middle">{item.type}</td>
-                                                <td className="py-3 px-3 text-gray-700 dark:text-slate-300 font-medium align-middle">
+                                                <td className="py-3 px-3 text-slate-500 dark:text-slate-400 align-middle">{item.type}</td>
+                                                <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium align-middle">
                                                     {String(item.sample || '—')}
                                                 </td>
                                             </tr>
@@ -294,10 +294,10 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     {/* Review Detected Records Table */}
                     {groups.length > 0 ? (
                         <div className="space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 dark:border-slate-800 pb-2.5">
-                                <h4 className="text-base font-semibold normal-case text-gray-700 dark:text-slate-300 tracking-normal flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800 pb-2.5">
+                                <h4 className="text-base font-semibold normal-case text-slate-700 dark:text-slate-300 tracking-normal flex items-center gap-2">
                                     <span>Detected Records Review</span>
-                                    <span className="text-sm font-normal text-gray-500 dark:text-slate-400 tabular-nums">
+                                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400 tabular-nums">
                                         ({selectedSheetTab === 'ALL' ? validation.totalDetected : displayedGroups.reduce((a, g) => a + g.items.length, 0)} records in {displayedGroups.length} batches)
                                     </span>
                                 </h4>
@@ -331,17 +331,17 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             </div>
 
                             {displayedGroups.map((group, gIdx) => (
-                                <div key={gIdx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
-                                    <div className="px-4 py-2.5 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between text-sm flex-wrap gap-2">
-                                        <div className="font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2 flex-wrap">
-                                            <span>Sheet: <strong className="tabular-nums text-gray-900 dark:text-slate-100">{group.sheetName}</strong></span>
+                                <div key={gIdx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
+                                    <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-sm flex-wrap gap-2">
+                                        <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 flex-wrap">
+                                            <span>Sheet: <strong className="tabular-nums text-slate-900 dark:text-slate-100">{group.sheetName}</strong></span>
                                             {group.metadata?.topSerialNo && (
-                                                <span className="text-gray-600 dark:text-slate-300 tabular-nums text-sm bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-gray-200/80 dark:border-slate-700">
-                                                    Serial: <strong className="text-gray-900 dark:text-slate-100">{group.metadata.topSerialNo}</strong>
+                                                <span className="text-slate-600 dark:text-slate-300 tabular-nums text-sm bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700">
+                                                    Serial: <strong className="text-slate-900 dark:text-slate-100">{group.metadata.topSerialNo}</strong>
                                                 </span>
                                             )}
                                             {group.metadata?.topDate && (
-                                                <span className="text-gray-500 dark:text-slate-400 text-sm">
+                                                <span className="text-slate-500 dark:text-slate-400 text-sm">
                                                     • {group.metadata.topDate}
                                                 </span>
                                             )}
@@ -359,7 +359,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                                     <div className="w-full min-w-0 overflow-x-auto max-h-60">
                                         <table className="ui-data-table w-full text-left text-sm border-collapse min-w-[44rem]">
-                                            <thead className="bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 z-10 border-b border-gray-200 dark:border-slate-700">
+                                            <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 z-10 border-b border-slate-200 dark:border-slate-700">
                                                 <tr>
                                                     <SortableTableHeader column="reference" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[7.5rem] align-middle">Reference</SortableTableHeader>
                                                     <SortableTableHeader column="date" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[6.5rem] align-middle">Date</SortableTableHeader>
@@ -369,27 +369,27 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                     <SortableTableHeader column="status" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[7.5rem] align-middle">Status</SortableTableHeader>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                                 {sortRows(group.items, recordAccessors, recordSort).map((row, rIdx) => {
                                                     const hasError = row.errors && row.errors.length > 0;
                                                     return (
                                                         <tr
                                                             key={rIdx}
-                                                            className={hasError ? "bg-red-50/40 dark:bg-red-950/20" : "hover:bg-gray-50/50 dark:hover:bg-slate-800/50"}
+                                                            className={hasError ? "bg-red-50/40 dark:bg-red-950/20" : "hover:bg-slate-50/50 dark:hover:bg-slate-800/50"}
                                                         >
-                                                            <td className="py-3 px-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 align-middle">
+                                                            <td className="py-3 px-3 tabular-nums font-semibold text-slate-900 dark:text-slate-100 align-middle">
                                                                 {row.reference || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400 align-middle">
+                                                            <td className="py-3 px-3 text-slate-600 dark:text-slate-400 align-middle">
                                                                 {row.date || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 font-medium text-gray-800 dark:text-slate-200 max-w-xs truncate align-middle">
+                                                            <td className="py-3 px-3 font-medium text-slate-800 dark:text-slate-200 max-w-xs truncate align-middle">
                                                                 {row.item_name || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 text-right tabular-nums font-semibold text-gray-900 dark:text-slate-100 align-middle">
+                                                            <td className="py-3 px-3 text-right tabular-nums font-semibold text-slate-900 dark:text-slate-100 align-middle">
                                                                 {row.quantity ?? row.issue_qty ?? row.receipt_qty ?? 0}
                                                             </td>
-                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400 align-middle">
+                                                            <td className="py-3 px-3 text-slate-600 dark:text-slate-400 align-middle">
                                                                 {row.recipient || row.department || '—'}
                                                             </td>
                                                             <td className="py-3 px-3 whitespace-nowrap align-middle">
@@ -413,14 +413,14 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             ))}
                         </div>
                     ) : (
-                        <div className="p-8 text-center border border-dashed border-gray-200 dark:border-slate-800 rounded-lg text-sm text-gray-500 dark:text-slate-400">
+                        <div className="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-500 dark:text-slate-400">
                             Upload a legacy {formType} spreadsheet (Excel, CSV) or document (PDF, Word .docx, .doc) to extract table rows, review detected records and field mappings, and validate them before importing.
                         </div>
                     )}
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-gray-200/80 dark:border-slate-800 shrink-0">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0">
                     <Button variant="secondary"
                         type="button"
                         onClick={onClose}

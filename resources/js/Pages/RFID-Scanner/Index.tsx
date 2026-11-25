@@ -145,49 +145,49 @@ export default function Index({
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
                 <DashboardContent>
-                    <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-gray-200/90 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                    <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">
                                 <Radio className="h-5 w-5 text-red-900 dark:text-red-400" />
                             </div>
                             <div className="min-w-0 flex-1 sm:w-80 sm:flex-none">
-                                <label htmlFor="rfid-hardware-scanner" className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-slate-400">Hardware scanner</label>
-                                <select id="rfid-hardware-scanner" className="ui-field block w-full min-w-0 truncate rounded-lg border-gray-300 bg-white py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-red-800 focus:ring-red-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-red-500 dark:focus:ring-red-500/20" value={selectedDeviceUuid} onChange={e => setSelectedDeviceUuid(e.target.value)}>
+                                <label htmlFor="rfid-hardware-scanner" className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-400">Hardware scanner</label>
+                                <select id="rfid-hardware-scanner" className="ui-field block w-full min-w-0 truncate rounded-lg border-slate-300 bg-white py-2 pl-3 pr-9 text-sm text-slate-900 focus:border-red-800 focus:ring-red-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-red-500 dark:focus:ring-red-500/20" value={selectedDeviceUuid} onChange={e => setSelectedDeviceUuid(e.target.value)}>
                                     <option value="">Keyboard / manual only</option>
                                     {rfidDevices.map(device => <option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>)}
                                 </select>
                             </div>
                         </div>
                         <div role="status" aria-live="polite" aria-atomic="true" className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
-                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium ${pendingScanCount > 0 ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300" : "border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
+                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium ${pendingScanCount > 0 ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300" : "border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
                                 <Tag className="h-3.5 w-3.5 shrink-0" />
                                 <span>{pendingScanCount} queued {pendingScanCount === 1 ? 'scan' : 'scans'}</span>
                             </span>
-                            <span className="text-gray-500 dark:text-slate-400">{pendingScanCount > 0 ? 'Waiting for the next item.' : 'No hardware scans waiting.'}</span>
+                            <span className="text-slate-500 dark:text-slate-400">{pendingScanCount > 0 ? 'Waiting for the next item.' : 'No hardware scans waiting.'}</span>
                         </div>
                     </section>
 
                     {/* Operational Metric Overview Strip */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                         {/* 1. Total Catalog Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
-                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Catalog Registry</p>
-                                <p className="text-xl font-semibold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
+                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Catalog Registry</p>
+                                <p className="text-xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-1">
                                     {items.length}
                                 </p>
                                 <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">Total registered items</p>
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-100 dark:border-slate-700 flex items-center justify-center shrink-0">
-                                <Package className="w-5 h-5 text-gray-600 dark:text-slate-400" />
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
+                                <Package className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                             </div>
                         </div>
 
                         {/* 2. RFID Tagged Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-1.5">
-                                    <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Tagged & Linked</p>
+                                    <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Tagged & Linked</p>
                                     <span className="text-sm tabular-nums font-semibold px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
                                         {taggedPercent}%
                                     </span>
@@ -203,9 +203,9 @@ export default function Index({
                         </div>
 
                         {/* 3. Untagged Pending Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
-                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Pending Tagging</p>
+                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Pending Tagging</p>
                                 <p className="text-xl font-semibold tabular-nums text-amber-950 dark:text-amber-400 mt-1">
                                     {untaggedCount}
                                 </p>
@@ -217,16 +217,16 @@ export default function Index({
                         </div>
 
                         {/* 4. Hardware Scanner Station */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
-                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Hardware Reader</p>
+                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Hardware Reader</p>
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <span
                                         className={`w-2 h-2 rounded-full ${connectionState === 'connected'
     ? "bg-emerald-500" : connectionState === 'offline'
-    ? "bg-gray-400 dark:bg-slate-500" : "bg-amber-500 animate-pulse"}`}
+    ? "bg-slate-400 dark:bg-slate-500" : "bg-amber-500 animate-pulse"}`}
                                     />
-                                    <p className="leading-relaxed text-sm font-semibold tabular-nums text-gray-900 dark:text-slate-100 capitalize">
+                                    <p className="leading-relaxed text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100 capitalize">
                                         {connectionState === 'connected'
                                             ? 'Online'
                                             : connectionState === 'offline'
@@ -244,7 +244,7 @@ export default function Index({
 
                     {/* Completion State: shown only when all items are tagged and not dismissed */}
                     {allItemsTagged && !selectedItem && !isCompletionDismissed ? (
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-gray-200 dark:border-slate-800 shadow-sm text-center max-w-xl mx-auto space-y-3">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm text-center max-w-xl mx-auto space-y-3">
                             <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
                                 <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                             </div>
@@ -253,10 +253,10 @@ export default function Index({
                                     <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                     <span>All Inventory Items Tagged</span>
                                 </div>
-                                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans">
+                                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans">
                                     RFID Tagging Complete
                                 </h2>
-                                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
                                     All current inventory items have RFID transponders assigned. You may review the records registry or proceed directly to Receiving.
                                 </p>
                             </div>
@@ -282,18 +282,18 @@ export default function Index({
                         /* Main Two-Column Workflow Workspace */
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
                             {/* LEFT COLUMN (5 cols): Selected Item and Item Search */}
-                            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200/90 dark:border-slate-800 flex flex-col justify-between min-h-[420px] min-w-0">
+                            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between min-h-[420px] min-w-0">
                                 <div>
-                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
+                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                                         <div className="flex items-center gap-2.5">
                                             <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0 shadow-sm">
                                                 <Box className="w-4 h-4 text-red-950 dark:text-red-400" />
                                             </div>
                                             <div>
-                                                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                                                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                                     Selected Item
                                                 </h2>
-                                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
+                                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                                     Select item to pair with an RFID tag
                                                 </p>
                                             </div>
@@ -310,7 +310,7 @@ export default function Index({
 
                                     {/* Searchable Item Selector */}
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1.5">
+                                        <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                                             Search Item Catalog
                                         </label>
                                         <ItemSelector

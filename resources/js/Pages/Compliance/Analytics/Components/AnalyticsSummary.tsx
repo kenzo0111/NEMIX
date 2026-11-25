@@ -54,8 +54,8 @@ export default function AnalyticsSummary({
             value: attentionCount.toLocaleString(),
             description: `${stats.lowStockAlerts || 0} low stock • ${stats.outOfStock || 0} out of stock`,
             icon: AlertTriangle,
-            iconColor: attentionCount > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-gray-600 dark:text-slate-400',
-            iconBg: attentionCount > 0 ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-900/40' : 'bg-gray-50 dark:bg-slate-800 border-gray-100 dark:border-slate-700',
+            iconColor: attentionCount > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400',
+            iconBg: attentionCount > 0 ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-900/40' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700',
             clickable: false,
         },
     ];
@@ -106,7 +106,7 @@ export default function AnalyticsSummary({
                         <Card
                             key={card.title}
                             className={`border-t-2 border-t-red-900 transition-all ${card.clickable
-    ? "cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900" : ""}`}
+    ? "cursor-pointer hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900" : ""}`}
                             onClick={card.onClick}
                             role={card.clickable ? 'button' : undefined}
                             tabIndex={card.clickable ? 0 : undefined}
@@ -123,7 +123,7 @@ export default function AnalyticsSummary({
                         >
                             <CardContent className="p-4 flex flex-col justify-between h-full space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">
+                                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                                         {card.title}
                                     </span>
                                     <div className={`p-2 rounded-md border ${card.iconBg}`}>
@@ -131,10 +131,10 @@ export default function AnalyticsSummary({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-slate-100 font-sans">
+                                    <div className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 font-sans">
                                         {card.value}
                                     </div>
-                                    <div className="text-sm font-medium text-gray-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
                                         <span>{card.description}</span>
                                         {card.clickable && (
                                             <span className="text-sm font-semibold text-red-900 dark:text-red-400 hover:underline">
