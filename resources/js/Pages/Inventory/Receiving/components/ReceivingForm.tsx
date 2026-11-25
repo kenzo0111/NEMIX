@@ -227,7 +227,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         readOnly
                         tabIndex={-1}
                         value={data.supplier_stock_no || ''}
-                        placeholder="Generated automatically after selecting an item and supplier."
+                        placeholder="Auto-generated after item & supplier selection"
+                        title="Generated automatically after selecting an item and supplier."
                         aria-invalid={Boolean(errors.supplier_stock_no)}
                         aria-describedby={errors.supplier_stock_no ? 'receiving_supplier_stock_no-error' : undefined}
                         className="ui-field w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 tabular-nums font-semibold text-sm rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 dark:focus:border-slate-600 transition-colors shadow-sm"

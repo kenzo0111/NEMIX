@@ -37,7 +37,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
         <Modal
             show={show}
             onClose={() => !processing && onClose()}
-            maxWidth="lg"
+            maxWidth="xl"
             closeable={!processing}
             ariaLabel={mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
         >
@@ -46,8 +46,8 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/70">
-                    <div className="flex items-center gap-3 min-w-0">
+                <DialogHeader className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-800/70 flex-nowrap shrink-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {mode === 'edit' ? (
                                 <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
@@ -55,11 +55,11 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                                 <PackagePlus className="w-5 h-5 text-red-900 dark:text-red-400" />
                             )}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
                             </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
                                 {mode === 'edit'
                                     ? 'Update incoming inventory delivery specifications.'
                                     : 'Register incoming inventory delivered to the university.'}
@@ -70,7 +70,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="shrink-0 ml-2"
+                        className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />

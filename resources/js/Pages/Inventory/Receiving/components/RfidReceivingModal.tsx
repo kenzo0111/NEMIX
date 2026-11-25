@@ -151,20 +151,20 @@ export const RfidReceivingModal: React.FC<Props> = ({
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <DialogHeader className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/70 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-200 dark:border-red-900/50">
+                <DialogHeader className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/70 shrink-0 flex-nowrap">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-200 dark:border-red-900/50 shrink-0">
                             <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
-                        <div>
-                            <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-sm font-semibold ${is100LimitReached
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${is100LimitReached
     ? "bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-400 border border-amber-300 dark:border-amber-800" : "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50"}`}>
                                     {scannedItems.length} / 100 Items
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate">
                                 Scan to identify each item type, then enter the inspected quantity and actual unit cost.
                             </p>
                         </div>
@@ -174,7 +174,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                         onClick={onClose}
                         disabled={processing}
                         aria-label="Close modal"
-                        className=""
+                        className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
                         <X className="w-5 h-5" />
                     </Button>
@@ -183,53 +183,64 @@ export const RfidReceivingModal: React.FC<Props> = ({
                 {/* Body */}
                 <DialogBody className="p-5 space-y-4 overflow-y-auto flex-1">
                     {/* Device & Station Scoping Bar */}
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-wrap items-center justify-between gap-3 text-sm">
-                        <div className="flex items-center gap-2 min-w-0">
-                            <Server className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
-                            <span className="font-semibold text-slate-700 dark:text-slate-300">Station Hardware:</span>
-                            {devices && devices.length > 0 && onDeviceChange ? (
-                                <select
-                                    value={selectedDeviceUuid}
-                                    onChange={e => onDeviceChange(e.target.value)}
-                                    disabled={processing}
-                                    aria-label="Hardware Device"
-                                    className="ui-field rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1 px-2.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
-                                >
-                                    <option value="">Select a scanner for hardware input</option>
-                                    {devices.map(dev => (
-                                        <option key={dev.device_uuid} value={dev.device_uuid}>
-                                            {dev.device_name} ({dev.device_uuid}) - {dev.status}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <span className="tabular-nums text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                                    {selectedDeviceUuid || 'Select a scanner for hardware input'}
-                                </span>
-                            )}
-                            {onStationChange && (
-                                <input
-                                    type="text"
-                                    placeholder="Station ID from RFID settings"
-                                    value={selectedStation}
-                                    onChange={e => onStationChange(e.target.value)}
-                                    disabled={processing}
-                                    title="Match the Station ID assigned to this device in System Settings → RFID"
-                                    className="ui-field w-24 rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1 px-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
-                                />
-                            )}
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                            <span
-                                className={`w-2 h-2 rounded-full ${!selectedDeviceUuid ? "bg-amber-400" : connectionState === 'connected'
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2.5 text-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                                <Server className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">Station Hardware</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                                <span
+                                    className={`w-2 h-2 rounded-full shrink-0 ${!selectedDeviceUuid ? "bg-amber-400" : connectionState === 'connected'
     ? "bg-emerald-500 animate-pulse" : connectionState === 'connecting'
     ? "bg-amber-400 animate-pulse" : "bg-red-500"}`}
-                            />
-                            <span className="font-semibold text-slate-700 dark:text-slate-300">{selectedDeviceUuid ? `Feed ${connectionState}` : 'Select a scanner'}</span>
-                            <span className="text-slate-500 dark:text-slate-400">·</span>
-                            <span className="text-slate-600 dark:text-slate-400 truncate max-w-xs" title={scanFeedback}>
-                                {scanFeedback}
-                            </span>
+                                />
+                                <span className="font-medium text-slate-700 dark:text-slate-300">
+                                    {selectedDeviceUuid ? `Feed ${connectionState}` : 'Ready'}
+                                </span>
+                                <span>·</span>
+                                <span className="truncate max-w-xs" title={scanFeedback}>
+                                    {scanFeedback}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                            <div className="flex-1 min-w-0">
+                                {devices && devices.length > 0 && onDeviceChange ? (
+                                    <select
+                                        value={selectedDeviceUuid}
+                                        onChange={e => onDeviceChange(e.target.value)}
+                                        disabled={processing}
+                                        aria-label="Hardware Device"
+                                        className="ui-field w-full rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1.5 px-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
+                                    >
+                                        <option value="">Select a scanner for hardware input</option>
+                                        {devices.map(dev => (
+                                            <option key={dev.device_uuid} value={dev.device_uuid}>
+                                                {dev.device_name} ({dev.device_uuid}) - {dev.status}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <span className="block w-full tabular-nums text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm">
+                                        {selectedDeviceUuid || 'Select a scanner for hardware input'}
+                                    </span>
+                                )}
+                            </div>
+                            {onStationChange && (
+                                <div className="w-full sm:w-36 shrink-0">
+                                    <input
+                                        type="text"
+                                        placeholder="Station ID"
+                                        value={selectedStation}
+                                        onChange={e => onStationChange(e.target.value)}
+                                        disabled={processing}
+                                        title="Match the Station ID assigned to this device in System Settings → RFID"
+                                        className="ui-field w-full rounded-lg border-slate-300 dark:border-slate-700 text-sm py-1.5 px-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 tabular-nums focus:ring-1 focus:ring-red-900"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
