@@ -53,6 +53,10 @@ test('select errors and disabled controls use shared theme tokens and retain the
     assert.equal(disabled.cursor, 'not-allowed');
     assert.equal(disabled.backgroundColor, 'var(--surface-muted)');
     assert.equal(styles.groupHeading({}).color, 'var(--brand-text)');
+    assert.equal(styles.placeholder({}).whiteSpace, 'nowrap');
+    assert.equal(styles.placeholder({}).textOverflow, 'ellipsis');
+    assert.equal(styles.singleValue({}).whiteSpace, 'nowrap');
+    assert.equal(styles.singleValue({}).textOverflow, 'ellipsis');
 });
 
 test('react-select controls across modals do not define arbitrary 38px heights', () => {

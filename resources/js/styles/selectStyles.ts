@@ -28,11 +28,14 @@ export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boole
         },
         transition: 'all 0.15s ease-in-out',
     }),
-    valueContainer: (provided) => ({
+    valueContainer: (provided, state) => ({
         ...provided,
         minHeight: 'calc(var(--control-height) - 2px)',
         paddingTop: 0,
         paddingBottom: 0,
+        overflow: 'hidden',
+        minWidth: 0,
+        flexWrap: state?.isMulti ? 'wrap' : 'nowrap',
     }),
     indicatorsContainer: (provided) => ({
         ...provided,
@@ -93,12 +96,20 @@ export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boole
         ...provided,
         color: 'var(--text-secondary, #9ca3af)',
         fontSize: '1rem',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: '100%',
     }),
     singleValue: (provided) => ({
         ...provided,
         color: 'var(--text-primary, #111827)',
         fontSize: '1rem',
         fontWeight: 500,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: '100%',
     }),
     indicatorSeparator: () => ({
         display: 'none',

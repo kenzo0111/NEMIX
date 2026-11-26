@@ -34,7 +34,7 @@
     .ui-button[data-variant='tab'][aria-selected='true'], .ui-button[data-variant='tab'][aria-pressed='true'], .ui-button[data-variant='tab'][aria-current='page'] { background: var(--brand-muted); color: var(--brand-text); border-color: var(--brand-text); }
     .ui-button[data-variant]:focus-visible { outline: 2px solid var(--focus-color); outline-offset: 2px; --tw-ring-shadow: 0 0 #0000; }
     .ui-button[data-variant]:disabled, .ui-button[data-variant][aria-disabled='true'] { opacity: .6; cursor: not-allowed; transform: none; }
-    .ui-button[data-size='sm'] { min-height: 2.25rem; height: 2.25rem; padding: .375rem .75rem; font-size: .875rem; line-height: 1.25rem; white-space: nowrap; }
+    .ui-button[data-variant]:not([data-variant='unstyled'])[data-size='sm'] { min-height: 2.25rem; height: 2.25rem; padding: .375rem .75rem; font-size: .875rem; line-height: 1.25rem; white-space: nowrap; }
     .ui-button[data-size='icon'] { min-width: 2.75rem; width: 2.75rem; min-height: 2.75rem; padding: 0; flex-shrink: 0; }
     :where(.table-toolbar .ui-button[data-size='icon'], .ui-button[data-size='icon'].absolute) { min-width: var(--control-height); width: var(--control-height); min-height: var(--control-height); height: var(--control-height); }
     .ui-button[data-size='auth'] { min-height: 3.25rem; padding: .75rem 1.5rem; font-size: 1rem; }
