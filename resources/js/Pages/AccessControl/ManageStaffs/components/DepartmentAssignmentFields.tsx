@@ -203,10 +203,10 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                                 Department / Office Head (Optional)
                             </span>
-                            <Button variant="ghost" size="sm"
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={() => setShowOptionalHead(!showOptionalHead)}
-                                className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
+                                className="min-h-0 h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                             >
                                 {showOptionalHead ? 'Hide optional head' : '+ Assign office head (optional)'}
                             </Button>
@@ -219,10 +219,10 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                         <label htmlFor="staff-office-head" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                             Department Head (Optional)
                                         </label>
-                                        <Button variant="ghost" size="sm"
+                                        <Button variant="ghost"
                                             type="button"
                                             onClick={() => toggleManualMode(!isManualMode)}
-                                            className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
+                                            className="min-h-0 h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                                         >
                                             {isManualMode ? 'Choose from list' : 'Enter head manually'}
                                         </Button>
@@ -316,10 +316,10 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             <label htmlFor="staff-office-head" className="block text-sm font-semibold">
                                 Department / Office Head {required && '*'}
                             </label>
-                            <Button variant="ghost" size="sm"
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={() => toggleManualMode(!isManualMode)}
-                                className="h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
+                                className="min-h-0 h-auto py-1 px-2 text-sm text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 inline-flex items-center gap-1 font-medium"
                             >
                                 {isManualMode ? (
                                     <>

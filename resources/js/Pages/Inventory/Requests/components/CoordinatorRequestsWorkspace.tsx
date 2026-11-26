@@ -181,10 +181,10 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                 <section data-tour="coordinator-request-workspace" className={`${panel} overflow-hidden`} aria-label="My supply requisitions">
                     <div className="table-toolbar flex flex-col justify-between gap-3 border-b border-slate-100 p-4 sm:px-6 sm:py-5 xl:flex-row xl:items-center dark:border-slate-800">
                         <div className="relative min-w-0 flex-1 xl:max-w-md">
-                            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300" />
+                            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300 shrink-0" />
                             <input type="search" aria-label="Search my supply requests" placeholder="Search RIS number, item, recipient, or purpose…" value={props.search} onChange={event => props.onSearch(event.target.value)} className="ui-field h-11 w-full rounded-lg border-slate-300 bg-white pl-10 pr-10 text-sm placeholder:text-slate-400 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" />
                             {props.search && (
-                                <Button variant="secondary" size="icon" type="button" aria-label="Clear request search" onClick={() => props.onSearch('')} className="absolute right-1 top-1">
+                                <Button variant="ghost" size="icon" type="button" aria-label="Clear request search" onClick={() => props.onSearch('')} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                                     <X size={16} />
                                 </Button>
                             )}

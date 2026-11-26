@@ -3,6 +3,7 @@ import { Button } from '@/Components/ui/button';
 import React, { Suspense, lazy, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
+import { FileText, Eye, X, ClipboardCheck, Loader2, Printer, Check, ArrowRight } from 'lucide-react';
 import {
     customSelectStyles,
     MONTH_OPTIONS,
@@ -229,14 +230,9 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100/80 dark:border-red-800/50 flex items-center justify-center text-red-900 dark:text-red-300 shadow-sm shrink-0">
                             {currentStep === 'configure' ? (
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                                <FileText className="w-5 h-5" />
                             ) : (
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
+                                <Eye className="w-5 h-5" />
                             )}
                         </div>
                         <div className="min-w-0">
@@ -275,9 +271,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             className=""
                             aria-label="Close modal"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <X className="w-5 h-5" />
                         </Button>
                     </div>
                 </DialogHeader>
@@ -562,9 +556,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-red-900 rounded-xl shadow-sm text-sm print:hidden compliance-print-hide">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 flex items-center justify-center shrink-0">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                                        </svg>
+                                        <ClipboardCheck className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal tabular-nums block">
@@ -651,16 +643,13 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             >
                                 {isLoadingPreview ? (
                                     <>
-                                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                        </svg>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
                                         <span>Loading Authoritative Preview...</span>
                                     </>
                                 ) : (
                                     <>
                                         <span>Preview Official Report</span>
-                                        <span>&rarr;</span>
+                                        <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                                     </>
                                 )}
                             </Button>
@@ -672,9 +661,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     disabled={isSubmitting || (formData.type === 'MR' && !previewDataset?.mr?.items?.length)}
                                     className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
                                 >
-                                    <svg className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                    </svg>
+                                    <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 shrink-0" />
                                     <span>Print Preview</span>
                                 </Button>
 
@@ -686,17 +673,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                            </svg>
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
                                             <span>Recording in Registry...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                            </svg>
+                                            <Check className="w-3.5 h-3.5 shrink-0" />
                                             <span>Save & Record Document</span>
                                         </>
                                     )}

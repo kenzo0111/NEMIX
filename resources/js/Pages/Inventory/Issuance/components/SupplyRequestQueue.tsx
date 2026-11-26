@@ -359,7 +359,7 @@ export function SupplyRequestQueue({
                         <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                         <span>{actionError}</span>
                     </div>
-                    <Button variant="secondary" type="button" onClick={() => setActionError(null)} className="">×</Button>
+                    <Button variant="ghost" size="icon" type="button" onClick={() => setActionError(null)} aria-label="Dismiss error" className="text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 shrink-0"><X className="w-4 h-4" /></Button>
                 </div>
             )}
 

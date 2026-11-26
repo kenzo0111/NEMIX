@@ -35,11 +35,10 @@
     .ui-button[data-variant]:focus-visible { outline: 2px solid var(--focus-color); outline-offset: 2px; --tw-ring-shadow: 0 0 #0000; }
     .ui-button[data-variant]:disabled, .ui-button[data-variant][aria-disabled='true'] { opacity: .6; cursor: not-allowed; transform: none; }
     .ui-button[data-size='icon'] { min-width: 2.75rem; width: 2.75rem; min-height: 2.75rem; padding: 0; flex-shrink: 0; }
-    .table-toolbar .ui-button[data-size='icon'], .ui-button[data-size='icon'].absolute { min-width: var(--control-height); width: var(--control-height); min-height: var(--control-height); height: var(--control-height); }
-    .ui-button[data-size='icon'].absolute { top: 0; bottom: 0; }
+    :where(.table-toolbar .ui-button[data-size='icon'], .ui-button[data-size='icon'].absolute) { min-width: var(--control-height); width: var(--control-height); min-height: var(--control-height); height: var(--control-height); }
     .ui-button[data-size='auth'] { min-height: 3.25rem; padding: .75rem 1.5rem; font-size: 1rem; }
 
-    :is(input, select, textarea).ui-field {
+    :where(input, select, textarea).ui-field {
         min-height: var(--control-height);
         border: 1px solid var(--control-border);
         border-radius: var(--radius-control);
@@ -49,13 +48,13 @@
         line-height: 1.625rem;
         box-shadow: none;
     }
-    :is(input:not([type='checkbox']):not([type='radio']), select, textarea).ui-field {
+    :where(input:not([type='checkbox']):not([type='radio']), select, textarea).ui-field {
         padding: 0.5rem 0.875rem;
     }
-    select.ui-field {
+    :where(select).ui-field {
         padding-right: 2.25rem;
     }
-    textarea.ui-field {
+    :where(textarea).ui-field {
         padding: 0.625rem 0.875rem;
         min-height: 5rem;
     }

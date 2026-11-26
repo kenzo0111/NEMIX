@@ -1,6 +1,6 @@
 import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
-import { Plus, Search, Shield, ShieldCheck, Lock, Users } from 'lucide-react';
+import { Plus, Search, Shield, ShieldCheck, Lock, Users, X } from 'lucide-react';
 import { Role } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -65,17 +65,19 @@ export default function RoleTable({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Search roles..."
                             aria-label="Search roles"
-                            className="ui-field w-full pl-9 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
+                            className="ui-field w-full pl-9 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
                         />
-                        <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
                         {searchQuery && (
-                            <Button variant="secondary"
+                            <Button
+                                variant="ghost"
+                                size="icon"
                                 type="button"
                                 onClick={() => onSearchChange('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                                className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                 aria-label="Clear search"
                             >
-                                ✕
+                                <X className="w-3.5 h-3.5" />
                             </Button>
                         )}
                     </div>

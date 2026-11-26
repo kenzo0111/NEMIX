@@ -4,6 +4,7 @@ import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { Supplier } from '../types';
 import useAuthorization from '@/Hooks/useAuthorization';
+import { Search, QrCode, Plus } from 'lucide-react';
 
 interface ReceivingToolbarProps {
     searchTerm: string;
@@ -51,14 +52,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                         Search receiving records
                     </label>
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                        <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
+                        <Search className="w-4 h-4 shrink-0" aria-hidden="true" />
                     </div>
                     <input
                         id="receiving-search-input"
@@ -91,14 +85,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                     onClick={onScanRfid}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
                 >
-                    <svg className="w-4 h-4 text-red-950 dark:text-red-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                        />
-                    </svg>
+                    <QrCode className="w-4 h-4 text-red-950 dark:text-red-400 shrink-0" aria-hidden="true" />
                     <span>Scan RFID (Optional)</span>
                 </Button>}
 
@@ -108,9 +95,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                     onClick={onRecordReceiving}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
-                    <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                    <Plus className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
                     <span>Record Receiving</span>
                 </Button>}
             </div>

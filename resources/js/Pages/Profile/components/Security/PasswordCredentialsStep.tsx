@@ -1,6 +1,6 @@
 import { Button } from '@/Components/ui/button';
 import React, { FormEventHandler } from 'react';
-import { Lock, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, RotateCcw } from 'lucide-react';
+import { Lock, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 import PasswordRequirements from './PasswordRequirements';
 import { FieldErrors } from '../../types';
 
@@ -79,7 +79,7 @@ export default function PasswordCredentialsStep({
                 </label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-4 h-4 shrink-0" />
                     </div>
                     <input aria-invalid={Boolean(errors.current_password)}
                         id="current_password"
@@ -90,15 +90,17 @@ export default function PasswordCredentialsStep({
                         required
                         autoComplete="current-password"
                         disabled={isSubmitting}
-                        className={"ui-field " + (`w-full pl-10 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.current_password
+                        className={"ui-field " + (`w-full pl-10 pr-11 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.current_password
     ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                         placeholder="Enter your existing account password"
                     />
-                    <Button variant="secondary"
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         type="button"
                         onClick={() => setShowCurrentPassword((prev) => !prev)}
-                        className="absolute inset-y-0 right-0 flex items-center"
-                        tabIndex={-1}
+                        className="absolute inset-y-0 right-0 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
                     >
                         {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>
@@ -123,7 +125,7 @@ export default function PasswordCredentialsStep({
                     </label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                            <KeyRound className="w-4 h-4" />
+                            <KeyRound className="w-4 h-4 shrink-0" />
                         </div>
                         <input aria-invalid={Boolean(errors.password)}
                             id="new_password"
@@ -134,15 +136,17 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={"ui-field " + (`w-full pl-10 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password
+                            className={"ui-field " + (`w-full pl-10 pr-11 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password
     ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                             placeholder="Enter new password"
                         />
-                        <Button variant="secondary"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             type="button"
                             onClick={() => setShowNewPassword((prev) => !prev)}
-                            className="absolute inset-y-0 right-0 flex items-center"
-                            tabIndex={-1}
+                            className="absolute inset-y-0 right-0 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                            aria-label={showNewPassword ? "Hide new password" : "Show new password"}
                         >
                             {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </Button>
@@ -165,7 +169,7 @@ export default function PasswordCredentialsStep({
                     </label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                            <KeyRound className="w-4 h-4" />
+                            <KeyRound className="w-4 h-4 shrink-0" />
                         </div>
                         <input aria-invalid={Boolean(errors.password_confirmation)}
                             id="password_confirmation"
@@ -175,15 +179,17 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={"ui-field " + (`w-full pl-10 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password_confirmation
+                            className={"ui-field " + (`w-full pl-10 pr-11 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password_confirmation
     ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                             placeholder="Confirm new password"
                         />
-                        <Button variant="secondary"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             type="button"
                             onClick={() => setShowConfirmPassword((prev) => !prev)}
-                            className="absolute inset-y-0 right-0 flex items-center"
-                            tabIndex={-1}
+                            className="absolute inset-y-0 right-0 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                            aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                         >
                             {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </Button>
@@ -227,10 +233,7 @@ export default function PasswordCredentialsStep({
                     >
                         {isSubmitting ? (
                             <>
-                                <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                </svg>
+                                <Loader2 className="animate-spin w-3.5 h-3.5 shrink-0" />
                                 <span>Sending Code...</span>
                             </>
                         ) : (

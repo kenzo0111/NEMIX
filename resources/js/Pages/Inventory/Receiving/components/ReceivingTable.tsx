@@ -5,6 +5,7 @@ import { ReceivingRow } from './ReceivingRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import TablePagination from '@/Components/ui/table-pagination';
+import { Inbox } from 'lucide-react';
 
 interface ReceivingTableProps {
     receivings: ReceivingRecord[];
@@ -73,19 +74,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             <tr>
                                 <td colSpan={8} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
-                                        <svg
-                                            className="w-10 h-10 text-slate-300 dark:text-slate-400 mb-2"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="1.5"
-                                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                                            />
-                                        </svg>
+                                        <Inbox className="w-10 h-10 text-slate-300 dark:text-slate-400 mb-2" strokeWidth={1.5} />
                                         <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
                                             No receiving records found
                                         </p>

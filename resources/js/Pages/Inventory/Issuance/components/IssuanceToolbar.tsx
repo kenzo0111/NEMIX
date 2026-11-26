@@ -2,6 +2,7 @@ import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
+import { Search, Plus } from 'lucide-react';
 
 interface IssuanceToolbarProps {
     searchTerm: string;
@@ -43,14 +44,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         Search issuance records
                     </label>
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                        <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
+                        <Search className="w-4 h-4 shrink-0" aria-hidden="true" />
                     </div>
                     <input
                         id="issuance-search-input"
@@ -83,9 +77,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                     onClick={onRecordIssuance}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
-                    <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                    <Plus className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
                     Direct Stock Issuance
                 </Button>}
             </div>

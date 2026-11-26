@@ -1,6 +1,6 @@
 import { Button } from '@/Components/ui/button';
 import React, { FormEventHandler, KeyboardEvent, ClipboardEvent } from 'react';
-import { Mail, Clock, ShieldCheck, ArrowLeft, RefreshCw, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Mail, Clock, ShieldCheck, ArrowLeft, RefreshCw, AlertCircle, ShieldAlert, Loader2 } from 'lucide-react';
 import OtpDigitInput from './OtpDigitInput';
 import { FieldErrors } from '../../types';
 
@@ -73,10 +73,7 @@ export default function PasswordOtpStep({
             {/* Success verifying transition */}
             {isVerifyingSuccess && (
                 <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 flex items-center justify-center gap-2 text-sm font-semibold">
-                    <svg className="animate-spin w-4 h-4 text-emerald-700 dark:text-emerald-400" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
+                    <Loader2 className="animate-spin w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                     <span>Code verified. Updating password...</span>
                 </div>
             )}
@@ -184,10 +181,7 @@ export default function PasswordOtpStep({
                 >
                     {isSubmitting ? (
                         <>
-                            <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                            </svg>
+                            <Loader2 className="animate-spin w-4 h-4 shrink-0" />
                             <span>Verifying...</span>
                         </>
                     ) : (

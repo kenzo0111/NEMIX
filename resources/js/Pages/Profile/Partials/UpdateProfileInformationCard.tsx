@@ -13,6 +13,7 @@ import {
     Save,
     RotateCcw,
     CheckCircle2,
+    Loader2,
     Building2,
     Shield,
     Lock,
@@ -266,10 +267,10 @@ export default function UpdateProfileInformationCard({
                                             readOnly
                                             disabled
                                             value="Supply & Property Management Office"
-                                            className="ui-field w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
+                                            className="ui-field w-full pl-10 pr-9 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
                                         />
-                                        <Building2 className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 dark:text-slate-300" />
-                                        <Lock className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-2.5 dark:text-slate-300" />
+                                        <Building2 className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
+                                        <Lock className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
                                     </div>
                                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                         Assigned by University HR & Administration.
@@ -286,10 +287,10 @@ export default function UpdateProfileInformationCard({
                                             readOnly
                                             disabled
                                             value={currentUser.role}
-                                            className="ui-field w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
+                                            className="ui-field w-full pl-10 pr-9 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
                                         />
-                                        <Shield className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 dark:text-slate-300" />
-                                        <Lock className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-2.5 dark:text-slate-300" />
+                                        <Shield className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
+                                        <Lock className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
                                     </div>
                                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                         Role adjustments require Administrator authorization.
@@ -350,10 +351,7 @@ export default function UpdateProfileInformationCard({
                                     >
                                         {processing ? (
                                             <>
-                                                <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                                </svg>
+                                                <Loader2 className="animate-spin w-3.5 h-3.5 shrink-0" />
                                                 <span>Saving...</span>
                                             </>
                                         ) : (

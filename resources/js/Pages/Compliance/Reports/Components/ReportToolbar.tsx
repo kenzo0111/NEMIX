@@ -1,6 +1,7 @@
 import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
+import { Search, Upload, Plus } from 'lucide-react';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { REPORT_TYPE_OPTIONS } from '../constants';
 import { ReportType } from '../types';
@@ -46,14 +47,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
+                        <Search className="w-4 h-4 shrink-0" />
                     </div>
                     <input
                         type="text"
@@ -83,9 +77,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                     onClick={onOpenMigration}
                     className="table-control w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
-                    <svg className="w-4 h-4 text-red-900 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-                    </svg>
+                    <Upload className="w-4 h-4 text-red-900 dark:text-red-300 shrink-0" />
                     Migrate Data
                 </Button>}
 
@@ -95,9 +87,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                     onClick={onOpenGenerate}
                     className="table-control w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
-                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                    <Plus className="w-4 h-4 text-amber-300 shrink-0" />
                     Generate Report
                 </Button>}
             </div>

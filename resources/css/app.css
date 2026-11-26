@@ -356,6 +356,12 @@ input[type="text"]::-ms-clear {
     -webkit-appearance: none !important;
 }
 
+input[type="search"].ui-field::-webkit-search-cancel-button,
+input[type="search"].ui-field::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
 input::-webkit-credentials-auto-fill-button,
 input::-webkit-contacts-auto-fill-button,
 input::-webkit-caps-lock-indicator {

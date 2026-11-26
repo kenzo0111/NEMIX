@@ -294,12 +294,12 @@ export default function AnalyticsFilters({
                 {active.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                         {active.map((field) => (
-                            <Button variant="secondary" size="icon"
+                            <Button variant="secondary"
                                 key={field.key}
                                 type="button"
                                 disabled={loading}
                                 onClick={() => onChange(field.key, '')}
-                                className="inline-flex max-w-full items-center gap-2"
+                                className="inline-flex max-w-full items-center gap-2 min-h-8 h-auto py-1 px-3 text-xs"
                                 aria-label={`Remove ${field.label} filter`}
                             >
                                 <span className="truncate">

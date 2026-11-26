@@ -6,6 +6,7 @@ import Modal from '@/Components/Modal';
 import { IssuanceRecord } from '../types';
 import { getFundClusterDisplay } from '../constants';
 import RequisitionIssueSlip from '../../../../../Official Forms/RequisitionIssueSlip';
+import { X, Printer } from 'lucide-react';
 
 interface RisPreviewModalProps {
     show: boolean;
@@ -117,9 +118,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                             className=""
                             aria-label="Close"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <X className="w-5 h-5" />
                         </Button>
                     </div>
                 </DialogHeader>
@@ -140,14 +139,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                         onClick={handlePrint}
                         className="flex items-center gap-1.5"
                     >
-                        <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                            />
-                        </svg>
+                        <Printer className="w-4 h-4 text-amber-300 shrink-0" />
                         Print
                     </Button>
                     <Button variant="secondary"

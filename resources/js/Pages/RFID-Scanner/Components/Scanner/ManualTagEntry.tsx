@@ -29,11 +29,11 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                         Manual Tag Entry
                     </h3>
                 </div>
-                <Button variant="secondary"
+                <Button variant="ghost" size="icon"
                     type="button"
                     onClick={onCancel}
                     aria-label="Cancel manual tag entry"
-                    className=""
+                    className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 >
                     <X className="w-4 h-4" />
                 </Button>
@@ -58,7 +58,7 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                             autoFocus
                             className="ui-field w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm tabular-nums placeholder-slate-400 focus:border-red-950 focus:ring-1 focus:ring-red-950 shadow-sm transition-colors dark:bg-slate-900"
                         />
-                        <Radio className="w-4 h-4 text-slate-500 absolute left-3 top-3 dark:text-slate-300" />
+                        <Radio className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
                     </div>
                 </div>
 

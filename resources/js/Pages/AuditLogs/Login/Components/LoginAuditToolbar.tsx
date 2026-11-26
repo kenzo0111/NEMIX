@@ -205,7 +205,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                         <Button variant="ghost" size="icon"
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             aria-label="Clear search"
                         >
                             <X className="w-3.5 h-3.5" />

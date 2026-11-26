@@ -625,8 +625,8 @@ export function RequestFormModal({
                                 onClick={handleAddItem}
                                 className="flex items-center gap-1.5"
                             >
-                                <Plus className="w-3.5 h-3.5 text-amber-500" />
-                                + Add another item
+                                <Plus className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                Add another item
                             </Button>
                         </div>
 

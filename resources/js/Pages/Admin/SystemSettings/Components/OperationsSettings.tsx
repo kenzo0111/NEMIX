@@ -47,9 +47,9 @@ export default function OperationsSettings({
                                     parseInt(e.target.value, 10) || 30
                                 )
                             }
-                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full pl-3.5 pr-20 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-                        <span className="absolute right-3.5 top-2.5 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-slate-500 dark:text-slate-400 font-medium">
                             Minutes
                         </span>
                     </div>

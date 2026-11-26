@@ -133,8 +133,8 @@ export default function SupplyRequestAlerts({
                 aria-expanded={open}
                 className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-100 hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-amber-400"
             >
-                <span className="relative shrink-0"><Bell className="w-5 h-5" />
-                    {data.unread_count > 0 && <span className="absolute -top-2 -right-2 rounded-full bg-amber-400 px-1 min-w-4 text-center text-sm font-semibold text-red-950">{data.unread_count > 99 ? '99+' : data.unread_count}</span>}
+                <span className="relative inline-flex items-center justify-center shrink-0"><Bell className="w-5 h-5" />
+                    {data.unread_count > 0 && <span className="absolute -top-1.5 -right-2 rounded-full bg-amber-400 px-1 min-w-[1.125rem] h-[1.125rem] inline-flex items-center justify-center text-[11px] leading-none font-bold text-red-950 ring-2 ring-red-950">{data.unread_count > 99 ? '99+' : data.unread_count}</span>}
                 </span>
                 {!collapsed && <span className="flex-1 text-left">Request alerts</span>}
                 {!collapsed && <span className="text-amber-300 font-semibold">{data.pending_count} pending</span>}

@@ -7,6 +7,7 @@ import { ComplianceReport } from '../types';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import { FileText, Plus } from 'lucide-react';
 
 type ReportSortKey = 'reference' | 'type' | 'title' | 'coverage' | 'generated';
 
@@ -127,9 +128,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
             ) : (
                 <div className="p-12 text-center">
                     <div className="w-12 h-12 mx-auto bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-full flex items-center justify-center mb-3">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                        <FileText className="w-6 h-6" strokeWidth={1.5} />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">No Compliance Reports Found</h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
@@ -141,9 +140,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                             onClick={onOpenGenerate}
                             className="mt-4 inline-flex items-center justify-center gap-2 tabular-nums"
                         >
-                            <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                            </svg>
+                            <Plus className="w-4 h-4 text-amber-300 shrink-0" />
                             Generate Report
                         </Button>
                     )}

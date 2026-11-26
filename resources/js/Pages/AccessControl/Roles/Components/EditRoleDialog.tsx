@@ -191,13 +191,13 @@ export default function EditRoleDialog({
                                     value={data.name}
                                     disabled={isSystemRole}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
-        ? "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 cursor-not-allowed border-slate-200 dark:border-slate-700 pl-8" : errors.name
+                                    className={"ui-field " + (`bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full py-2.5 px-3 transition-all ${isSystemRole
+        ? "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 cursor-not-allowed border-slate-200 dark:border-slate-700 pl-9" : errors.name
         ? "border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
                                     required
                                 />
                                 {isSystemRole && (
-                                    <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                                    <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
                                 )}
                             </div>
                         </Field>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 interface SidebarBrandProps {
     collapsed?: boolean;
@@ -35,9 +36,7 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                     className="absolute right-1 top-1 inline-flex h-11 w-11 items-center justify-center rounded-lg text-red-200/70 transition-colors hover:bg-white/10 hover:text-white md:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     aria-label="Close mobile sidebar"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-5 h-5" />
                 </button>
             )}
         </div>

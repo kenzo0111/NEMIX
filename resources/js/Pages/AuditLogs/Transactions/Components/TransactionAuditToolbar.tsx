@@ -239,10 +239,11 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                         className="ui-field table-control w-full pl-10 pr-9 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-slate-400 dark:placeholder-slate-500"
                     />
                     {search && (
-                        <Button variant="secondary" size="icon"
+                        <Button variant="ghost" size="icon"
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            aria-label="Clear search"
                             title="Clear search"
                         >
                             <X className="w-3.5 h-3.5" />

@@ -11,7 +11,7 @@ import { FUND_CLUSTER_OPTIONS, FALLBACK_DIVISIONS } from '../constants';
 import { IssuanceItemRow } from './IssuanceItemRow';
 import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { getLocalDateString } from '@/utils/dateUtils';
-import { FileSpreadsheet, X } from 'lucide-react';
+import { FileSpreadsheet, X, Plus } from 'lucide-react';
 
 interface IssuanceFormModalProps {
     show: boolean;
@@ -305,10 +305,8 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                 onClick={handleAddItem}
                                 className="flex items-center gap-1.5"
                             >
-                                <svg className="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                                + Add another item
+                                <Plus className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                Add another item
                             </Button>
                         </div>
 

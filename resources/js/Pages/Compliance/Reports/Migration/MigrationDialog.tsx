@@ -2,6 +2,7 @@ import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-f
 import { Button } from '@/Components/ui/button';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
+import { Upload, X, Loader2, FileText } from 'lucide-react';
 import Select from 'react-select';
 import { customSelectStyles, REPORT_TYPE_OPTIONS } from '../constants';
 import { getFieldMappingMatrix } from './parsers/fieldMapping';
@@ -105,9 +106,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
             <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-center text-amber-900 dark:text-amber-300 shadow-sm shrink-0">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
+                            <Upload className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -131,9 +130,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         className="shrink-0 ml-2"
                         aria-label="Close modal"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-5 h-5" />
                     </Button>
                 </DialogHeader>
 
@@ -204,17 +201,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                             {isExtracting ? (
                                 <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 dark:text-red-300 font-medium bg-red-50 dark:bg-red-950/40 p-3 rounded-lg border border-red-200/80 dark:border-red-800/50 shadow-sm">
-                                    <svg className="w-4 h-4 animate-spin text-red-900 dark:text-red-400 shrink-0" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
+                                    <Loader2 className="w-4 h-4 animate-spin text-red-900 dark:text-red-400 shrink-0" />
                                     <span>{statusMessage || 'Processing and parsing historical document content...'}</span>
                                 </div>
                             ) : fileName ? (
                                 <div className="mt-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 inline-flex">
-                                    <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
+                                    <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
                                     <span>Loaded file: <strong className="text-slate-900 dark:text-slate-100">{fileName}</strong></span>
                                 </div>
                             ) : null}
@@ -437,17 +429,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     >
                         {isSubmitting ? (
                             <>
-                                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
                                 <span>{statusMessage || 'Importing Records...'}</span>
                             </>
                         ) : (
                             <>
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-                                </svg>
+                                <Upload className="w-3.5 h-3.5 shrink-0" />
                                 <span>
                                     {selectedSheetTab === 'ALL'
                                         ? `Import All ${validation.validCount} Valid Records`

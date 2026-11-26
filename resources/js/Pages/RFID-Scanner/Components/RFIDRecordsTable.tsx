@@ -244,15 +244,15 @@ export default function RFIDRecordsTable({
                                     value={localSearch}
                                     onChange={(e) => setLocalSearch(e.target.value)}
                                     placeholder="Search by name, property no, or tag..."
-                                    className="ui-field h-10 w-full pl-10 pr-9 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
+                                    className="ui-field h-10 w-full pl-10 pr-10 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
                                 />
-                                <Search className="pointer-events-none w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <Search className="pointer-events-none w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 shrink-0" />
                                 {localSearch && (
-                                    <Button variant="secondary" size="icon"
+                                    <Button variant="ghost" size="icon"
                                         type="button"
                                         onClick={handleClearSearch}
                                         aria-label="Clear RFID search"
-                                        className="absolute right-2 inset-y-0"
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                     >
                                         <X className="w-3.5 h-3.5" />
                                     </Button>
@@ -417,8 +417,8 @@ export default function RFIDRecordsTable({
                             currentPage={pagination.current_page}
                             totalPages={pagination.last_page}
                             totalRecords={pagination.total}
-                            from={pagination.from}
-                            to={pagination.to}
+                            from={pagination.from ?? undefined}
+                            to={pagination.to ?? undefined}
                             onPageChange={handlePageChange}
                             recordLabel="records"
                         />
