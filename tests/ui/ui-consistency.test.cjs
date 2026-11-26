@@ -78,6 +78,7 @@ test('the configured Tailwind compiler generates the shared control, status and 
     const config = require('tailwindcss/loadConfig')(require('node:path').resolve('tailwind.config.js'));
     const css = fs.readFileSync('resources/css/ui.css', 'utf8');
     const compiled = await postcss([tailwind({ ...config, content: [{ raw: '<button class="ui-button"></button><input class="ui-field"><span class="ui-status"></span><table class="ui-data-table"></table><div class="ui-dialog-panel ui-dialog-header ui-dialog-body ui-dialog-footer"></div>' }] })]).process('@tailwind base; @tailwind components; @tailwind utilities;\n' + css, { from: undefined });
+    assert.match(compiled.css, /\.ui-button:where\(\[data-variant\]:not\(\[data-variant=['"]unstyled['"]\]\)\)/);
     assert.match(compiled.css, /\.ui-button\[data-variant=['"]primary['"]\]/);
     assert.match(compiled.css, /background: var\(--brand-primary\)/);
     assert.match(compiled.css, /\.ui-status\[data-tone=['"]neutral['"]\]/);
