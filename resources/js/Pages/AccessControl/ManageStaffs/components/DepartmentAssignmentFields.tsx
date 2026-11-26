@@ -79,12 +79,6 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
     const selectStyles = (hasError: boolean) => ({
         ...getInstitutionalSelectStyles(hasError),
         menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
-        singleValue: (base: any) => ({
-            ...base,
-            whiteSpace: 'normal' as const,
-            overflowWrap: 'anywhere' as const,
-            color: 'var(--text-primary, #111827)',
-        }),
     });
 
     const inputClass = 'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors';
