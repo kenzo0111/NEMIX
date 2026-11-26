@@ -1,5 +1,5 @@
 @layer components {
-    .ui-button[data-variant]:not([data-variant='unstyled']) {
+    :where(.ui-button[data-variant]:not([data-variant='unstyled'])) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
