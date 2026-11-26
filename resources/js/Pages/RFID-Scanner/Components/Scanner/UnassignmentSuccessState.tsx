@@ -21,21 +21,21 @@ export default function UnassignmentSuccessState({
                 RFID Tag Removed
             </h3>
 
-            <p className="leading-relaxed text-sm text-slate-500 mt-1 dark:text-slate-300">
+            <p className="leading-relaxed text-sm text-slate-500 mt-1 dark:text-slate-400">
                 The RFID tag has been dissociated from:
             </p>
 
             <div className="my-3.5 bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
-                <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold block mb-1 dark:text-slate-300">
+                <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold block mb-1 dark:text-slate-400">
                     Inventory Record
                 </span>
-                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
-                <p className="leading-relaxed text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-300">
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-100">{item.name}</p>
+                <p className="leading-relaxed text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-400">
                     Property No: {item.sku || 'N/A'}
                 </p>
             </div>
 
-            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-300">
+            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                 This item is now untagged and ready for a new tag association.
             </p>
 

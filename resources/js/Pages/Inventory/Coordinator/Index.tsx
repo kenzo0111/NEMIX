@@ -5,7 +5,6 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { ArrowRight, Boxes, ChevronRight, ClipboardList, FileText, History, Package, Plus, Search, Wallet, X } from 'lucide-react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import CoordinatorPortalHeader from './components/CoordinatorPortalHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import IssueDialog from './components/IssueDialog';
 import StockCardDialog from './components/StockCardDialog';
@@ -65,10 +64,30 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
         <Head title={`${inventoryTitle} | ${isAuthorizedPersonnel ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
 
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
-            <CoordinatorPortalHeader />
             <DashboardContent>
-                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">{workspaceName} Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">{isAuthorizedPersonnel ? 'Office Inventory' : 'Unit Inventory'}</span></nav>
-                <PageHeader embedded title={inventoryTitle} description={`Manage your ${supplyOwner}’s supplies, record distributions, and prepare official Stock Cards.`} actions={<><div className="flex flex-wrap gap-2.5">{can('inventory.requests.index') && <Link data-variant="secondary" data-size="default" href={route('inventory.requests.index')} className={"ui-button " + (secondaryButton)}><ClipboardList size={16} />My Requests</Link>}{can('inventory.requests.store') && <Link data-variant="primary" data-size="default" href={route('inventory.requests.index', { create: 1 })} className="ui-button inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} />Request Supplies</Link>}</div></>} />
+                <PageHeader
+                    embedded
+                    title={inventoryTitle}
+                    description={`Manage your ${supplyOwner}’s supplies, record distributions, and prepare official Stock Cards.`}
+                    breadcrumbs={[
+                        { name: `${workspaceName} Dashboard`, href: route('dashboard') },
+                        { name: isAuthorizedPersonnel ? 'Office Inventory' : 'Unit Inventory' },
+                    ]}
+                    actions={
+                        <div className="flex flex-wrap gap-2.5">
+                            {can('inventory.requests.index') && (
+                                <Link data-variant="secondary" data-size="default" href={route('inventory.requests.index')} className="ui-button">
+                                    <ClipboardList size={16} aria-hidden="true" />My Requests
+                                </Link>
+                            )}
+                            {can('inventory.requests.store') && (
+                                <Link data-variant="primary" data-size="default" href={route('inventory.requests.index', { create: 1 })} className="ui-button">
+                                    <Plus size={17} aria-hidden="true" />Request Supplies
+                                </Link>
+                            )}
+                        </div>
+                    }
+                />
                 <section data-tour="coordinator-inventory-summary" aria-label={`${supplyOwner} inventory overview`} className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                     <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">Supplies in stock</p><p className="mt-2 text-xl font-semibold tabular-nums sm:text-2xl">{available}<span className="ml-2 text-sm font-normal text-slate-500 sm:text-sm dark:text-slate-300">item types</span></p><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Available in your {workspaceName}</p></div><span className="hidden rounded-xl bg-red-50 p-2.5 text-red-900 xl:inline-flex dark:bg-red-950/60 dark:text-red-300"><Boxes size={20} /></span></div>
                     <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">Inventory value</p><p className="mt-2 break-words text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{money(totalValue)}</p><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Total value of supplies on hand</p></div><span className="hidden rounded-xl bg-slate-100 p-2.5 text-slate-600 xl:inline-flex dark:bg-slate-800 dark:text-slate-300"><Wallet size={20} /></span></div>

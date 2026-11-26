@@ -64,14 +64,14 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
                     <Button variant="secondary"
                         type="button"
                         onClick={() => onViewDetails(issuance)}
-                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                        size="sm" className="inline-flex items-center justify-center gap-1.5"
                     >
                         View
                     </Button>
                     <Button variant="secondary"
                         type="button"
                         onClick={() => onViewRisForm(issuance)}
-                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                        size="sm" className="inline-flex items-center justify-center gap-1.5"
                     >
                         RIS Form
                     </Button>

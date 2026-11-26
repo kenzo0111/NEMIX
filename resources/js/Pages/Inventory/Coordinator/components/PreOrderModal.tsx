@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { router, useForm, usePage } from '@inertiajs/react';
 import { AlertCircle, Package, PackagePlus, Trash2, X } from 'lucide-react';
 import Modal from '@/Components/Modal';
+import ConfirmDialog from '@/Components/ui/confirm-dialog';
+import StatusBadge from '@/Components/ui/status-badge';
 import { DialogBody, DialogFooter, DialogHeader } from '@/Components/ui/dialog-frame';
 import { Button } from '@/Components/ui/button';
 import Field from '@/Components/ui/field';
@@ -56,22 +58,24 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
         });
     };
 
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [cancelling, setCancelling] = useState(false);
+
     const handleCancelPreOrder = () => {
         if (!item?.user_pre_order?.id) return;
-        if (
-            !confirm(
-                'Are you sure you want to cancel this pre-request? The Supply Office will no longer track this unit demand.'
-            )
-        )
-            return;
-
+        setCancelling(true);
         router.delete(route('inventory.pre-orders.destroy', item.user_pre_order.id), {
             preserveScroll: true,
-            onSuccess: () => onClose(),
+            onSuccess: () => {
+                setShowCancelConfirm(false);
+                onClose();
+            },
+            onFinish: () => setCancelling(false),
         });
     };
 
     return (
+        <>
         <Modal
             show={Boolean(item)}
             onClose={onClose}
@@ -122,16 +126,14 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                                 Stock No: <span className="font-mono">{item?.sku}</span> · Unit: {item?.unit || 'unit'}
                             </p>
                             <div className="mt-2 flex items-center gap-2">
-                                <span className="inline-flex items-center rounded-md bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950/60 dark:text-red-300">
-                                    0 in Supply Office (Out of Stock)
-                                </span>
+                                <StatusBadge tone="danger">0 in Supply Office (Out of Stock)</StatusBadge>
                             </div>
                         </div>
                     </div>
 
                     {/* Requesting Unit Info */}
                     <div className="rounded-lg border border-slate-200 bg-white p-3.5 text-sm dark:border-slate-700 dark:bg-slate-900">
-                        <span className="text-xs font-semibold tracking-normal text-slate-500 dark:text-slate-400 uppercase">
+                        <span className="text-sm font-semibold tracking-normal text-slate-500 dark:text-slate-400">
                             Requesting {supplyOwner}
                         </span>
                         <p className="mt-0.5 font-semibold text-slate-800 dark:text-slate-200">
@@ -191,7 +193,7 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                                 />
                                 <div>
                                     <p className="font-semibold text-slate-800 dark:text-slate-200">Normal</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">Standard operational need</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Standard operational need</p>
                                 </div>
                             </label>
                             <label
@@ -212,7 +214,7 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                                 />
                                 <div>
                                     <p className="font-semibold text-amber-900 dark:text-amber-200">Urgent</p>
-                                    <p className="text-xs text-amber-800/80 dark:text-amber-300/80">Critical / immediate need</p>
+                                    <p className="text-sm text-amber-800/80 dark:text-amber-300/80">Critical / immediate need</p>
                                 </div>
                             </label>
                         </div>
@@ -251,7 +253,7 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                                 variant="secondary"
                                 type="button"
                                 disabled={form.processing}
-                                onClick={handleCancelPreOrder}
+                                onClick={() => setShowCancelConfirm(true)}
                                 className="inline-flex items-center gap-1.5 text-rose-700 hover:text-rose-800 dark:text-rose-400"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -284,5 +286,16 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                 </DialogFooter>
             </form>
         </Modal>
+        <ConfirmDialog
+            show={showCancelConfirm}
+            title="Cancel Pre-Request"
+            message="Are you sure you want to cancel this pre-request? The Supply Office will no longer track this unit demand."
+            confirmLabel="Cancel Pre-Request"
+            variant="danger"
+            loading={cancelling}
+            onConfirm={handleCancelPreOrder}
+            onClose={() => setShowCancelConfirm(false)}
+        />
+    </>
     );
 }

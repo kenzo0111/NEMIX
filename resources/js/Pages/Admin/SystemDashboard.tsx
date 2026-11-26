@@ -97,18 +97,18 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
                     </div>
                     <div className="mt-4 grid gap-4 lg:grid-cols-2">
                         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between gap-3"><h3 className="font-semibold">Requisition status</h3><Link href={route('inventory.requests.index')} className="text-sm font-medium text-red-900 hover:underline dark:text-red-300">Open requests</Link></div>
+                            <div className="flex items-center justify-between gap-3"><h3 className="text-base font-semibold">Requisition status</h3><Link href={route('inventory.requests.index')} className="text-sm font-medium text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 rounded dark:text-red-300">Open requests</Link></div>
                             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                                 {([['Pending', pendingRequests], ['Approved', approvedRequests], ['Issued', issuedRequests], ['Rejected', rejectedRequests]] as const).map(([label, count]) => <div key={label} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><dt className="text-slate-500 dark:text-slate-400">{label}</dt><dd className="mt-1 text-xl font-semibold">{count.toLocaleString('en-PH')}</dd></div>)}
                             </dl>
                         </article>
                         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between gap-3"><h3 className="font-semibold">Stock requiring attention</h3><Link href={route('inventory.index')} className="text-sm font-medium text-red-900 hover:underline dark:text-red-300">View inventory</Link></div>
+                            <div className="flex items-center justify-between gap-3"><h3 className="text-base font-semibold">Stock requiring attention</h3><Link href={route('inventory.index')} className="text-sm font-medium text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 rounded dark:text-red-300">View inventory</Link></div>
                             {supplyOverview.criticalStock.length ? <ul className="mt-3 divide-y divide-slate-100 dark:divide-slate-800">{supplyOverview.criticalStock.map(item => <li key={item.id} className="flex justify-between gap-3 py-2 text-sm"><span className="min-w-0 truncate font-medium">{item.name}</span><span className="shrink-0 text-rose-700 dark:text-rose-300">{item.current} {item.unit} · {item.status}</span></li>)}</ul> : <p className="mt-3 text-sm text-slate-500 dark:text-slate-300">No items are currently below their stock threshold.</p>}
                         </article>
                     </div>
                     <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                        {[{ title: 'Recent receiving', items: supplyOverview.recentReceiving.map(item => ({ id: item.id, name: item.item_name, detail: `${item.supplier} · ${item.received_at}`, quantity: `+${item.quantity} ${item.unit}` })) }, { title: 'Recent issuance', items: supplyOverview.recentIssuance.map(item => ({ id: item.id, name: item.item_name, detail: `${item.department} · ${item.issued_at}`, quantity: `−${item.total_items} ${item.unit}` })) }].map(section => <article key={section.title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h3 className="font-semibold">{section.title}</h3>{section.items.length ? <ul className="mt-3 divide-y divide-slate-100 dark:divide-slate-800">{section.items.slice(0, 4).map(item => <li key={item.id} className="flex justify-between gap-3 py-2 text-sm"><span className="min-w-0"><span className="block truncate font-medium">{item.name}</span><span className="block truncate text-slate-500 dark:text-slate-300">{item.detail}</span></span><span className="shrink-0 font-semibold">{item.quantity}</span></li>)}</ul> : <p className="mt-3 text-sm text-slate-500 dark:text-slate-300">No recent records.</p>}</article>)}
+                        {[{ title: 'Recent receiving', items: supplyOverview.recentReceiving.map(item => ({ id: item.id, name: item.item_name, detail: `${item.supplier} · ${item.received_at}`, quantity: `+${item.quantity} ${item.unit}` })) }, { title: 'Recent issuance', items: supplyOverview.recentIssuance.map(item => ({ id: item.id, name: item.item_name, detail: `${item.department} · ${item.issued_at}`, quantity: `−${item.total_items} ${item.unit}` })) }].map(section => <article key={section.title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h3 className="text-base font-semibold">{section.title}</h3>{section.items.length ? <ul className="mt-3 divide-y divide-slate-100 dark:divide-slate-800">{section.items.slice(0, 4).map(item => <li key={item.id} className="flex justify-between gap-3 py-2 text-sm"><span className="min-w-0"><span className="block truncate font-medium">{item.name}</span><span className="block truncate text-slate-500 dark:text-slate-300">{item.detail}</span></span><span className="shrink-0 font-semibold">{item.quantity}</span></li>)}</ul> : <p className="mt-3 text-sm text-slate-500 dark:text-slate-300">No recent records.</p>}</article>)}
                     </div>
                 </section>
 
@@ -125,19 +125,19 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
                 </section>
 
                 <nav data-tour="system-admin-shortcuts" aria-label="System administration tasks" className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <h2 className="font-semibold">Administration shortcuts</h2>
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Administration shortcuts</h2>
                     <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('access-control.staffs')}>User Management</Link>
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('access-control.role-permission')}>Roles &amp; Permissions</Link>
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('system.settings.index')}>System Settings</Link>
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('system.settings.index', { tab: 'operations' })}>Diagnostics, Security &amp; Backup</Link>
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('audit-logs.login-trails')}>Login Audit</Link>
-                        <Link className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" href={route('audit-logs.transaction-trails')}>Activity Audit</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('access-control.staffs')}>User Management</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('access-control.role-permission')}>Roles &amp; Permissions</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('system.settings.index')}>System Settings</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('system.settings.index', { tab: 'operations' })}>Diagnostics, Security &amp; Backup</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('audit-logs.login-trails')}>Login Audit</Link>
+                        <Link {...actionLinkProps('secondary')} href={route('audit-logs.transaction-trails')}>Activity Audit</Link>
                     </div>
                 </nav>
 
                 <section data-tour="system-admin-recent-activity" className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-red-900 dark:text-red-300" /><h2 className="font-semibold">Recent system activity</h2></div>
+                    <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-red-900 dark:text-red-300" /><h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Recent system activity</h2></div>
                     {recentAdminActivity.length ? <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">{recentAdminActivity.map((item) => <div key={item.id} className="flex flex-wrap justify-between gap-x-6 gap-y-1 py-3 text-sm"><span className="font-medium">{item.action || 'System event'} <span className="font-normal text-slate-500 dark:text-slate-300">· {item.module}</span></span><span className="text-slate-500 dark:text-slate-300">{item.actor}{item.created_at ? ` · ${formatTimestamp(item.created_at)}` : ''}</span></div>)}</div> : <p className="mt-4 text-sm text-slate-500 dark:text-slate-300">No recent activity is available.</p>}
                 </section>
                 <p className="mt-4 text-right text-sm text-slate-500 dark:text-slate-300">Checked {formatTimestamp(adminOverview.checkedAt)}</p>

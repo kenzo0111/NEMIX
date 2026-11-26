@@ -164,7 +164,7 @@ export default function ThemeToggle({
                 aria-haspopup="true"
                 aria-label={`Theme: ${theme}. Click to change theme`}
                 title={`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-900/20 dark:focus:ring-amber-400/30 cursor-pointer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:focus-visible:ring-red-300 cursor-pointer"
             >
                 <CurrentIcon className="w-4 h-4 text-slate-700 dark:text-amber-300" />
             </button>

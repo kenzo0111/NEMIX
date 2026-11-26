@@ -34,7 +34,7 @@ export default function ScannerErrorState({
                 </div>
             )}
 
-            <div className="mt-5 flex items-center justify-center gap-3 max-w-xs mx-auto">
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3 max-w-xs mx-auto">
                 <Button variant="primary"
                     type="button"
                     onClick={onRetry}
@@ -48,7 +48,7 @@ export default function ScannerErrorState({
                     onClick={onReset}
                     className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Reset</span>
                 </Button>
             </div>

@@ -103,7 +103,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
             <div className="h-1.5 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 
             {/* Header */}
-            <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
+            <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-slate-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-center text-amber-900 dark:text-amber-300 shadow-sm shrink-0">
                             <Upload className="w-5 h-5" />
@@ -137,7 +137,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 {/* Content */}
                 <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/40 dark:bg-slate-950/60">
                     {/* Setup Controls Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3.5">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm space-y-3.5">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                             <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -179,7 +179,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     </div>
 
                     {/* File Upload Box */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                             <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -295,7 +295,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                                 {uniqueSheets.length > 1 && (
                                     <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1">
-                                        <Button variant="primary"
+                                        <Button variant="tab" size="sm"
                                             type="button"
                                             onClick={() => setSelectedSheetTab('ALL')}
                                             aria-pressed={selectedSheetTab === 'ALL'}
@@ -306,7 +306,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                         {uniqueSheets.map((sName) => {
                                             const sCount = groups.filter((g) => g.sheetName === sName).reduce((a, g) => a + g.items.length, 0);
                                             return (
-                                                <Button variant="primary"
+                                                <Button variant="tab" size="sm"
                                                     key={sName}
                                                     type="button"
                                                     onClick={() => setSelectedSheetTab(sName)}
@@ -411,7 +411,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0">
                     <Button variant="secondary"
                         type="button"
                         onClick={onClose}

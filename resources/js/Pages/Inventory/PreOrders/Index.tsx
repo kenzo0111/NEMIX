@@ -1,4 +1,8 @@
 import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
+import StatCard from '@/Components/ui/stat-card';
+import EmptyState from '@/Components/ui/empty-state';
+import TablePagination from '@/Components/ui/table-pagination';
 import React, { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { 
@@ -152,7 +156,8 @@ export default function PreOrdersIndex({
                 modules={getSidebarModules('Inventory', 'Pre-Requests / Unit Demand')}
                 user={auth.user}
             >
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="Pre-Requests & Unit Demand"
                     description="Monitor out-of-stock items needed by Delivery Units and Offices to prioritize purchase orders and warehouse replenishment."
                     breadcrumbs={[
@@ -161,97 +166,55 @@ export default function PreOrdersIndex({
                         { name: 'Pre-Requests / Unit Demand' },
                     ]}
                     actions={
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <Button variant="secondary"
                                 type="button"
                                 disabled={loading}
                                 onClick={() => router.reload({ onStart: () => setLoading(true), onFinish: () => setLoading(false) })}
-                                className="inline-flex min-h-10 items-center gap-2"
                             >
-                                <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+                                <RefreshCw size={14} className={loading ? "animate-spin motion-reduce:animate-none" : ""} aria-hidden="true" />
                                 Refresh Demand
                             </Button>
                             <Link data-variant="primary" data-size="default"
                                 href={route('inventory.receiving')}
-                                className="ui-button inline-flex min-h-10 items-center gap-2 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white hover:bg-red-950 transition shadow-sm"
+                                className="ui-button"
                             >
-                                <PackagePlus size={15} />
+                                <PackagePlus size={15} aria-hidden="true" />
                                 Receive Stock
                             </Link>
                         </div>
                     }
                 />
-
-                <DashboardContent>
                     {/* Top Stats Cards */}
-                    <section aria-label="Replenishment demand metrics" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-                        <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 sm:p-5 dark:border-red-900/60 dark:bg-red-950/20">
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-semibold normal-case tracking-normal text-red-900 dark:text-red-300">
-                                    Units Demanded
-                                </p>
-                                <span className="rounded-lg bg-red-100 p-2 text-red-800 dark:bg-red-900/60 dark:text-red-300">
-                                    <Package size={18} />
-                                </span>
-                            </div>
-                            <p className="mt-2 text-2xl sm:text-3xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                                {stats.total_units_demanded.toLocaleString('en-PH')}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Total supply items requested across delivery units
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 sm:p-5 dark:border-amber-900/60 dark:bg-amber-950/20">
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-semibold normal-case tracking-normal text-amber-900 dark:text-amber-300">
-                                    Items With Demand
-                                </p>
-                                <span className="rounded-lg bg-amber-100 p-2 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">
-                                    <PackageX size={18} />
-                                </span>
-                            </div>
-                            <p className="mt-2 text-2xl sm:text-3xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                                {stats.items_with_demand}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Out-of-stock supply types awaiting replenishment
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4 sm:p-5 dark:border-rose-900/60 dark:bg-rose-950/20">
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-semibold normal-case tracking-normal text-rose-900 dark:text-rose-300">
-                                    Urgent Demands
-                                </p>
-                                <span className="rounded-lg bg-rose-100 p-2 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300">
-                                    <Zap size={18} />
-                                </span>
-                            </div>
-                            <p className="mt-2 text-2xl sm:text-3xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                                {stats.urgent_demands}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Critical operational priority requests from offices
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-semibold normal-case tracking-normal text-slate-600 dark:text-slate-400">
-                                    Active Pre-Requests
-                                </p>
-                                <span className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                                    <Layers3 size={18} />
-                                </span>
-                            </div>
-                            <p className="mt-2 text-2xl sm:text-3xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                                {stats.total_pending_orders}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Pending pre-request tickets from coordinators
-                            </p>
-                        </div>
+                    <section aria-label="Replenishment demand metrics" className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+                        <StatCard
+                            label="Units Demanded"
+                            value={stats.total_units_demanded.toLocaleString('en-PH')}
+                            sublabel="Total supply items requested across delivery units"
+                            icon={<Package size={18} />}
+                            tone="brand"
+                        />
+                        <StatCard
+                            label="Items With Demand"
+                            value={stats.items_with_demand}
+                            sublabel="Out-of-stock supply types awaiting replenishment"
+                            icon={<PackageX size={18} />}
+                            tone="warning"
+                        />
+                        <StatCard
+                            label="Urgent Demands"
+                            value={stats.urgent_demands}
+                            sublabel="Critical operational priority requests from offices"
+                            icon={<Zap size={18} />}
+                            tone="danger"
+                        />
+                        <StatCard
+                            label="Active Pre-Requests"
+                            value={stats.total_pending_orders}
+                            sublabel="Pending pre-request tickets from coordinators"
+                            icon={<Layers3 size={18} />}
+                            tone="neutral"
+                        />
                     </section>
 
                     {/* Main Workspace Surface */}
@@ -376,9 +339,9 @@ export default function PreOrdersIndex({
                                                         </p>
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
-                                                        <span className="inline-flex items-center rounded-md bg-red-100 px-2 py-0.5 text-sm font-semibold text-red-800 dark:bg-red-950/60 dark:text-red-300">
+                                                        <StatusBadge tone="danger">
                                                             {item.on_hand} {item.unit} (Out of Stock)
-                                                        </span>
+                                                        </StatusBadge>
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
                                                         <strong className="text-base font-semibold text-red-900 dark:text-red-300">
@@ -404,26 +367,19 @@ export default function PreOrdersIndex({
                                                         </div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle">
-                                                        {item.urgent_pre_orders_count > 0 ? (
-                                                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-sm font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
-                                                                <Zap size={12} />
-                                                                {item.urgent_pre_orders_count} Urgent
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                                                                Normal
-                                                            </span>
-                                                        )}
+                                                        <StatusBadge tone={item.urgent_pre_orders_count > 0 ? 'danger' : 'neutral'}>
+                                                            {item.urgent_pre_orders_count > 0 ? `${item.urgent_pre_orders_count} Urgent` : 'Normal'}
+                                                        </StatusBadge>
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
                                                         <div className="inline-flex items-center justify-end gap-2 shrink-0">
-                                                            <Link data-variant="secondary" data-size="default"
+                                                            <Link data-variant="secondary" data-size="sm"
                                                                 href={route('inventory.receiving')}
-                                                                className="ui-button inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-sm font-semibold text-red-900 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 transition whitespace-nowrap"
+                                                                className="ui-button"
                                                             >
-                                                                <PackagePlus size={14} />
+                                                                <PackagePlus size={14} aria-hidden="true" />
                                                                 Receive
-                                                                <ArrowRight size={13} />
+                                                                <ArrowRight size={13} aria-hidden="true" />
                                                             </Link>
                                                         </div>
                                                     </td>
@@ -431,14 +387,12 @@ export default function PreOrdersIndex({
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={7} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">
-                                                    <CheckCircle2 size={32} className="mx-auto mb-2 text-emerald-600 dark:text-emerald-300" />
-                                                    <p className="text-base font-semibold text-slate-800 dark:text-slate-200">
-                                                        No pending pre-requests matching your filters
-                                                    </p>
-                                                    <p className="mt-1 text-sm">
-                                                        Delivery Units have not submitted any pre-requests for out-of-stock supplies.
-                                                    </p>
+                                                <td colSpan={7} className="p-0">
+                                                    <EmptyState
+                                                        icon={<CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />}
+                                                        title="No pending pre-requests matching your filters"
+                                                        description="Delivery Units have not submitted any pre-requests for out-of-stock supplies."
+                                                    />
                                                 </td>
                                             </tr>
                                         )}
@@ -493,15 +447,9 @@ export default function PreOrdersIndex({
                                                         <span className="text-sm text-slate-500 dark:text-slate-300">{order.unit}</span>
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle">
-                                                        {order.urgency === 'urgent' ? (
-                                                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-sm font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
-                                                                <Zap size={11} /> Urgent
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                                                                Normal
-                                                            </span>
-                                                        )}
+                                                        <StatusBadge tone={order.urgency === 'urgent' ? 'danger' : 'neutral'}>
+                                                            {order.urgency === 'urgent' ? 'Urgent' : 'Normal'}
+                                                        </StatusBadge>
                                                     </td>
                                                     <td className="px-5 py-3.5 align-middle min-w-[12.5rem] max-w-sm text-sm text-slate-600 dark:text-slate-300 break-words">
                                                         {order.purpose || <span className="text-slate-500 italic dark:text-slate-300">None specified</span>}
@@ -510,22 +458,32 @@ export default function PreOrdersIndex({
                                                         {order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle">
-                                                        <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-semibold ${order.status === 'pending'
-    ? "bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300" : order.status === 'notified'
-    ? "bg-blue-100 text-blue-900 dark:bg-blue-950/60 dark:text-blue-300" : order.status === 'fulfilled'
-    ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                                                        <StatusBadge
+                                                            tone={
+                                                                order.status === 'pending'
+                                                                    ? 'warning'
+                                                                    : order.status === 'notified'
+                                                                      ? 'info'
+                                                                      : order.status === 'fulfilled'
+                                                                        ? 'success'
+                                                                        : 'neutral'
+                                                            }
+                                                        >
                                                             {order.status === 'pending' && 'Pending'}
                                                             {order.status === 'notified' && 'Stock Arrived / Notified'}
                                                             {order.status === 'fulfilled' && 'Fulfilled'}
                                                             {order.status === 'cancelled' && 'Cancelled'}
-                                                        </span>
+                                                        </StatusBadge>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={8} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">
-                                                    No submissions found matching the selected filters.
+                                                <td colSpan={8} className="p-0">
+                                                    <EmptyState
+                                                        title="No submissions found"
+                                                        description="No pre-request submissions match the selected filters."
+                                                    />
                                                 </td>
                                             </tr>
                                         )}
@@ -535,30 +493,28 @@ export default function PreOrdersIndex({
                         )}
 
                         {/* Pagination */}
-                        {tab === 'all_requests' && detailedOrders.total > 15 && (
-                            <nav aria-label="Pre-request pagination" className="flex flex-wrap justify-center gap-1.5 border-t border-slate-100 p-4 dark:border-slate-800">
-                                {detailedOrders.links.map((link, i) =>
-                                    link.url ? (
-                                        <Link data-variant="tab" data-size="default"
-                                            key={i}
-                                            href={link.url}
-                                            preserveScroll
-                                            preserveState
-                                            aria-current={link.active ? 'page' : undefined}
-                                            className={"ui-button " + (`inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-medium ${link.active
-    ? "bg-red-900 text-white" : "border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"}`)}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ) : (
-                                        <span
-                                            key={i}
-                                            className="inline-flex min-h-9 items-center px-3 text-sm text-slate-500 dark:text-slate-300"
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    )
-                                )}
-                            </nav>
-                        )}
+                        {tab === 'all_requests' && detailedOrders.total > 0 && (() => {
+                            const numericLinks = detailedOrders.links.filter((l) => /^\d+$/.test(l.label.trim()));
+                            const activeLink = numericLinks.find((l) => l.active);
+                            const currentPage = activeLink ? Number(activeLink.label) : 1;
+                            const totalPages = numericLinks.length > 0 ? Number(numericLinks[numericLinks.length - 1].label) : 1;
+                            const prevUrl = detailedOrders.links[0]?.url;
+                            const nextUrl = detailedOrders.links[detailedOrders.links.length - 1]?.url;
+                            return (
+                                <TablePagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    totalRecords={detailedOrders.total}
+                                    from={detailedOrders.from ?? 0}
+                                    to={detailedOrders.to ?? 0}
+                                    onPageChange={(nextPage) => {
+                                        const url = nextPage < currentPage ? prevUrl : nextUrl;
+                                        if (url) router.get(url, {}, { preserveScroll: true, preserveState: true });
+                                    }}
+                                    recordLabel="pre-requests"
+                                />
+                            );
+                        })()}
                     </div>
                 </DashboardContent>
             </DashboardLayout>

@@ -98,19 +98,27 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                             return (
                                 <React.Fragment key={record.id || index}>
                                     <tr
+                                        tabIndex={0}
+                                        aria-expanded={isExpanded}
                                         onClick={() => toggleRow(record.id)}
-                                        className={`cursor-pointer transition-colors ${isExpanded
-    ? "bg-red-50/30 dark:bg-red-950/20" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50"}`}
+                                        onKeyDown={(e) => {
+                                            if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+                                                e.preventDefault();
+                                                toggleRow(record.id);
+                                            }
+                                        }}
+                                        className={`cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${isExpanded
+    ? "bg-red-50/30 dark:bg-red-950/20" : ""}`}
                                     >
                                         {/* EXPAND TOGGLE */}
                                         <td className="py-3.5 px-3 text-center align-middle">
-                                            <Button variant="secondary"
+                                            <Button variant="ghost" size="icon"
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleRow(record.id);
                                                 }}
-                                                className=""
+                                                aria-expanded={isExpanded}
                                                 aria-label={isExpanded ? 'Collapse transaction details' : 'Expand transaction details'}
                                             >
                                                 {isExpanded ? (
@@ -138,7 +146,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                                     {record.action || 'Action unavailable'}
                                                 </span>
                                                 {childrenCount > 0 && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                                         {childrenCount} {childrenCount === 1 ? 'event' : 'events'}
                                                     </span>
                                                 )}

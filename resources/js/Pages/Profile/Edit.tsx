@@ -52,14 +52,12 @@ export default function Edit({
             {/* Main Application Area */}
             <DashboardLayout modules={modules} user={authUser}>
                 {/* Unified Institutional Page Header */}
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="Profile & Account Settings"
                     description="Update your profile and account security."
                     breadcrumbs={[{ name: 'Account Settings' }]}
                 />
-
-                {/* Primary Content Container */}
-                <DashboardContent>
                     {/* Institutional Personnel Header */}
                     <PersonnelHeader profile={resolvedProfile} />
 

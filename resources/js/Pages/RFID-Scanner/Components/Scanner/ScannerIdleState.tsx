@@ -20,7 +20,7 @@ export default function ScannerIdleState() {
                 <div className="text-sm normal-case tabular-nums tracking-normal text-slate-500 font-semibold mb-3 text-center dark:text-slate-300">
                     Workflow Sequence
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
                     <div className="p-2.5 rounded-lg bg-slate-50/80 border border-slate-100 dark:border-slate-800 flex flex-col items-center dark:bg-slate-850">
                         <span className="w-5 h-5 rounded-full bg-white border border-slate-200 dark:border-slate-700 text-sm tabular-nums font-semibold text-slate-700 flex items-center justify-center mb-1.5 shadow-sm dark:text-slate-200 dark:bg-slate-900">
                             1

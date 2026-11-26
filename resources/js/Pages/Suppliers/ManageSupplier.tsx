@@ -188,19 +188,18 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
 
 
                 <DashboardLayout modules={modules} user={user}>
-                    <PageHeader
+                    <DashboardContent>
+<PageHeader embedded
                         title="Consumable Office Supplies Suppliers"
                         description="Maintain accredited suppliers of university office consumables."
                         breadcrumbs={[{ name: 'Suppliers' }, { name: 'Manage Supplier' }]}
                     />
-
-                    <DashboardContent>
-                        <div data-tour="system-admin-suppliers-workspace" className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+                        <div data-tour="system-admin-suppliers-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">
                             {/* Section Header */}
                             <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     Supplier Registry
-                                </h3>
+                                </h2>
                                 <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                                     Official directory of accredited university office consumables suppliers.
                                 </p>

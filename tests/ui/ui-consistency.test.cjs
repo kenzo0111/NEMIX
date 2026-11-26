@@ -80,3 +80,50 @@ test('the configured Tailwind compiler generates the shared control, status and 
     assert.match(compiled.css, /\.ui-dialog-panel/);
     assert.match(compiled.css, /focus-visible/);
 });
+
+test('Field injects accessibility attributes onto inputs nested inside relative wrappers', () => {
+    const html = render(
+        React.createElement(
+            Field,
+            { id: 'staff-email', label: 'Email', error: 'Invalid email', hint: 'Institutional address' },
+            React.createElement(
+                'div',
+                { className: 'relative' },
+                React.createElement('input', { type: 'email', className: 'ui-field w-full' })
+            )
+        )
+    );
+    assert.match(html, /<input[^>]*id="staff-email"/);
+    assert.match(html, /<input[^>]*aria-invalid="true"/);
+    assert.match(html, /<input[^>]*aria-describedby="staff-email-hint staff-email-error"/);
+});
+
+test('Button supports compact sm table-action size and new shared primitives render semantically', () => {
+    const smBtn = render(React.createElement(Button, { size: 'sm', variant: 'secondary' }, 'View'));
+    assert.match(smBtn, /data-size="sm"/);
+
+    const EmptyState = load('resources/js/Components/ui/empty-state.tsx').default;
+    const emptyHtml = render(React.createElement(EmptyState, { title: 'No records', description: 'Adjust filters', actionLabel: 'Reset', onAction: () => {} }));
+    assert.match(emptyHtml, /No records/);
+    assert.match(emptyHtml, /Reset/);
+});
+
+test('no invalid Tailwind v3 utilities or native alert/confirm popups remain in UI pages', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    function walk(dir) {
+        let out = [];
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) out = out.concat(walk(full));
+            else if (full.endsWith('.tsx')) out.push(full);
+        }
+        return out;
+    }
+    const tsxFiles = walk('resources/js');
+    for (const file of tsxFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        assert.doesNotMatch(content, /\b(p-4\.5|py-0\.2|text-2xs|focus:outline-hidden)\b/, `Invalid Tailwind class found in ${file}`);
+        assert.doesNotMatch(content, /\b(window\.)?(alert|confirm)\s*\(/, `Native alert/confirm found in ${file}`);
+    }
+});

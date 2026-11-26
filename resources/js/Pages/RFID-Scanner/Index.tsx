@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import StatCard from '@/Components/ui/stat-card';
 import { useState, useMemo, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import DashboardContent from '@/Layouts/DashboardContent';
@@ -139,12 +140,12 @@ export default function Index({
             <Head title="RFID Scanner | UCN SPMO" />
 
             <DashboardLayout modules={modules} user={user}>
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="RFID Scanner"
                     description="Assign RFID identification tags to inventory items before receiving."
-                    breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
+                    breadcrumbs={[{ name: 'RFID Scanner' }]}
                 />
-                <DashboardContent>
                     <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">
@@ -169,77 +170,40 @@ export default function Index({
 
                     {/* Operational Metric Overview Strip */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-                        {/* 1. Total Catalog Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                            <div>
-                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Catalog Registry</p>
-                                <p className="text-xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-1">
-                                    {items.length}
-                                </p>
-                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">Total registered items</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
-                                <Package className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                            </div>
-                        </div>
-
-                        {/* 2. RFID Tagged Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                            <div>
-                                <div className="flex items-center gap-1.5">
-                                    <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Tagged & Linked</p>
-                                    <span className="text-sm tabular-nums font-semibold px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
-                                        {taggedPercent}%
-                                    </span>
-                                </div>
-                                <p className="text-xl font-semibold tabular-nums text-emerald-950 dark:text-emerald-400 mt-1">
-                                    {taggedCount}
-                                </p>
-                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">Active transponders</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                        </div>
-
-                        {/* 3. Untagged Pending Items */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                            <div>
-                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Pending Tagging</p>
-                                <p className="text-xl font-semibold tabular-nums text-amber-950 dark:text-amber-400 mt-1">
-                                    {untaggedCount}
-                                </p>
-                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">Awaiting physical scan</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center shrink-0">
-                                <Tag className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                        </div>
-
-                        {/* 4. Hardware Scanner Station */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                            <div>
-                                <p className="leading-relaxed text-sm font-medium text-slate-500 dark:text-slate-400">Hardware Reader</p>
-                                <div className="flex items-center gap-1.5 mt-1">
-                                    <span
-                                        className={`w-2 h-2 rounded-full ${connectionState === 'connected'
-    ? "bg-emerald-500" : connectionState === 'offline'
-    ? "bg-slate-400 dark:bg-slate-500" : "bg-amber-500 animate-pulse"}`}
-                                    />
-                                    <p className="leading-relaxed text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100 capitalize">
-                                        {connectionState === 'connected'
-                                            ? 'Online'
-                                            : connectionState === 'offline'
-                                            ? 'Offline'
-                                            : connectionState}
-                                    </p>
-                                </div>
-                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">USB HID Wedge ready</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0">
-                                <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
-                            </div>
-                        </div>
+                        <StatCard
+                            label="Catalog Registry"
+                            value={items.length}
+                            sublabel="Total registered items"
+                            icon={<Package className="w-5 h-5" />}
+                            tone="neutral"
+                        />
+                        <StatCard
+                            label="Tagged & Linked"
+                            value={taggedCount}
+                            sublabel={`${taggedPercent}% active transponders`}
+                            icon={<CheckCircle2 className="w-5 h-5" />}
+                            tone="success"
+                        />
+                        <StatCard
+                            label="Pending Tagging"
+                            value={untaggedCount}
+                            sublabel="Awaiting physical scan"
+                            icon={<Tag className="w-5 h-5" />}
+                            tone="warning"
+                        />
+                        <StatCard
+                            label="Hardware Reader"
+                            value={
+                                connectionState === 'connected'
+                                    ? 'Online'
+                                    : connectionState === 'offline'
+                                      ? 'Offline'
+                                      : connectionState
+                            }
+                            sublabel="USB HID Wedge ready"
+                            icon={<Radio className="w-5 h-5" />}
+                            tone="brand"
+                        />
                     </div>
 
                     {/* Completion State: shown only when all items are tagged and not dismissed */}
@@ -260,7 +224,7 @@ export default function Index({
                                     All current inventory items have RFID transponders assigned. You may review the records registry or proceed directly to Receiving.
                                 </p>
                             </div>
-                            <div className="pt-3 flex items-center justify-center gap-3">
+                            <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
                                 {can('inventory.receiving') && <Button variant="primary"
                                     type="button"
                                     onClick={() => router.visit(route('inventory.receiving'))}

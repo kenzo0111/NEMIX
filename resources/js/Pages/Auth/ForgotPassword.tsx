@@ -30,24 +30,24 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                 <AuthHeader
                     title="Password Recovery"
                     description="Enter your registered institutional email address. We will send a password reset link if the account is eligible."
-                    alignment="center"
-                    showSystemBranding={false}
+                    alignment="left"
+                    showSystemBranding={true}
                 />
             }
         >
             <Head title={`Password Recovery | ${institutionName}`} />
 
             {status && (
-                <AuthAlert variant="success" className="mb-5 text-center">
+                <AuthAlert variant="success" className="mb-5">
                     {status}
                 </AuthAlert>
             )}
 
-            <form onSubmit={submit} className="space-y-5 text-center">
+            <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
+                    <InputLabel htmlFor="email" value="Official Email Address" className="text-slate-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
                     <div className="relative rounded-lg shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <AuthTextInput aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined}
@@ -55,7 +55,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                             type="email"
                             name="email"
                             value={data.email}
-                            className="px-10 text-center"
+                            className="pl-10"
                             autoComplete="username"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
@@ -77,7 +77,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                     <div className="text-center">
                         <Link
                             href={route('login')}
-                            className="text-sm font-semibold text-[#7B1113] dark:text-red-400 hover:text-[#5e0d0f] dark:hover:text-red-300 hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded-sm py-2 px-1 font-sans"
+                            className="text-sm font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-900 dark:focus-visible:ring-red-400 rounded-sm py-2 px-1 font-sans"
                         >
                             &larr; Return to Sign In
                         </Link>

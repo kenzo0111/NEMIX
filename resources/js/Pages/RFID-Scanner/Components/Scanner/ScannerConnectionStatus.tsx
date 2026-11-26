@@ -22,13 +22,13 @@ export default function ScannerConnectionStatus({
         },
         degraded: {
             label: 'Signal Degraded',
-            dotClass: 'bg-amber-500 animate-pulse',
+            dotClass: 'bg-amber-500 animate-pulse motion-reduce:animate-none',
             badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/90 dark:border-amber-800/60',
             icon: Radio,
         },
         connecting: {
             label: 'Connecting...',
-            dotClass: 'bg-amber-400 animate-pulse',
+            dotClass: 'bg-amber-400 animate-pulse motion-reduce:animate-none',
             badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/90 dark:border-amber-800/60',
             icon: RefreshCw,
         },
@@ -60,7 +60,7 @@ export default function ScannerConnectionStatus({
                     disabled={isRetrying}
                     className="inline-flex items-center gap-1 tabular-nums underline"
                 >
-                    <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin motion-reduce:animate-none" : ""}`} />
                     <span>{isRetrying ? 'Checking...' : 'Reconnect'}</span>
                 </Button>
             )}

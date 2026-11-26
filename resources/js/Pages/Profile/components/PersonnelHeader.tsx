@@ -21,7 +21,7 @@ export default function PersonnelHeader({ profile }: Props) {
     const isVerified = Boolean(profile.email_verified_at);
 
     return (
-        <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-4 sm:p-5 lg:p-6 shadow-sm mb-6">
+        <div className="bg-red-950 text-white rounded-xl border border-red-900 border-l-4 border-l-amber-500 p-4 sm:p-5 lg:p-6 shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-red-900/90 text-amber-300 flex items-center justify-center font-semibold font-sans text-lg sm:text-xl border border-red-800 shadow-sm shrink-0 select-none">

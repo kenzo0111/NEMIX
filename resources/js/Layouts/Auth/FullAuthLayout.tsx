@@ -33,7 +33,7 @@ export default function FullAuthLayout({
             </div>
 
             {/* Main Centered Institutional Card */}
-            <main className="relative z-10 w-full max-w-xl lg:max-w-[1200px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-stone-200/40 dark:border-slate-800">
+            <main className="relative z-10 w-full max-w-xl lg:max-w-[1200px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-200/40 dark:border-slate-800">
                 {/* Desktop/Tablet Left Brand Panel */}
                 <AuthBrandPanel
                     badgeText={badgeText}

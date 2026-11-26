@@ -11,6 +11,7 @@ import {
     TableRow,
 } from '@/Components/ui/table';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/Components/ui/card';
+import StatusBadge from '@/Components/ui/status-badge';
 import { InventoryAnalyticsItem } from '../types';
 
 interface StockAttentionTableProps {
@@ -83,12 +84,9 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                                 {item.unitOfIssue || 'Units'}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
-                                                <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${isOut
-    ? "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40" : "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40"}`}
-                                                >
+                                                <StatusBadge tone={isOut ? 'danger' : 'warning'}>
                                                     {isOut ? 'Critical / Out of Stock' : 'Low Stock'}
-                                                </span>
+                                                </StatusBadge>
                                             </TableCell>
                                             <TableCell className="text-right pr-6 py-3.5 tabular-nums text-sm text-slate-700 dark:text-slate-300 align-middle">
                                                 {formatCurrency(Number(item.amount || 0))}

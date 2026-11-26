@@ -32,7 +32,7 @@ export default function TagDetectedState({
         <div className="text-center py-6 px-4 bg-gradient-to-b from-emerald-50/30 via-white to-slate-50/20 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-emerald-200/90 dark:border-emerald-900/60 shadow-sm">
             {/* Status Pill */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 mb-3 shadow-sm dark:text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse motion-reduce:animate-none" />
                 <span>RFID Signal Captured</span>
             </div>
 
@@ -75,49 +75,40 @@ export default function TagDetectedState({
             {/* Target Item Preview Box */}
             <div className="bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
                 <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold dark:text-slate-300">
+                    <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold dark:text-slate-400">
                         Target Inventory Record
                     </span>
-                    <span className="text-sm tabular-nums text-slate-500 dark:text-slate-300">
+                    <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400">
                         SKU: {item.sku || 'N/A'}
                     </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-100">{item.name}</p>
                 {item.supplier_name && (
-                    <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-300">
+                    <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-400">
                         Supplier: {item.supplier_name}
                     </p>
                 )}
             </div>
 
             {/* Actions Toolbar */}
-            <div className="mt-6 flex items-center justify-center gap-3 max-w-sm mx-auto">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 max-w-sm mx-auto">
                 <Button variant="secondary"
                     type="button"
                     onClick={onRescan}
                     disabled={isAssigning}
                     className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Rescan</span>
                 </Button>
                 {can('rfid.assign') && <Button variant="primary"
                     type="button"
                     onClick={onAssign}
-                    disabled={isAssigning}
+                    loading={isAssigning}
                     className="flex-1 active:translate-y-px flex items-center justify-center gap-2"
                 >
-                    {isAssigning ? (
-                        <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Linking RFID...</span>
-                        </>
-                    ) : (
-                        <>
-                            <Check className="w-3.5 h-3.5" />
-                            <span>Assign RFID Tag</span>
-                        </>
-                    )}
+                    {!isAssigning && <Check className="w-3.5 h-3.5" aria-hidden="true" />}
+                    <span>{isAssigning ? 'Linking RFID...' : 'Assign RFID Tag'}</span>
                 </Button>}
             </div>
         </div>

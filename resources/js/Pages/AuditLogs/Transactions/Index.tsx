@@ -147,6 +147,17 @@ export default function TransactionAuditIndex({
                             { name: 'Audit Logs' },
                             { name: 'Transaction Audit' },
                         ]}
+                        actions={
+                            <Button
+                                variant="secondary"
+                                type="button"
+                                onClick={handlePrintLedger}
+                                title="Print or export official transaction audit ledger"
+                            >
+                                <Printer className="w-4 h-4" aria-hidden="true" />
+                                <span>Print Ledger</span>
+                            </Button>
+                        }
                     />
                 </div>
 
@@ -154,7 +165,7 @@ export default function TransactionAuditIndex({
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-activity-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Institutional Header Banner */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-sm">
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
                                     <ScrollText className="w-4 h-4" />
@@ -172,18 +183,9 @@ export default function TransactionAuditIndex({
 
                             <div className="flex items-center gap-3 self-end sm:self-auto">
                                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse motion-reduce:animate-none"></span>
                                     Active Ledger
                                 </span>
-                                <Button variant="secondary"
-                                    type="button"
-                                    onClick={handlePrintLedger}
-                                    className="inline-flex items-center gap-1.5"
-                                    title="Print or export official transaction audit ledger"
-                                >
-                                    <Printer className="w-3.5 h-3.5" />
-                                    <span>Print Ledger</span>
-                                </Button>
                             </div>
                         </div>
 

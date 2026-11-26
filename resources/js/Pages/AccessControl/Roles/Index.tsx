@@ -151,7 +151,8 @@ export default function RoleManagementIndex({
 
             <DashboardLayout modules={sidebarModules} user={user}>
                 {/* 1. Page Header */}
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="Role & Permission Management"
                     description="Manage institutional roles and system access permissions."
                     breadcrumbs={[
@@ -159,8 +160,6 @@ export default function RoleManagementIndex({
                         { name: 'Role & Permission Management' },
                     ]}
                 />
-
-                <DashboardContent>
 
                     {/* 2. Compact Access Control Summary */}
                     <AccessControlSummary

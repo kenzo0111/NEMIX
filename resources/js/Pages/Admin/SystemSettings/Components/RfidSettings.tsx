@@ -1,5 +1,7 @@
 import { formatTimestamp } from '@/utils/displayFormat';
 import { Button } from '@/Components/ui/button';
+import ConfirmDialog from '@/Components/ui/confirm-dialog';
+import StatusBadge from '@/Components/ui/status-badge';
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { router, usePoll } from '@inertiajs/react';
@@ -37,6 +39,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         if (selectedId === null && devices.length) setSelectedId(devices[0].id);
     }, [devices, selectedId]);
     const [busy, setBusy] = useState(false);
+    const [pendingAction, setPendingAction] = useState<'rotate' | 'revoke' | null>(null);
     const [deviceErrors, setDeviceErrors] = useState<Record<string, string>>({});
     const [oneTimeToken, setOneTimeToken] = useState<string | null>(null);
     const [registration, setRegistration] = useState({ device_uuid: '', device_name: '', server_url: window.location.origin });
@@ -82,11 +85,12 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
     };
 
     const rotateDevice = async () => {
-        if (!selected || !window.confirm('Rotate this scanner secret? The scanner must be provisioned with the new secret before it can connect again.')) return;
+        if (!selected) return;
         setBusy(true);
         try {
             const r = await axios.post(route('system.settings.rfid-devices.rotate', { device: selected.id }));
             setOneTimeToken(r.data.device_token);
+            setPendingAction(null);
             onToast('info', 'Scanner secret rotated. Copy the new secret into the scanner setup portal.');
         } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to rotate scanner secret.'); }
         finally { setBusy(false); }
@@ -104,10 +108,11 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
     };
 
     const revokeDevice = async () => {
-        if (!selected || !window.confirm('Revoke this scanner? Its current signing secret will be erased. Reusing the scanner requires rotation and provisioning.')) return;
+        if (!selected) return;
         setBusy(true);
         try {
             await axios.post(route('system.settings.rfid-devices.revoke', { device: selected.id }));
+            setPendingAction(null);
             onToast('success', 'Scanner access revoked and its signing secret removed.');
             router.reload({ only: ['rfidDevices'] });
         } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to revoke scanner.'); }
@@ -148,7 +153,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                 <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-300">Register another handheld scanner</summary>
                 <div className="mt-4 space-y-3"><div className="grid grid-cols-1 md:grid-cols-3 gap-3"><input className={"ui-field " + (fieldClass)} placeholder="RFID-HH-A1B2C3" value={registration.device_uuid} onChange={e=>setRegistration({...registration,device_uuid:e.target.value})}/><input className={"ui-field " + (fieldClass)} placeholder="Stockroom Scanner 2" value={registration.device_name} onChange={e=>setRegistration({...registration,device_name:e.target.value})}/><input className={"ui-field " + (fieldClass)} placeholder="https://inventory.example.edu" value={registration.server_url} onChange={e=>setRegistration({...registration,server_url:e.target.value})}/></div><Button variant="primary" type="button" disabled={busy} onClick={registerDevice} className="">Register Device</Button>{oneTimeToken && <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 p-4 text-sm"><strong className="block text-amber-900 dark:text-amber-300 mb-2">One-time device token — copy it now</strong><code className="break-all select-all text-slate-900 dark:text-slate-100">{oneTimeToken}</code></div>}</div>
             </details>}
-            <div className="flex flex-wrap items-center justify-between gap-3"><select className={"ui-field " + (`${fieldClass} max-w-sm`)} value={selectedId ?? ''} onChange={e=>{setSelectedId(Number(e.target.value));setDraft({});}}>{devices.map(d=><option key={d.id} value={d.id}>{d.device_name} — {d.device_uuid}</option>)}</select><span className={`px-3 py-1 rounded-full text-sm font-semibold ${selected?.status === 'online' ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}><Activity className="inline w-3 h-3 mr-1"/>{selected?.status}</span></div>
+            <div className="flex flex-wrap items-center justify-between gap-3"><select className={"ui-field " + (`${fieldClass} max-w-sm`)} value={selectedId ?? ''} onChange={e=>{setSelectedId(Number(e.target.value));setDraft({});}}>{devices.map(d=><option key={d.id} value={d.id}>{d.device_name} — {d.device_uuid}</option>)}</select><StatusBadge tone={selected?.status === 'online' ? 'success' : 'neutral'}>{selected?.status || 'offline'}</StatusBadge></div>
             <div className="rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200 dark:border-slate-800 p-4 grid grid-cols-2 lg:grid-cols-5 gap-4 text-sm"><div><span className="text-slate-500 dark:text-slate-400">Device ID</span><strong className="block mt-1 text-slate-900 dark:text-slate-100">{selected?.device_uuid}</strong></div><div><span className="text-slate-500 dark:text-slate-400">Firmware</span><strong className="block mt-1 text-slate-900 dark:text-slate-100">{selected?.firmware_version || 'Not reported'}</strong></div><div><span className="text-slate-500 dark:text-slate-400">Last seen</span><strong className="block mt-1 text-slate-900 dark:text-slate-100">{selected?.last_seen_at ? formatTimestamp(selected.last_seen_at) : 'Never'}</strong></div><div><span className="text-slate-500 dark:text-slate-400">IP address</span><strong className="block mt-1 text-slate-900 dark:text-slate-100">{selected?.ip_address || '—'}</strong></div><div><span className="text-slate-500 dark:text-slate-400">Config version</span><strong className="block mt-1 text-slate-900 dark:text-slate-100">{selected?.config_version}</strong></div></div>
             {can('system.settings.rfid-devices.update') && <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-sm space-y-1" role="status">
@@ -180,12 +185,26 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
             <div className="flex flex-wrap gap-3">
                 {can('system.settings.rfid-devices.update') && <Button variant="primary" type="button" disabled={busy} onClick={saveDevice} className="flex gap-2"><Save className="w-4 h-4"/>Save & Apply Configuration</Button>}
                 {can('system.settings.rfid-devices.test') && <Button variant="secondary" type="button" disabled={busy} onClick={testDevice} className="flex gap-2"><Wifi className="w-4 h-4"/>Test Connection</Button>}
-                {can('system.settings.rfid-devices.rotate') && <Button variant="secondary" type="button" disabled={busy} onClick={rotateDevice} className="">Rotate Secret</Button>}
-                {can('system.settings.rfid-devices.enabled') && <Button variant="secondary" type="button" disabled={busy} onClick={toggleDevice} className="">{selected?.status === 'disabled' ? 'Enable Server Access' : 'Disable Server Access'}</Button>}
-                {can('system.settings.rfid-devices.revoke') && <Button variant="secondary" type="button" disabled={busy} onClick={revokeDevice} className="">Revoke Scanner</Button>}
+                {can('system.settings.rfid-devices.rotate') && <Button variant="secondary" type="button" disabled={busy} onClick={() => setPendingAction('rotate')}>Rotate Secret</Button>}
+                {can('system.settings.rfid-devices.enabled') && <Button variant="secondary" type="button" disabled={busy} onClick={toggleDevice}>{selected?.status === 'disabled' ? 'Enable Server Access' : 'Disable Server Access'}</Button>}
+                {can('system.settings.rfid-devices.revoke') && <Button variant="danger" type="button" disabled={busy} onClick={() => setPendingAction('revoke')}>Revoke Scanner</Button>}
             </div>
             {oneTimeToken && <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 p-4 text-sm"><strong className="block text-amber-900 dark:text-amber-300 mb-2">One-time signing secret — copy it now</strong><code className="break-all select-all text-slate-900 dark:text-slate-100">{oneTimeToken}</code></div>}
         </section>}
         <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200 dark:border-slate-800 flex items-center gap-3"><Radio className="w-4 h-4 text-red-900 dark:text-red-400"/><span className="text-sm text-slate-600 dark:text-slate-400">Wi-Fi setup on firmware 2.2.0+: hold the trigger while powering on or pressing EN/RESET, keep holding for eight seconds, then release. A hold during normal use only scans. GPIO 16, 17, 26, and trigger GPIO 27 remain fixed in firmware.</span></div>
+        <ConfirmDialog
+            show={pendingAction !== null}
+            title={pendingAction === 'rotate' ? 'Rotate Scanner Secret' : 'Revoke Scanner Access'}
+            message={
+                pendingAction === 'rotate'
+                    ? 'Rotate this scanner secret? The scanner must be provisioned with the new secret before it can connect again.'
+                    : 'Revoke this scanner? Its current signing secret will be erased. Reusing the scanner requires rotation and provisioning.'
+            }
+            confirmLabel={pendingAction === 'rotate' ? 'Rotate Secret' : 'Revoke Scanner'}
+            variant={pendingAction === 'rotate' ? 'primary' : 'danger'}
+            loading={busy}
+            onConfirm={pendingAction === 'rotate' ? rotateDevice : revokeDevice}
+            onClose={() => setPendingAction(null)}
+        />
     </div>;
 }

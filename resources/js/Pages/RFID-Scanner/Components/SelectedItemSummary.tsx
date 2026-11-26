@@ -118,7 +118,7 @@ export default function SelectedItemSummary({
     ? "bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/60" : "bg-amber-50/80 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60"}`}
                     >
                         <span
-                            className={`w-1.5 h-1.5 rounded-full ${isTagged ? "bg-emerald-600 dark:bg-emerald-500 animate-pulse" : "bg-amber-500"}`}
+                            className={`w-1.5 h-1.5 rounded-full ${isTagged ? "bg-emerald-600 dark:bg-emerald-500 animate-pulse motion-reduce:animate-none" : "bg-amber-500"}`}
                         />
                         <span>{isTagged ? 'Tagged' : 'Needs Tag'}</span>
                     </span>
@@ -195,7 +195,7 @@ export default function SelectedItemSummary({
                             onClick={onPromptUnassign}
                             className="inline-flex items-center gap-1"
                         >
-                            <Trash2 className="w-3 h-3 text-red-700 dark:text-red-400" />
+                            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                             <span>Unassign</span>
                         </Button>}
                     </div>

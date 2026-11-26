@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 import React, { useMemo } from 'react';
 import { ArrowUpRight, FileText } from 'lucide-react';
 import { Stock, money, secondaryButton, stockStatus } from '../inventory';
@@ -43,7 +44,7 @@ export default function StockList({
                     onClick={() => onIssue(stock)}
                     disabled={stock.quantity <= 0}
                     aria-label={`Record issue for ${stock.name}`}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
+                    size="sm" className="inline-flex items-center justify-center gap-1.5"
                 >
                     <ArrowUpRight size={14} />
                     Record Issue
@@ -54,7 +55,7 @@ export default function StockList({
                     type="button"
                     onClick={() => onStockCard(stock)}
                     aria-label={`Generate Stock Card for ${stock.name}`}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
+                    size="sm" className="inline-flex items-center justify-center gap-1.5"
                 >
                     <FileText size={14} />
                     Stock Card
@@ -92,7 +93,7 @@ export default function StockList({
                         {sortedRows.map(stock => {
                             const status = stockStatus(stock.quantity, lowStockThreshold);
                             return (
-                                <tr key={stock.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                                <tr key={stock.id} className="transition-colors">
                                     <th scope="row" className="min-w-52 py-3.5 pl-6 pr-4 align-middle font-normal text-left">
                                         <p className="font-semibold text-slate-900 dark:text-slate-100">{stock.name}</p>
                                         <p className="leading-relaxed mt-0.5 tabular-nums text-sm text-slate-500 dark:text-slate-400">{stock.sku}</p>
@@ -102,10 +103,9 @@ export default function StockList({
                                         <span className="ml-1.5 text-sm text-slate-500 dark:text-slate-400">{stock.unit}</span>
                                     </td>
                                     <td className="px-4 py-3.5 align-middle">
-                                        <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-medium ${status.classes}`}>
-                                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                        <StatusBadge tone={stock.quantity <= 0 ? 'danger' : stock.quantity <= lowStockThreshold ? 'warning' : 'success'}>
                                             {status.label}
-                                        </span>
+                                        </StatusBadge>
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3.5 align-middle text-right tabular-nums text-slate-700 dark:text-slate-300">
                                         {money(Number(stock.value))}

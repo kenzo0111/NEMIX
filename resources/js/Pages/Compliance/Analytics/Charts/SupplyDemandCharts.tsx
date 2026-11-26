@@ -203,7 +203,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                         </caption>
                         <thead>
                             <tr>
-                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 align-middle dark:text-slate-300">
+                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-28 sm:min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 align-middle dark:text-slate-300">
                                     Department / office
                                 </SortableTableHeader>
                                 {months.map((month) => (

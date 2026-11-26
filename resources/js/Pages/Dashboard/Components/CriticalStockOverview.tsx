@@ -5,6 +5,7 @@ import { CriticalStockItem } from '../types';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import StatusBadge from '@/Components/ui/status-badge';
 
 type CriticalSortKey = 'item' | 'stock' | 'status';
 
@@ -75,12 +76,9 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                                 <span className="text-sm text-slate-500 dark:text-slate-400 ml-1">{item.unit}</span>
                                             </td>
                                             <td className="py-3 pl-2 text-right whitespace-nowrap align-middle">
-                                                <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold normal-case tracking-normal ${isCritical
-    ? "bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-500/30" : "bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 ring-1 ring-amber-600/20 dark:ring-amber-500/30"}`}
-                                                >
+                                                <StatusBadge tone={isCritical ? 'danger' : 'warning'}>
                                                     {item.status || (isCritical ? 'Critical' : 'Low')}
-                                                </span>
+                                                </StatusBadge>
                                             </td>
                                         </tr>
                                     );
@@ -95,7 +93,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
                     href={inventoryHref}
-                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
+                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 rounded transition-colors inline-flex items-center gap-1"
                 >
                     <span>View All Inventory</span>
                     <ArrowRight className="w-3.5 h-3.5" />

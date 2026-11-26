@@ -8,11 +8,11 @@ import { ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, Eye, Fil
 import useAuthorization from '@/Hooks/useAuthorization';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import CoordinatorPortalHeader from '../../Coordinator/components/CoordinatorPortalHeader';
 import { panel, secondaryButton } from '../../Coordinator/inventory';
 import { SupplyRequest } from '../types';
 import { RequestStatusBadge } from './RequestStatusBadge';
 import StatusBadge from '@/Components/ui/status-badge';
+import TablePagination from '@/Components/ui/table-pagination';
 import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 
@@ -114,13 +114,13 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                     type="button"
                     aria-label={`Proceed with requisition for ${reference(request)}`}
                     onClick={() => props.onEdit(request)}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
+                    size="sm" className="inline-flex items-center justify-center gap-1.5"
                 >
                     <CheckCircle2 size={14} />Proceed to Requisition
                 </Button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested'].includes(request.status) && can('inventory.requests.update') && (
-                <Button variant="secondary" type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5">
+                <Button variant="secondary" type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} size="sm" className="inline-flex items-center justify-center gap-1.5">
                     <Pencil size={14} />Edit
                 </Button>
             )}
@@ -130,7 +130,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                 </Button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested', 'Stock Restocked'].includes(request.status) && can('inventory.requests.delete') && (
-                <Button variant="secondary" type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5">
+                <Button variant="secondary" type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} size="sm" className="inline-flex items-center justify-center gap-1.5">
                     <X size={14} />Cancel
                 </Button>
             )}
@@ -138,26 +138,30 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
     );
 
     return (
-        <>
-            <CoordinatorPortalHeader />
-            <DashboardContent>
-                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">{isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard'}</Link>
-                    <ChevronRight size={13} />
-                    <span className="text-slate-700 dark:text-slate-300">My Requests</span>
-                </nav>
-                <PageHeader embedded title="My Supply Requests" description={`Request supplies for your ${isAuthorizedPersonnel ? "office" : "Delivery Unit"} and follow each requisition from review to release.`} actions={<><div className="flex flex-wrap gap-2.5">
+        <DashboardContent>
+            <PageHeader
+                embedded
+                title="My Supply Requests"
+                description={`Request supplies for your ${isAuthorizedPersonnel ? "office" : "Delivery Unit"} and follow each requisition from review to release.`}
+                breadcrumbs={[
+                    { name: isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard', href: route('dashboard') },
+                    { name: 'My Requests' },
+                ]}
+                actions={
+                    <div className="flex flex-wrap gap-2.5">
                         {can('coordinator.catalog.index') && (
-                            <Link data-variant="secondary" data-size="default" href={route('coordinator.catalog.index')} className={"ui-button " + (secondaryButton)}>
-                                Browse Central Stock<ArrowRight size={15} />
+                            <Link data-variant="secondary" data-size="default" href={route('coordinator.catalog.index')} className="ui-button">
+                                Browse Central Stock<ArrowRight size={15} aria-hidden="true" />
                             </Link>
                         )}
                         {can('inventory.requests.store') && (
-                            <Button variant="primary" type="button" onClick={props.onCreate} className="inline-flex min-h-11 items-center justify-center gap-2">
-                                <Plus size={17} />New Request
+                            <Button variant="primary" type="button" onClick={props.onCreate}>
+                                <Plus size={17} aria-hidden="true" />New Request
                             </Button>
                         )}
-                    </div></>} />
+                    </div>
+                }
+            />
                 <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {stats.map(stat => (
                         <Button variant="unstyled" key={stat.label} type="button" onClick={() => props.onStatus(stat.status)} aria-label={`Show ${stat.label.toLowerCase()}`} aria-pressed={props.status === stat.status} className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 text-left transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5 ${props.status === stat.status ? "border-red-300 bg-red-50/70 ring-1 ring-red-900/20 dark:border-red-800 dark:bg-red-950/20" : ""}`}>
@@ -301,30 +305,24 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                             </div>
                         </>
                     ) : empty}
-                    <div className="ui-pagination flex flex-col justify-between gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
-                        <p role="status" className="text-sm text-slate-500 dark:text-slate-400">
-                            Showing {props.from}–{props.to} of {props.filteredCount} requests
-                        </p>
-                        <nav aria-label="Request pages" className="flex items-center gap-2">
-                            <Button variant="secondary" type="button" disabled={props.page <= 1} onClick={() => props.onPage(props.page - 1)} className={`${secondaryButton} min-h-9 `}>
-                                Previous
-                            </Button>
-                            <span className="px-1 text-sm tabular-nums text-slate-500 dark:text-slate-400">{props.page} / {props.lastPage}</span>
-                            <Button variant="secondary" type="button" disabled={props.page >= props.lastPage} onClick={() => props.onPage(props.page + 1)} className={`${secondaryButton} min-h-9 `}>
-                                Next
-                            </Button>
-                        </nav>
-                    </div>
+                    <TablePagination
+                        currentPage={props.page}
+                        totalPages={props.lastPage}
+                        totalRecords={props.filteredCount}
+                        from={props.from}
+                        to={props.to}
+                        onPageChange={props.onPage}
+                        recordLabel="requests"
+                    />
                 </section>
                 <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400">
                     <span>My requests only · {props.userName}</span>
                     {can('coordinator.inventory.index') && (
-                        <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">
+                        <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300">
                             View my {supplyOwner} inventory →
                         </Link>
                     )}
                 </footer>
             </DashboardContent>
-        </>
     );
 }

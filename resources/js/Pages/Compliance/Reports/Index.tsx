@@ -86,20 +86,16 @@ export default function ReportsIndex({
         <>
             <Head title="COA Compliance Reports & Official Forms" />
 
-            <div className="print:hidden compliance-print-hide">
-
-            </div>
-
             <DashboardLayout modules={modules} user={user}>
-                <div className="print:hidden compliance-print-hide">
-                    <PageHeader
-                        title="Manage Reports"
-                        description="Generate and maintain official inventory and compliance documents."
-                        breadcrumbs={[{ name: 'Compliance' }, { name: 'Manage Reports' }]}
-                    />
-                </div>
-
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:h-auto">
+                    <div className="print:hidden compliance-print-hide">
+                        <PageHeader
+                            embedded
+                            title="Manage Reports"
+                            description="Generate and maintain official inventory and compliance documents."
+                            breadcrumbs={[{ name: 'Compliance' }, { name: 'Manage Reports' }]}
+                        />
+                    </div>
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
                         <div data-tour="system-admin-reports-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">

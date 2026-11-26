@@ -191,7 +191,7 @@ export default function RoleTable({
                                                     <Button variant="secondary"
                                                         type="button"
                                                         onClick={() => onEditRole(role)}
-                                                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                                                        size="sm" className="inline-flex items-center justify-center gap-1.5"
                                                     >
                                                         Edit
                                                     </Button>
@@ -202,7 +202,7 @@ export default function RoleTable({
                                                         type="button"
                                                         onClick={() => onDeleteRole(role)}
                                                         title="Delete role"
-                                                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                                                        size="sm" className="inline-flex items-center justify-center gap-1.5"
                                                     >
                                                         Delete
                                                     </Button>

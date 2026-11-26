@@ -12,7 +12,7 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
         <div className="text-center py-8 px-5 bg-gradient-to-b from-slate-50/40 via-white to-slate-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
             {/* Target Item Ribbon */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-900 border border-red-100 dark:border-red-900/50 text-sm font-medium mb-5 dark:text-red-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-800 dark:bg-red-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-red-800 dark:bg-red-400 animate-pulse motion-reduce:animate-none" />
                 <span>Target:</span>
                 <strong className="font-semibold truncate max-w-[200px]">{item.name}</strong>
             </div>
@@ -20,10 +20,10 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
             {/* Pulsing RFID Sensor Radar Target */}
             <div className="relative my-2 flex items-center justify-center">
                 {/* Gentle animated rings */}
-                <div className="absolute w-28 h-28 rounded-full bg-red-900/5 dark:bg-red-500/5 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
+                <div className="absolute w-28 h-28 rounded-full bg-red-900/5 dark:bg-red-500/5 animate-ping motion-reduce:animate-none pointer-events-none" style={{ animationDuration: '3s' }} />
                 <div className="absolute w-24 h-24 rounded-full bg-red-900/10 dark:bg-red-500/10 pointer-events-none" />
                 <div className="relative w-16 h-16 bg-white rounded-xl border border-red-200 dark:border-red-900/50 shadow-sm flex items-center justify-center text-red-900 z-10 dark:text-red-300 dark:bg-slate-850">
-                    <Radio className="w-8 h-8 text-red-900 animate-pulse dark:text-red-300" />
+                    <Radio className="w-8 h-8 text-red-900 animate-pulse motion-reduce:animate-none dark:text-red-300" />
                 </div>
             </div>
 
@@ -32,21 +32,21 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
                 <h3 className="text-lg font-semibold text-slate-900 font-sans dark:text-slate-100">
                     Scanner Active & Listening
                 </h3>
-                <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed dark:text-slate-300">
+                <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed dark:text-slate-400">
                     Present the physical RFID card or tag to the handheld reader trigger.
                 </p>
             </div>
 
             {/* Live listening status badge */}
             <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-200/70 dark:border-emerald-800/60 text-sm tabular-nums text-emerald-800 dark:text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse motion-reduce:animate-none" />
                 <span>USB HID Reader Synchronized</span>
             </div>
 
             <div className="w-32 border-t border-slate-100 dark:border-slate-800 my-4" />
 
             {/* Manual entry fallback option */}
-            <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500 dark:text-slate-300">
+            <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
                 <span>Scanner unavailable?</span>
                 <Button variant="secondary"
                     type="button"

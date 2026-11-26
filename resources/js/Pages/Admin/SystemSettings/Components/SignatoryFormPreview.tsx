@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Eye, Maximize2, Minimize2 } from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 
 interface SignatoryFormPreviewProps {
     form: 'RIS' | 'RSMI' | 'RPCI' | 'MOR';
@@ -50,25 +52,23 @@ export default function SignatoryFormPreview({
                     <Eye className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                     Live {form} Form Preview
                 </h4>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Live preview
-                </span>
+                <StatusBadge tone="success">Live preview</StatusBadge>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-3">
-                <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     Sample form. Changes appear immediately; save settings to apply.
                 </p>
-                <button
+                <Button
+                    variant="secondary"
+                    size="sm"
                     type="button"
                     aria-pressed={actualSize}
                     onClick={() => setActualSize((previous) => !previous)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     {actualSize ? <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" /> : <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />}
                     {actualSize ? 'Fit to width' : 'Actual size'}
-                </button>
+                </Button>
             </div>
 
             <div className="overflow-x-auto p-3 sm:p-4" tabIndex={0} aria-label={`${form} preview document`}>

@@ -368,16 +368,15 @@ export default function AllItemsIndex({
 
             <DashboardLayout modules={modules} user={user}>
                 {/* Unified Institutional Header */}
-                <PageHeader
-                    title="Inventory Management"
+                <DashboardContent>
+<PageHeader embedded
+                    title="All Inventory Items"
                     description="Track consumable supplies and property assets."
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'All Items' }]}
                 />
 
-                <DashboardContent>
-
                     {/* Main Working Interface: Card & Table */}
-                    <div data-tour="system-admin-inventory-workspace" className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div data-tour="system-admin-inventory-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                         {/* Streamlined Toolbar */}
                         <InventoryToolbar
                             searchTerm={searchTerm}

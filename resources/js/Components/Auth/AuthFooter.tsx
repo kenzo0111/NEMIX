@@ -14,7 +14,7 @@ export default function AuthFooter({ className = '', compact = false }: AuthFoot
 
     if (compact) {
         return (
-            <footer className={`text-center text-sm leading-relaxed text-stone-500 dark:text-slate-400 ${className}`}>
+            <footer className={`text-center text-sm leading-relaxed text-slate-500 dark:text-slate-400 ${className}`}>
                 &copy; {currentYear} {institutionName}. All rights reserved.
             </footer>
         );
@@ -22,13 +22,13 @@ export default function AuthFooter({ className = '', compact = false }: AuthFoot
 
     return (
         <footer className={`text-center space-y-1 select-text ${className}`}>
-            <p className="leading-relaxed text-sm font-semibold text-stone-500 dark:text-slate-400 font-sans tracking-normal normal-case">
+            <p className="leading-relaxed text-sm font-semibold text-slate-500 dark:text-slate-400 font-sans tracking-normal normal-case">
                 {officeName}
             </p>
-            <p className="text-sm text-stone-400 dark:text-slate-400 leading-tight">
+            <p className="text-sm text-slate-400 dark:text-slate-400 leading-tight">
                 &copy; {currentYear} {institutionName.toUpperCase()}. All rights reserved.
             </p>
-            <p className="leading-relaxed text-sm text-stone-400/80 dark:text-slate-400">
+            <p className="leading-relaxed text-sm text-slate-400/80 dark:text-slate-400">
                 Authorized institutional use only.
             </p>
         </footer>

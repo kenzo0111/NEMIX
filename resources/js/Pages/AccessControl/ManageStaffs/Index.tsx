@@ -242,13 +242,12 @@ export default function StaffManagementIndex({
 
 
             <DashboardLayout modules={modules} user={user || undefined}>
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="Staff Management"
                     description="Manage staff accounts, roles, and permissions."
                     breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Staffs' }]}
                 />
-
-                <DashboardContent>
 
                     {/* Permanent Directory Read-Only Mode Banner */}
                     {isReadOnly && <ReadOnlyNotice />}

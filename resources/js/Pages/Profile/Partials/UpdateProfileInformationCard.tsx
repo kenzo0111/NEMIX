@@ -312,7 +312,7 @@ export default function UpdateProfileInformationCard({
                                                 href={route('verification.send')}
                                                 method="post"
                                                 as="button"
-                                                className="inline-flex items-center gap-1 font-semibold text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline focus:outline-none cursor-pointer"
+                                                className="inline-flex items-center gap-1 font-semibold text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:focus-visible:ring-red-300 rounded cursor-pointer"
                                             >
                                                 Click here to dispatch a new verification link
                                             </Link>
@@ -346,20 +346,12 @@ export default function UpdateProfileInformationCard({
 
                                     <Button variant="primary"
                                         type="submit"
-                                        disabled={processing || !isDirty}
+                                        disabled={!isDirty}
+                                        loading={processing}
                                         className="flex items-center gap-2"
                                     >
-                                        {processing ? (
-                                            <>
-                                                <Loader2 className="animate-spin w-3.5 h-3.5 shrink-0" />
-                                                <span>Saving...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Save className="w-3.5 h-3.5" />
-                                                <span>Save Profile</span>
-                                            </>
-                                        )}
+                                        {!processing && <Save className="w-3.5 h-3.5" aria-hidden="true" />}
+                                        <span>{processing ? 'Saving...' : 'Save Profile'}</span>
                                     </Button>
                                 </div>
                             </div>

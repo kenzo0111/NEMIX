@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { Link } from '@inertiajs/react';
 import { useSortableData } from '@/Hooks/useSortableData';
 import RecordTable from '@/Components/ui/record-table';
+import { actionLinkProps } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 import type { CriticalStockItem } from '../types';
 
 declare function route(name: string, params?: any): string;
@@ -40,9 +42,9 @@ export default function CoordinatorStockAttention({ items, canRequest }: { items
             label: 'Status',
             value: (item: CriticalStockItem) => item.status || item.priority,
             render: (item: CriticalStockItem) => (
-                <span className={`whitespace-nowrap rounded-md px-2 py-1 font-medium ${item.current <= 0 || item.priority === 'Critical' ? "bg-red-50 text-red-800 dark:bg-red-950/60 dark:text-red-300" : "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"}`}>
+                <StatusBadge tone={item.current <= 0 || item.priority === 'Critical' ? 'danger' : 'warning'}>
                     {item.status || 'Low stock'}
-                </span>
+                </StatusBadge>
             ),
         },
         ...(canRequest ? [{
@@ -51,9 +53,9 @@ export default function CoordinatorStockAttention({ items, canRequest }: { items
             value: () => '',
             align: 'right' as const,
             render: (item: CriticalStockItem) => (
-                <Link data-variant="primary" data-size="default"
+                <Link
+                    {...actionLinkProps('primary', 'sm')}
                     href={route('inventory.requests.index', { create: 1, ...(item.item_id ? { item_id: item.item_id } : {}) })}
-                    className="ui-button inline-flex items-center px-2 py-1 text-sm font-semibold rounded bg-red-900 text-white hover:bg-red-950 transition-colors shadow-sm"
                 >
                     Request
                 </Link>

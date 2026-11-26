@@ -364,16 +364,16 @@ export default function InventoryFormModal({
                                             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                                                 Opening stock
                                             </span>
-                                            <span className="text-xs font-semibold px-2 py-0.5 text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 rounded-md border border-slate-300/60 dark:border-slate-700">
+                                            <span className="text-sm font-semibold px-2 py-0.5 text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 rounded-md border border-slate-300/60 dark:border-slate-700">
                                                 Optional
                                             </span>
                                             {Number(data.stock) > 0 && (
-                                                <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full tabular-nums">
+                                                <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full tabular-nums">
                                                     {data.stock} {data.unit_of_issue || 'units'}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
                                             {isBatchExpanded
                                                 ? 'Record initial inventory, supplier, and unit cost.'
                                                 : 'Optional. You can receive stock later.'}

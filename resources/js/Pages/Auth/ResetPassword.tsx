@@ -46,9 +46,9 @@ export default function ResetPassword({
             <form onSubmit={submit} className="space-y-5">
                 {/* Official Email */}
                 <div>
-                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
+                    <InputLabel htmlFor="email" value="Official Email Address" className="text-slate-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
                     <div className="relative rounded-lg shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <AuthTextInput aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined}

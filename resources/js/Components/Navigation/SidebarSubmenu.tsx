@@ -32,7 +32,7 @@ export default function SidebarSubmenu({
                         key={subItem.key}
                         href={subItem.href}
                         aria-current={subItem.active ? 'page' : undefined}
-                        className={` flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150 ${subItem.active
+                        className={` flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${subItem.active
     ? "text-amber-300 font-medium bg-red-900/50" : "text-red-200/70 hover:text-white hover:bg-white/5"} `}
                     >
                         <div className="flex min-w-0 items-center gap-2">

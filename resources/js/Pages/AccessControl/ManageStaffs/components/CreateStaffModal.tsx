@@ -103,7 +103,7 @@ export default function CreateStaffModal({
                         <UserPlus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">Add Staff Account</h3>
+                        <h3 className="break-words text-xl font-semibold text-slate-900 dark:text-slate-100">Add Staff Account</h3>
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
                             Register a university staff member and assign an administrative role.
                         </p>
@@ -216,20 +216,11 @@ export default function CreateStaffModal({
                     </Button>
                     <Button variant="primary"
                         type="submit"
-                        disabled={processing}
+                        loading={processing}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                     >
-                        {processing ? (
-                            <>
-                                <Loader2 className="animate-spin h-3.5 w-3.5 text-white shrink-0" />
-                                <span>Adding Staff...</span>
-                            </>
-                        ) : (
-                            <>
-                                <UserPlus className="w-3.5 h-3.5 text-amber-300" />
-                                <span>Add Staff</span>
-                            </>
-                        )}
+                        {!processing && <UserPlus className="w-3.5 h-3.5" aria-hidden="true" />}
+                        <span>{processing ? 'Adding Staff...' : 'Add Staff'}</span>
                     </Button>
                 </DialogFooter>
             </form>

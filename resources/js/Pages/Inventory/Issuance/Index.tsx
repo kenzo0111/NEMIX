@@ -312,24 +312,23 @@ export default function IssuanceIndex({
 
 
             <DashboardLayout modules={modules} user={user}>
-                <PageHeader
-                    title="Inventory Management"
+                <DashboardContent className="overflow-x-hidden">
+<PageHeader embedded
+                    title="Issuance & Approvals"
                     description="Approve requests and track issued supplies."
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance & Approvals' }]}
                 />
 
-                <DashboardContent className="overflow-x-hidden">
-
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             {canReviewRequests && <Button variant="tab"
                                 type="button"
                                 onClick={() => setViewMode('approvals')}
                                 aria-pressed={viewMode === 'approvals'}
                                 className="flex items-center gap-2"
                             >
-                                <ClipboardCheck className="w-4 h-4 text-amber-300" />
+                                <ClipboardCheck className="w-4 h-4" aria-hidden="true" />
                                 <span>Requisition Approval Workspace</span>
                                 {(pendingCount > 0 || approvedCount > 0) && (
                                     <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-amber-500 text-slate-950 font-semibold">
@@ -344,7 +343,7 @@ export default function IssuanceIndex({
                                 aria-pressed={viewMode === 'issuances'}
                                 className="flex items-center gap-2"
                             >
-                                <PackageCheck className="w-4 h-4 text-amber-300" />
+                                <PackageCheck className="w-4 h-4" aria-hidden="true" />
                                 <span>Issuance Registry & Slips</span>
                                 <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
                                     {rawList.length}

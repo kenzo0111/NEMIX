@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 import { notify } from '@/utils/notifications';
 import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
@@ -162,7 +163,8 @@ export default function Index({
             {/* Main Application Area */}
             <DashboardLayout modules={modules} user={user ?? undefined}>
                 {/* 1. PageHeader with Single Primary Save Controls */}
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="System Settings & Policies"
                     description="Manage institution settings and system policies."
                     breadcrumbs={[
@@ -172,10 +174,7 @@ export default function Index({
                     actions={
                         <div data-tour="system-admin-settings-save" className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {canUpdateSettings && isDirty && (
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 text-amber-800 dark:text-amber-400 text-sm font-medium">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                    <span>Unsaved changes</span>
-                                </div>
+                                <StatusBadge tone="warning">Unsaved changes</StatusBadge>
                             )}
 
                             {canUpdateSettings && isDirty && (
@@ -202,9 +201,6 @@ export default function Index({
                         </div>
                     }
                 />
-
-                {/* Main Content Body */}
-                <DashboardContent>
                     {/* 2. Institutional Hero Banner */}
                     <SettingsHero userName={user?.name} />
 

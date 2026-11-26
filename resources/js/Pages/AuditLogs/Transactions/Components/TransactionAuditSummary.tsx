@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollText, CheckCircle2, AlertTriangle, Layers, Filter } from 'lucide-react';
+import StatCard from '@/Components/ui/stat-card';
 import { TransactionAuditSummary as SummaryData } from '../types';
 
 interface TransactionAuditSummaryProps {
@@ -26,77 +27,34 @@ export const TransactionAuditSummary: React.FC<TransactionAuditSummaryProps> = (
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Records */}
-                <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200/80 dark:border-slate-800 border-t-2 border-t-red-900 shadow-sm hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
-                            Total Records
-                        </span>
-                        <div className="p-1.5 rounded-md bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/50">
-                            <ScrollText className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <div className="text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight tabular-nums">
-                        {total.toLocaleString('en-PH')}
-                    </div>
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        All recorded system activities
-                    </p>
-                </div>
-
-                {/* Verified */}
-                <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200/80 dark:border-slate-800 border-t-2 border-t-emerald-600 shadow-sm hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
-                            Verified Actions
-                        </span>
-                        <div className="p-1.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/50">
-                            <CheckCircle2 className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <div className="text-2xl font-semibold text-emerald-800 dark:text-emerald-400 tracking-tight tabular-nums">
-                        {verified.toLocaleString('en-PH')}
-                    </div>
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        Approved system operations
-                    </p>
-                </div>
-
-                {/* Flagged */}
-                <div className={`bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200/80 dark:border-slate-800 border-t-2 ${flagged > 0 ? "border-t-amber-600 bg-amber-50/20 dark:bg-amber-950/20" : "border-t-gray-300 dark:border-t-slate-700"} shadow-sm hover:shadow-sm transition-shadow`}>
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
-                            Flagged Entries
-                        </span>
-                        <div className={`p-1.5 rounded-md border ${flagged > 0 ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50" : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700"}`}>
-                            <AlertTriangle className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <div className={`text-2xl font-semibold tracking-tight tabular-nums ${flagged > 0 ? "text-amber-900 dark:text-amber-300" : "text-slate-900 dark:text-slate-100"}`}>
-                        {flagged.toLocaleString('en-PH')}
-                    </div>
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        Exceptions and warnings recorded
-                    </p>
-                </div>
-
-                {/* Modules Represented */}
-                <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200/80 dark:border-slate-800 border-t-2 border-t-slate-600 shadow-sm hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
-                            Modules Represented
-                        </span>
-                        <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            <Layers className="w-4 h-4" />
-                        </div>
-                    </div>
-                    <div className="text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight tabular-nums">
-                        {modules.toLocaleString('en-PH')}
-                    </div>
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        System operational areas
-                    </p>
-                </div>
+                <StatCard
+                    label="Total Records"
+                    value={total.toLocaleString('en-PH')}
+                    sublabel="All recorded system activities"
+                    icon={<ScrollText className="w-5 h-5" />}
+                    tone="brand"
+                />
+                <StatCard
+                    label="Verified Actions"
+                    value={verified.toLocaleString('en-PH')}
+                    sublabel="Approved system operations"
+                    icon={<CheckCircle2 className="w-5 h-5" />}
+                    tone="success"
+                />
+                <StatCard
+                    label="Flagged Entries"
+                    value={flagged.toLocaleString('en-PH')}
+                    sublabel="Exceptions and warnings recorded"
+                    icon={<AlertTriangle className="w-5 h-5" />}
+                    tone={flagged > 0 ? 'warning' : 'neutral'}
+                />
+                <StatCard
+                    label="Modules Represented"
+                    value={modules.toLocaleString('en-PH')}
+                    sublabel="System operational areas"
+                    icon={<Layers className="w-5 h-5" />}
+                    tone="neutral"
+                />
             </div>
         </div>
     );

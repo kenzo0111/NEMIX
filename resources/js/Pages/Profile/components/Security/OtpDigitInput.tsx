@@ -22,7 +22,7 @@ export default function OtpDigitInput({
     return (
         <div className="flex items-center justify-center gap-2 sm:gap-3" onPaste={onPaste}>
             {digits.map((digit, idx) => (
-                <input aria-invalid={Boolean(digit)}
+                <input aria-invalid={hasError}
                     key={idx}
                     ref={(el) => (inputRefs.current[idx] = el)}
                     type="text"

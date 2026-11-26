@@ -110,17 +110,25 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                             return (
                                 <React.Fragment key={record.id}>
                                     <tr
+                                        tabIndex={0}
+                                        aria-expanded={isExpanded}
                                         onClick={() => toggleRow(record.id)}
-                                        className={`hover:bg-red-50/20 dark:hover:bg-red-950/20 cursor-pointer transition-colors group ${isExpanded ? "bg-red-50/30 dark:bg-red-950/20" : ""}`}
+                                        onKeyDown={(e) => {
+                                            if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+                                                e.preventDefault();
+                                                toggleRow(record.id);
+                                            }
+                                        }}
+                                        className={`hover:bg-red-50/20 dark:hover:bg-red-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 cursor-pointer transition-colors group ${isExpanded ? "bg-red-50/30 dark:bg-red-950/20" : ""}`}
                                     >
                                         <td className="py-3.5 px-3 text-center align-middle">
-                                            <Button variant="secondary"
+                                            <Button variant="ghost" size="icon"
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleRow(record.id);
                                                 }}
-                                                className=""
+                                                aria-expanded={isExpanded}
                                                 aria-label={isExpanded ? 'Collapse audit details' : 'Expand audit details'}
                                             >
                                                 {isExpanded ? (

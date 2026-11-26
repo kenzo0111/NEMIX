@@ -3,6 +3,7 @@ import { SupplierTableProps } from '../types';
 import { SupplierRow } from './SupplierRow';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import TablePagination from '@/Components/ui/table-pagination';
+import EmptyState from '@/Components/ui/empty-state';
 
 export const SupplierTable: React.FC<SupplierTableProps> = ({
     suppliers,
@@ -55,8 +56,11 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
 
                         {suppliers.length === 0 && (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                    No consumable office supplies suppliers found matching your criteria.
+                                <td colSpan={5} className="p-0">
+                                    <EmptyState
+                                        title="No suppliers found"
+                                        description="No consumable office supplies suppliers match your current search or status filter."
+                                    />
                                 </td>
                             </tr>
                         )}

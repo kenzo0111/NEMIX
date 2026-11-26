@@ -310,7 +310,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 </DialogBody>
 
                 {/* Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
                     <Button variant="secondary"
                         type="button"
                         onClick={onClose}

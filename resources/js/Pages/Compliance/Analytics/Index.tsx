@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import TablePagination from '@/Components/ui/table-pagination';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSortableData, type SortValue } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -115,13 +116,13 @@ function Ranking({
             >
                 <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 30 }} accessibilityLayer>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--chart-grid)" />
-                    <XAxis type="number" allowDecimals={false} />
+                    <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
                     <YAxis
                         type="category"
                         dataKey="name"
-                        width={150}
-                        tick={{ fontSize: 11 }}
-                        tickFormatter={(name) => (name.length > 25 ? `${name.slice(0, 24)}…` : name)}
+                        width={120}
+                        tick={{ fill: 'var(--chart-tick)', fontSize: 12 }}
+                        tickFormatter={(name) => (name.length > 20 ? `${name.slice(0, 19)}…` : name)}
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar
@@ -268,23 +269,16 @@ function DataTable({
                     </tbody>
                 </table>
             </div>
-            <div className="ui-pagination rounded-b-xl">
-                <span className="text-slate-600 dark:text-slate-400 font-medium tabular-nums">{filtered.length} records</span>
-                <div className="flex items-center gap-3">
-                    <Button variant="secondary" disabled={page === 0} onClick={() => setPage(page - 1)}>
-                        Previous
-                    </Button>
-                    <span className="text-slate-600 dark:text-slate-400 tabular-nums">
-                        Page <strong className="text-slate-900 dark:text-slate-100">{page + 1}</strong> of <strong className="text-slate-900 dark:text-slate-100">{Math.max(1, Math.ceil(filtered.length / 10))}</strong>
-                    </span>
-                    <Button variant="secondary"
-                        disabled={(page + 1) * 10 >= filtered.length}
-                        onClick={() => setPage(page + 1)}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </div>
+            <TablePagination
+                currentPage={page + 1}
+                totalPages={Math.max(1, Math.ceil(filtered.length / 10))}
+                totalRecords={filtered.length}
+                from={filtered.length === 0 ? 0 : page * 10 + 1}
+                to={Math.min((page + 1) * 10, filtered.length)}
+                onPageChange={(next) => setPage(next - 1)}
+                recordLabel="records"
+                className="rounded-b-xl"
+            />
         </div>
     );
 }
@@ -427,12 +421,12 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
         <>
             <Head title="Consumable Supply Analytics" />
             <DashboardLayout modules={getSidebarModules('Compliance', 'Consumable Supply Analytics')} user={auth.user}>
-                <PageHeader
+                <DashboardContent>
+<PageHeader embedded
                     title="Consumable Supply Analytics"
                     description="Monitor departmental supply demand, requisition patterns, and consumable supply issuance."
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Consumable Supply Analytics' }]}
                 />
-                <DashboardContent>
                     <AnalyticsBanner
                         startDate={data.filters.start_date}
                         endDate={data.filters.end_date}

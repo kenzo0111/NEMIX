@@ -1,5 +1,6 @@
 import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import { Button } from '@/Components/ui/button';
+import Field from '@/Components/ui/field';
 import React, { useEffect, useMemo, useRef } from 'react';
 import Modal from '@/Components/Modal';
 import { InventoryItem, RfidDeviceOption, RfidScanNotice, Supplier } from '../types';
@@ -158,7 +159,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${is100LimitReached
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-sm font-semibold ${is100LimitReached
     ? "bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-400 border border-amber-300 dark:border-amber-800" : "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50"}`}>
                                     {scannedItems.length} / 100 Items
                                 </span>
@@ -188,7 +189,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 <Server className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
                                 <span className="font-semibold text-slate-800 dark:text-slate-200">Station Hardware</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
                                 <span
                                     className={`w-2 h-2 rounded-full shrink-0 ${!selectedDeviceUuid ? "bg-amber-400" : connectionState === 'connected'
     ? "bg-emerald-500 animate-pulse" : connectionState === 'connecting'
@@ -393,16 +394,18 @@ export const RfidReceivingModal: React.FC<Props> = ({
 
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
                                         {/* Supplier Dropdown */}
-                                        <div className="min-w-0 sm:col-span-5">
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
-                                                Supplier <span className="text-red-600 dark:text-red-300">*</span>
-                                            </label>
-                                            <select aria-invalid={Boolean(hasSupplierError)}
+                                        <Field
+                                            id={`rfid-supplier-${tag}`}
+                                            label="Supplier"
+                                            required
+                                            error={hasSupplierError ? error?.supplier : undefined}
+                                            className="min-w-0 sm:col-span-5"
+                                        >
+                                            <select
                                                 value={supplierIds[tag] ?? ''}
                                                 onChange={event => onSupplierChange(tag, event.target.value ? Number(event.target.value) : '')}
                                                 disabled={processing}
-                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 bg-white dark:bg-slate-800 ${hasSupplierError
-    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
+                                                className="ui-field w-full"
                                             >
                                                 <option value="">Select supplier...</option>
                                                 {/* Active eligible suppliers */}
@@ -420,15 +423,15 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                         </option>
                                                     ))}
                                             </select>
-                                            {hasSupplierError && (
-                                                <p className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{error?.supplier}</p>
-                                            )}
-                                        </div>
+                                        </Field>
 
-                                        <div className="min-w-0 sm:col-span-3">
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
-                                                Inspected Qty <span className="text-red-600 dark:text-red-300">*</span>
-                                            </label>
+                                        <Field
+                                            id={`rfid-qty-${tag}`}
+                                            label="Inspected Qty"
+                                            required
+                                            error={hasQuantityError ? error?.quantity : undefined}
+                                            className="min-w-0 sm:col-span-3"
+                                        >
                                             <input
                                                 type="number"
                                                 min="1"
@@ -437,18 +440,19 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 value={quantities[tag] ?? ''}
                                                 onChange={event => onQuantityChange(tag, event.target.value)}
                                                 disabled={processing}
-                                                aria-invalid={hasQuantityError}
-                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${hasQuantityError ? "border-red-400 dark:border-red-500" : "border-slate-300 dark:border-slate-700"}`)}
+                                                className="ui-field w-full tabular-nums"
                                             />
-                                            {hasQuantityError && <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-300">{error?.quantity}</p>}
-                                        </div>
+                                        </Field>
 
                                         {/* Unit Cost Input with Row-level feedback */}
-                                        <div className="min-w-0 sm:col-span-4">
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-1">
-                                                Unit Cost (₱) <span className="text-red-600 dark:text-red-300">*</span>
-                                            </label>
-                                            <input aria-invalid={Boolean(hasCostError)}
+                                        <Field
+                                            id={`rfid-cost-${tag}`}
+                                            label="Unit Cost (₱)"
+                                            required
+                                            error={hasCostError ? error?.cost : undefined}
+                                            className="min-w-0 sm:col-span-4"
+                                        >
+                                            <input
                                                 type="number"
                                                 min="0"
                                                 max="9999999999.99"
@@ -457,13 +461,9 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                                 onChange={event => onCostChange(tag, event.target.value)}
                                                 disabled={processing}
                                                 placeholder="0.00"
-                                                className={"ui-field " + (`block rounded-lg text-sm w-full py-1.5 px-2 tabular-nums font-medium bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${hasCostError
-    ? "border-red-400 dark:border-red-500 text-red-900 dark:text-red-300 focus:ring-1 focus:ring-red-600" : "border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900"}`)}
+                                                className="ui-field w-full tabular-nums font-medium"
                                             />
-                                            {hasCostError && (
-                                                <p className="mt-1 text-sm text-red-600 font-medium leading-tight dark:text-red-300">{error?.cost}</p>
-                                            )}
-                                        </div>
+                                        </Field>
 
                                         </div>
                                     </div>

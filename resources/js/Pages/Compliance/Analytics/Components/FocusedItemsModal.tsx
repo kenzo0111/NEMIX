@@ -1,5 +1,6 @@
 import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import { Button } from '@/Components/ui/button';
+import StatusBadge from '@/Components/ui/status-badge';
 import React, { useMemo } from 'react';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -131,13 +132,17 @@ export default function FocusedItemsModal({
                                                 {formatCurrency(Number(item.amount || 0))}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
-                                                <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${item.status === 'Available'
-    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40" : item.status === 'Low Stock'
-    ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40"}`}
+                                                <StatusBadge
+                                                    tone={
+                                                        item.status === 'Available'
+                                                            ? 'success'
+                                                            : item.status === 'Low Stock'
+                                                              ? 'warning'
+                                                              : 'danger'
+                                                    }
                                                 >
                                                     {item.status}
-                                                </span>
+                                                </StatusBadge>
                                             </TableCell>
                                         </TableRow>
                                     ))}

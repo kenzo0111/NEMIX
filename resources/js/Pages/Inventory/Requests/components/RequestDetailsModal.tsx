@@ -1,10 +1,9 @@
 import { formatScreenDate } from '@/utils/displayFormat';
-import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import RecordDetailsModal from '@/Components/ui/record-details-modal';
 import { Button } from '@/Components/ui/button';
 import SupportingDocumentPanel from './SupportingDocumentPanel';
 import React, { useMemo } from 'react';
-import { ClipboardList, X, FileText } from 'lucide-react';
-import Modal from '@/Components/Modal';
+import { ClipboardList, FileText } from 'lucide-react';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getFundClusterDisplay } from '../../Issuance/constants';
 import { SupplyRequest, RequestLine } from '../types';
@@ -49,33 +48,34 @@ export function RequestDetailsModal({
     const isApprovedOrIssued = ['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status);
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Supply Request Details">
-            <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-            <DialogHeader className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/75 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center text-red-950 dark:text-red-400 border border-red-100 dark:border-red-900/40">
-                            <ClipboardList className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold font-sans text-slate-900 dark:text-slate-100">
-                                {request.ris_number ? `Official RIS No. ${request.ris_number}` : `Supply Request #${request.id}`}
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
-                                Requisition details, custodian remarks, and item quantities (Req #{request.id})
-                            </p>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Close"
-                        className=""
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
-
-                <DialogBody className="p-6 overflow-y-auto space-y-6 text-sm">
+        <RecordDetailsModal
+            show={show}
+            onClose={onClose}
+            maxWidth="2xl"
+            title={request.ris_number ? `Official RIS No. ${request.ris_number}` : `Supply Request #${request.id}`}
+            description={`Requisition details, custodian remarks, and item quantities (Req #${request.id})`}
+            actions={
+                <>
+                    {!readOnly && onEdit && can('inventory.requests.update') && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && (
+                        <Button variant="primary" type="button" onClick={() => onEdit(request)}>
+                            Edit request
+                        </Button>
+                    )}
+                    {!readOnly && onCancel && can('inventory.requests.cancel') && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && (
+                        <Button variant="danger" type="button" loading={busy} onClick={() => onCancel(request)}>
+                            {busy ? 'Cancelling…' : 'Cancel request'}
+                        </Button>
+                    )}
+                    {isApprovedOrIssued && onOpenRis && (
+                        <Button variant="primary" type="button" onClick={() => onOpenRis(request)}>
+                            <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                            View / Print RIS
+                        </Button>
+                    )}
+                </>
+            }
+        >
+            <div className="space-y-6 text-sm">
                     {request.purpose && /\[URGENT\]/i.test(request.purpose) && (
                         <div className="flex items-center gap-3 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200 shadow-sm">
                             <span className="text-xl">⚡</span>
@@ -269,31 +269,7 @@ export function RequestDetailsModal({
                             </p>
                         </div>
                     )}
-                </DialogBody>
-
-                <DialogFooter className="table-toolbar px-6 py-3.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap gap-2">
-                        {!readOnly && onEdit && can('inventory.requests.update') && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && <Button variant="primary" type="button" onClick={() => onEdit(request)} className="">Edit request</Button>}
-                        {!readOnly && onCancel && can('inventory.requests.cancel') && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && <Button variant="danger" type="button" disabled={busy} onClick={() => onCancel(request)} className="">{busy ? 'Cancelling…' : 'Cancel request'}</Button>}
-                        {isApprovedOrIssued && onOpenRis && (
-                            <Button variant="primary"
-                                type="button"
-                                onClick={() => onOpenRis(request)}
-                                className="inline-flex items-center gap-1.5"
-                            >
-                                <FileText className="w-3.5 h-3.5 text-amber-300" />
-                                View / Print RIS
-                            </Button>
-                        )}
-                    </div>
-                    <Button variant="secondary"
-                        type="button"
-                        onClick={onClose}
-                        className=""
-                    >
-                        Close
-                    </Button>
-                </DialogFooter>
-        </Modal>
+                            </div>
+        </RecordDetailsModal>
     );
 }

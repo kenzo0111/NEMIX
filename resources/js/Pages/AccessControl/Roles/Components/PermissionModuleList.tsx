@@ -52,7 +52,7 @@ export default function PermissionModuleList({
                             Modules
                         </span>
                     </div>
-                    <span className="text-sm text-slate-500 dark:text-slate-400 font-semibold bg-slate-200/70 dark:bg-slate-700 px-1.5 py-0.2 rounded">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 font-semibold bg-slate-200/70 dark:bg-slate-700 px-1.5 py-0.5 rounded">
                         {modules.length}
                     </span>
                 </div>

@@ -37,7 +37,7 @@ export default function SignOutDialog({
                             Sign Out Session
                         </h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                            Are you sure you want to end your current authenticated session in SPMO SIMS?
+                            Are you sure you want to end your current authenticated session in SupplySync?
                         </p>
                     </div>
                 </div>

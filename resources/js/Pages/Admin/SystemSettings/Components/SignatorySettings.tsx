@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import ConfirmDialog from '@/Components/ui/confirm-dialog';
+import { notify } from '@/utils/notifications';
 import { SystemSettings, Signatory } from '../types';
 import SignatorySelect from './SignatorySelect';
 import AddSignatoryDialog from './AddSignatoryDialog';
@@ -90,6 +92,8 @@ export default function SignatorySettings({
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [dialogInitialName, setDialogInitialName] = useState<string>('');
     const [activeTarget, setActiveTarget] = useState<TargetFieldPair | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Signatory | null>(null);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     // Open creation modal triggered from a specific field
     const handleCreateSignatory = (
@@ -169,22 +173,22 @@ export default function SignatorySettings({
             if (onToast) {
                 onToast('error', msg);
             } else {
-                alert(msg);
+                notify({ type: 'error', message: msg });
             }
             return;
         }
 
-        if (
-            !window.confirm(
-                `Are you sure you want to remove "${sig.name}" from the signatories directory?`
-            )
-        ) {
-            return;
-        }
+        setDeleteTarget(sig);
+    };
 
+    const confirmDeleteSignatory = async () => {
+        if (!deleteTarget) return;
+        const sig = deleteTarget;
+        setIsDeleting(true);
         try {
             await axios.delete(route('admin.signatories.destroy', sig.id));
             onDeleteSignatory(sig);
+            setDeleteTarget(null);
 
             if (onToast) {
                 onToast('info', `Signatory "${sig.name}" removed from directory.`);
@@ -195,8 +199,10 @@ export default function SignatorySettings({
             if (onToast) {
                 onToast('error', msg);
             } else {
-                alert(msg);
+                notify({ type: 'error', message: msg });
             }
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -665,6 +671,17 @@ export default function SignatorySettings({
                 onClose={() => setIsDialogOpen(false)}
                 initialName={dialogInitialName}
                 onSuccess={handleSignatoryCreated}
+            />
+
+            <ConfirmDialog
+                show={Boolean(deleteTarget)}
+                title="Remove Signatory"
+                message={deleteTarget ? `Are you sure you want to remove "${deleteTarget.name}" from the signatories directory?` : ''}
+                confirmLabel="Remove Signatory"
+                variant="danger"
+                loading={isDeleting}
+                onConfirm={confirmDeleteSignatory}
+                onClose={() => setDeleteTarget(null)}
             />
         </div>
     );

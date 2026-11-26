@@ -1,8 +1,9 @@
 import { Button } from '@/Components/ui/button';
+import Field from '@/Components/ui/field';
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import { SystemSettings } from '../types';
-import { Info, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 
 interface NotificationSettingsProps {
@@ -87,29 +88,23 @@ export default function NotificationSettings({
                     </div>
                 </div>
 
-                <div className="space-y-1.5 max-w-xl">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                        Alert Recipient Email
-                    </label>
+                <Field
+                    id="mail-alert-recipient-email"
+                    label="Alert Recipient Email"
+                    error={errors['settings.mail.alert_recipient_email']}
+                    hint="Leave blank to use the current administrator's email, or an active system administrator when stock is updated by other staff."
+                    className="max-w-xl"
+                >
                     <input
                         type="email"
                         value={settings['mail.alert_recipient_email']}
                         onChange={(e) =>
                             onChange('mail.alert_recipient_email', e.target.value)
                         }
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full"
                         placeholder="spmo-alerts@ucn.edu.ph"
                     />
-                    {errors['settings.mail.alert_recipient_email'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
-                            {errors['settings.mail.alert_recipient_email']}
-                        </p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Leave blank to use the current administrator's email, or an active system administrator when stock is updated by other staff.
-                    </p>
-                </div>
+                </Field>
             </div>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />
@@ -125,25 +120,27 @@ export default function NotificationSettings({
                     </p>
                 </div>
 
-                <form onSubmit={handleSendTest} className="flex flex-col sm:flex-row gap-3 max-w-xl">
-                    <div className="flex-1">
+                <form onSubmit={handleSendTest} className="flex flex-col sm:flex-row sm:items-end gap-3 max-w-xl">
+                    <Field
+                        id="test-email-recipient"
+                        label="Test Recipient Email"
+                        error={testEmailForm.errors.recipient}
+                        className="flex-1"
+                    >
                         <input
                             type="email"
                             value={testEmailForm.data.recipient}
                             onChange={(e) => testEmailForm.setData('recipient', e.target.value)}
                             placeholder={`Recipient (Default: ${defaultAdminEmail})`}
-                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-red-900/15 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                            className="ui-field w-full"
                         />
-                        {testEmailForm.errors.recipient && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{testEmailForm.errors.recipient}</p>
-                        )}
-                    </div>
+                    </Field>
                     <Button variant="primary"
                         type="submit"
-                        disabled={testEmailForm.processing}
-                        className="flex items-center justify-center gap-2 shrink-0"
+                        loading={testEmailForm.processing}
+                        className="shrink-0"
                     >
-                        <Send className="w-3.5 h-3.5" />
+                        {!testEmailForm.processing && <Send className="w-3.5 h-3.5" aria-hidden="true" />}
                         <span>{testEmailForm.processing ? 'Testing Connection...' : 'Send Test'}</span>
                     </Button>
                 </form>

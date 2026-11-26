@@ -191,10 +191,10 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
     );
 
     return (
-        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-sm p-4 space-y-3 w-full min-w-0">
+        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm p-4 space-y-3 w-full min-w-0">
             {/* View Mode Toggle Strip & Search */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800 rounded-md border border-slate-200/80 dark:border-slate-700 self-start sm:self-auto">
+                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800 rounded-md border border-slate-200/80 dark:border-slate-700 self-start sm:self-auto max-w-full">
                     <Button variant="tab"
                         type="button"
                         onClick={() => handleToggleViewMode('business')}

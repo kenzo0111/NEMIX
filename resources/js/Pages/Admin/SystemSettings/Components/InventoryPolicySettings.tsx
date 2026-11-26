@@ -1,8 +1,9 @@
 import { Button } from '@/Components/ui/button';
+import Field from '@/Components/ui/field';
 import React, { useState } from 'react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import { SystemSettings } from '../types';
-import { Info, Plus, X, AlertTriangle } from 'lucide-react';
+import { Plus, X, AlertTriangle } from 'lucide-react';
 
 interface InventoryPolicySettingsProps {
     settings: SystemSettings;
@@ -68,14 +69,16 @@ export default function InventoryPolicySettings({
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Low Stock Threshold */}
-                    <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                            <span>Global Low-Stock Threshold</span>
-                            <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                        </label>
+                    <Field
+                        id="inventory-low-stock-threshold"
+                        label="Global Low-Stock Threshold"
+                        required
+                        error={errors['settings.inventory.low_stock_threshold']}
+                        hint="Marks stock as low at this balance and triggers replenishment notifications when stock meets or drops below this point, without blocking end-user requests."
+                    >
                         <div className="relative">
-                            <input aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.low_stock_threshold'])}
+                            <input
+                                aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.low_stock_threshold'])}
                                 type="number"
                                 min="1"
                                 max="1000"
@@ -86,32 +89,24 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 1
                                     )
                                 }
-                                className={"ui-field " + (`w-full pl-3.5 pr-16 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${hasThresholdError || errors['settings.inventory.low_stock_threshold']
-    ? "border-rose-400 focus:ring-rose-500" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600"}`)}
+                                className="ui-field w-full pr-16 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-slate-500 dark:text-slate-400 font-medium">
                                 Units
                             </span>
                         </div>
-                        {errors['settings.inventory.low_stock_threshold'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
-                                {errors['settings.inventory.low_stock_threshold']}
-                            </p>
-                        )}
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                            <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                            Marks stock as low at this balance and triggers replenishment notifications when stock meets or drops below this point, without blocking end-user requests.
-                        </p>
-                    </div>
+                    </Field>
 
-                    {/* Critical Stock Threshold */}
-                    <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                            <span>Critical Stock Threshold</span>
-                            <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                        </label>
+                    <Field
+                        id="inventory-critical-stock-threshold"
+                        label="Critical Stock Threshold"
+                        required
+                        error={errors['settings.inventory.critical_stock_threshold']}
+                        hint="Indicates inventory requiring immediate replenishment attention."
+                    >
                         <div className="relative">
-                            <input aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.critical_stock_threshold'])}
+                            <input
+                                aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.critical_stock_threshold'])}
                                 type="number"
                                 min="0"
                                 max="1000"
@@ -122,23 +117,13 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 0
                                     )
                                 }
-                                className={"ui-field " + (`w-full pl-3.5 pr-16 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${hasThresholdError || errors['settings.inventory.critical_stock_threshold']
-    ? "border-rose-400 focus:ring-rose-500" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600"}`)}
+                                className="ui-field w-full pr-16 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-amber-700 dark:text-amber-400 font-medium">
                                 Units
                             </span>
                         </div>
-                        {errors['settings.inventory.critical_stock_threshold'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
-                                {errors['settings.inventory.critical_stock_threshold']}
-                            </p>
-                        )}
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                            <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                            Indicates inventory requiring immediate replenishment attention.
-                        </p>
-                    </div>
+                    </Field>
                 </div>
             </div>
 

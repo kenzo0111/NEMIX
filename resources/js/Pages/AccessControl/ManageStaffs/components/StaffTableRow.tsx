@@ -68,7 +68,7 @@ export default function StaffTableRow({
                                 {staff.name}
                             </span>
                             {isSelf && (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-sm font-semibold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/70 dark:border-red-900/40">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-sm font-semibold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/70 dark:border-red-900/40">
                                     You
                                 </span>
                             )}
@@ -137,7 +137,7 @@ export default function StaffTableRow({
                             type="button"
                             onClick={() => onResendInvitation(staff)}
                             disabled={isResending}
-                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                            size="sm" className="inline-flex items-center justify-center gap-1.5"
                             title="Resend registration invitation email"
                         >
                             {isResending ? 'Sending...' : 'Resend Invite'}
@@ -149,7 +149,7 @@ export default function StaffTableRow({
                         <Button variant="secondary"
                             type="button"
                             onClick={() => onEdit(staff)}
-                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                            size="sm" className="inline-flex items-center justify-center gap-1.5"
                             title="Edit staff details and role"
                         >
                             Edit
@@ -162,7 +162,7 @@ export default function StaffTableRow({
                             type="button"
                             onClick={() => onToggleStatus(staff)}
                             title={isActive ? 'Disable staff account' : 'Enable staff account'}
-                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                            size="sm" className="inline-flex items-center justify-center gap-1.5"
                         >
                             {isActive ? 'Disable' : 'Enable'}
                         </Button>

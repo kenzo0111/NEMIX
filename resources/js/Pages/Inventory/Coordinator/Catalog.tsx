@@ -1,12 +1,12 @@
 import PageHeader from '@/Components/PageHeader';
 import { Button } from '@/Components/ui/button';
+import TablePagination from '@/Components/ui/table-pagination';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ChevronRight, ClipboardList, Eye, Loader2, Package, RefreshCw, Search } from 'lucide-react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import CoordinatorPortalHeader from './components/CoordinatorPortalHeader';
 import { panel, secondaryButton } from './inventory';
 import CatalogTable from './components/CatalogTable';
 import type { CatalogItem, CatalogSortKey } from './catalog';
@@ -53,10 +53,23 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
         <Head title={`Central Supply Catalog | ${auth.capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
 
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
-            <CoordinatorPortalHeader />
             <DashboardContent>
-                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">{isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard'}</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Central Supply Catalog</span></nav>
-                <PageHeader embedded title="Central Supply Catalog" description={`Browse consumable supplies in the Supply Office and check what is available for your ${supplyOwner}.`} actions={<>{can('inventory.requests.index') && <Link data-variant="secondary" data-size="default" href={route('inventory.requests.index')} className={"ui-button " + (`${secondaryButton} self-start lg:self-auto`)}><ClipboardList size={16} />My Requests<ArrowRight size={14} /></Link>}</>} />
+                <PageHeader
+                    embedded
+                    title="Central Supply Catalog"
+                    description={`Browse consumable supplies in the Supply Office and check what is available for your ${supplyOwner}.`}
+                    breadcrumbs={[
+                        { name: isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard', href: route('dashboard') },
+                        { name: 'Central Supply Catalog' },
+                    ]}
+                    actions={
+                        can('inventory.requests.index') ? (
+                            <Link data-variant="secondary" data-size="default" href={route('inventory.requests.index')} className="ui-button self-start lg:self-auto">
+                                <ClipboardList size={16} aria-hidden="true" />My Requests<ArrowRight size={14} aria-hidden="true" />
+                            </Link>
+                        ) : undefined
+                    }
+                />
                 <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/20"><Eye size={19} className="mt-0.5 shrink-0 text-blue-700 dark:text-blue-300" /><div><p className="leading-relaxed text-sm font-semibold text-blue-900 dark:text-blue-200">Central stock · View only</p><p className="mt-1 text-sm leading-relaxed text-blue-800 dark:text-blue-300">Available quantities reflect stock on hand excluding reservations for approved requests. Items meeting or below {lowStockThreshold} units display a low-stock notice. Supplies enter your {supplyOwner} inventory only after the Supply Office releases them.</p></div></div>
                 <section data-tour="coordinator-catalog-search" className={`${panel} overflow-hidden`} aria-label="Browse central consumables">
                     <form onSubmit={event => { event.preventDefault(); load(search, availability); }} className="table-toolbar flex flex-col gap-3 p-4 sm:p-5 xl:flex-row xl:items-center">
@@ -67,8 +80,30 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
                 </section>
                 <CatalogTable items={items.data} sort={{ key: sortKey, direction }} onSort={handleSort} />
                 {items.data.length === 0 && <div className={`${panel} px-5 py-14 text-center`}><Package size={28} className="mx-auto mb-4 text-slate-500 dark:text-slate-300" /><h2 className="text-xl font-semibold">No supplies found</h2><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Try another item name or change the availability filter.</p><Button variant="secondary" type="button" onClick={() => load('', 'all')} className="mt-5">Clear search and filters</Button></div>}
-                <nav aria-label="Central catalog pages" className="flex flex-wrap justify-center gap-1.5">{items.links.map((link, i) => link.url ? <Link data-variant="tab" data-size="default" key={i} href={link.url} preserveScroll preserveState aria-current={link.active ? 'page' : undefined} className={"ui-button " + (`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium ${link.active ? "bg-red-900 text-white" : "border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"}`)} dangerouslySetInnerHTML={{ __html: link.label }} /> : <span key={i} className="inline-flex min-h-10 items-center px-3 text-sm text-slate-500 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: link.label }} />)}</nav>
-                <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400"><span>Supply Office catalog · Consumables</span>{can('coordinator.inventory.index') && <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">View my {supplyOwner} inventory →</Link>}</footer>
+                {(() => {
+                    const numericLinks = items.links.filter((l) => /^\d+$/.test(l.label.trim()));
+                    const activeLink = numericLinks.find((l) => l.active);
+                    const currentPage = activeLink ? Number(activeLink.label) : 1;
+                    const totalPages = numericLinks.length > 0 ? Number(numericLinks[numericLinks.length - 1].label) : 1;
+                    const prevUrl = items.links[0]?.url;
+                    const nextUrl = items.links[items.links.length - 1]?.url;
+                    return (
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalRecords={items.total}
+                            from={items.from ?? 0}
+                            to={items.to ?? 0}
+                            onPageChange={(nextPage) => {
+                                const url = nextPage < currentPage ? prevUrl : nextUrl;
+                                if (url) router.get(url, {}, { preserveScroll: true, preserveState: true });
+                            }}
+                            recordLabel="consumable items"
+                            className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                        />
+                    );
+                })()}
+                <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400"><span>Supply Office catalog · Consumables</span>{can('coordinator.inventory.index') && <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300">View my {supplyOwner} inventory →</Link>}</footer>
             </DashboardContent>
         </DashboardLayout>
     </>;

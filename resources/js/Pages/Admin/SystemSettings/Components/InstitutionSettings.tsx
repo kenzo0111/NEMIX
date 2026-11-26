@@ -1,6 +1,6 @@
 import React from 'react';
 import { SystemSettings } from '../types';
-import { Info } from 'lucide-react';
+import Field from '@/Components/ui/field';
 
 interface InstitutionSettingsProps {
     settings: SystemSettings;
@@ -25,162 +25,115 @@ export default function InstitutionSettings({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Entity Name (Centralized Organization / Institution Setting) */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                            <span>Entity Name</span>
-                            <span className="text-sm normal-case tabular-nums px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-400 font-semibold border border-red-200 dark:border-red-900/50">
-                                Official COA Header
-                            </span>
-                        </span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="institution-name"
+                    label="Entity Name (Official COA Header)"
+                    required
+                    error={errors['settings.institution.name']}
+                    hint="Centralized agency/entity title displayed on all Compliance forms (RIS, RSMI, RPCI, Stock Card, MOR)."
+                >
                     <input
                         type="text"
                         value={settings['institution.name']}
                         onChange={(e) => onChange('institution.name', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full"
                         placeholder="University of Camarines Norte"
                     />
-                    {errors['settings.institution.name'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.name']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Centralized agency/entity title displayed on all Compliance forms (RIS, RSMI, RPCI, Stock Card, MOR).
-                    </p>
-                </div>
+                </Field>
 
-                {/* Default Fund Cluster */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span>Default Fund Cluster</span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="institution-default-fund-cluster"
+                    label="Default Fund Cluster"
+                    required
+                    error={errors['settings.institution.default_fund_cluster']}
+                    hint="Default fund cluster auto-populated across newly generated compliance reports."
+                >
                     <input
                         type="text"
                         value={settings['institution.default_fund_cluster'] || '01 - Regular Agency Fund'}
                         onChange={(e) => onChange('institution.default_fund_cluster', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full"
                         placeholder="01 - Regular Agency Fund"
                     />
-                    {errors['settings.institution.default_fund_cluster'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.default_fund_cluster']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Default fund cluster auto-populated across newly generated compliance reports.
-                    </p>
-                </div>
+                </Field>
 
-                {/* Agency Acronym */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span>Agency Acronym</span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="institution-acronym"
+                    label="Agency Acronym"
+                    required
+                    error={errors['settings.institution.acronym']}
+                    hint="Short identification acronym used for bin tags and summary headers."
+                >
                     <input
                         type="text"
                         value={settings['institution.acronym']}
                         onChange={(e) => onChange('institution.acronym', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 normal-case"
+                        className="ui-field w-full"
                         placeholder="UCN"
                     />
-                    {errors['settings.institution.acronym'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.acronym']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Short identification acronym used for bin tags and summary headers.
-                    </p>
-                </div>
+                </Field>
 
-                {/* Custodial Supply Office */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span>Custodial Supply Office</span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="institution-custodial-office"
+                    label="Custodial Supply Office"
+                    required
+                    error={errors['settings.institution.custodial_office']}
+                    hint="Office in primary custody of consumable inventory and issuance."
+                >
                     <input
                         type="text"
                         value={settings['institution.custodial_office']}
                         onChange={(e) => onChange('institution.custodial_office', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full"
                         placeholder="Supply & Property Management Office (SPMO)"
                     />
-                    {errors['settings.institution.custodial_office'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.custodial_office']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Office in primary custody of consumable inventory and issuance.
-                    </p>
-                </div>
+                </Field>
 
-                {/* Campus Address */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span>Campus / Postal Address</span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="institution-campus-address"
+                    label="Campus / Postal Address"
+                    required
+                    error={errors['settings.institution.campus_address']}
+                    hint="Physical campus location printed on official compliance reports."
+                >
                     <input
                         type="text"
                         value={settings['institution.campus_address']}
                         onChange={(e) => onChange('institution.campus_address', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full"
                         placeholder="Daet, Camarines Norte"
                     />
-                    {errors['settings.institution.campus_address'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.campus_address']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Physical campus location printed on official compliance reports.
-                    </p>
-                </div>
+                </Field>
 
-                {/* Responsibility Center Code (RCC) */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                        Responsibility Center Code (RCC)
-                    </label>
+                <Field
+                    id="institution-rcc"
+                    label="Responsibility Center Code (RCC)"
+                    error={errors['settings.institution.responsibility_center_code']}
+                    hint="Official government accounting station code for SPMO disbursements."
+                >
                     <input
                         type="text"
                         value={settings['institution.responsibility_center_code']}
                         onChange={(e) => onChange('institution.responsibility_center_code', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full tabular-nums"
                         placeholder="01-101-00"
                     />
-                    {errors['settings.institution.responsibility_center_code'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.responsibility_center_code']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Official government accounting station code for SPMO disbursements.
-                    </p>
-                </div>
+                </Field>
 
-                {/* Logo Path */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                        Institutional Crest / Logo Asset Path
-                    </label>
+                <Field
+                    id="institution-logo-path"
+                    label="Institutional Crest / Logo Asset Path"
+                    error={errors['settings.institution.logo_path']}
+                    hint="Asset path for the official university seal displayed on print forms."
+                >
                     <input
                         type="text"
                         value={settings['institution.logo_path']}
                         onChange={(e) => onChange('institution.logo_path', e.target.value)}
-                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm tabular-nums font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full tabular-nums"
                         placeholder="/images/ucn-crest.png"
                     />
-                    {errors['settings.institution.logo_path'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{errors['settings.institution.logo_path']}</p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Asset path for the official university seal displayed on print forms.
-                    </p>
-                </div>
+                </Field>
             </div>
         </div>
     );

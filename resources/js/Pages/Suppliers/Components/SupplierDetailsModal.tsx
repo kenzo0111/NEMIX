@@ -1,7 +1,6 @@
-import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import RecordDetailsModal from '@/Components/ui/record-details-modal';
 import { Button } from '@/Components/ui/button';
 import React from 'react';
-import Modal from '@/Components/Modal';
 import {
     Building2,
     MapPin,
@@ -45,40 +44,34 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
     const hasContractValue = supplier.contract_value !== null && supplier.contract_value !== undefined && supplier.contract_value !== '';
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="xl" ariaLabel="Supplier Information">
-            {/* Institutional Maroon Top Accent Line */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-
-            {/* Header */}
-            <DialogHeader className="shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
-                                    Supplier Information
-                                </h3>
-                                <SupplierStatusBadge status={supplier.status} />
-                            </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                Official registry details and inventory consignment ledger.
-                            </p>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon"
+        <RecordDetailsModal
+            show={show}
+            onClose={onClose}
+            maxWidth="xl"
+            title="Supplier Information"
+            description={
+                <span className="inline-flex flex-wrap items-center gap-2">
+                    <span>Official registry details and inventory consignment ledger.</span>
+                    <SupplierStatusBadge status={supplier.status} />
+                </span>
+            }
+            actions={
+                can('suppliers.update') ? (
+                    <Button
+                        variant="primary"
                         type="button"
-                        onClick={onClose}
-                        className=""
-                        aria-label="Close"
+                        onClick={() => {
+                            onClose();
+                            onEdit(supplier);
+                        }}
                     >
-                        <X className="w-5 h-5" />
+                        <Edit3 className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Update Supplier</span>
                     </Button>
-                </DialogHeader>
-
-                {/* Content */}
-                <DialogBody className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
+                ) : undefined
+            }
+        >
+            <div className="space-y-4 sm:space-y-5 text-sm">
                     {/* Hero Business Identity Banner */}
                     <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -86,9 +79,9 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                 <span className="inline-block text-sm font-semibold normal-case tracking-normal tabular-nums text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
                                     {CATEGORY_DISPLAY_LABEL}
                                 </span>
-                                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans mt-1.5">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans mt-1.5">
                                     {supplier.name}
-                                </h2>
+                                </h3>
                             </div>
                         </div>
 
@@ -220,28 +213,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             </div>
                         </div>
                     )}
-                </DialogBody>
-
-                {/* Footer */}
-                <DialogFooter>
-                    <Button variant="secondary"
-                        type="button"
-                        onClick={onClose}
-                    >
-                        Close
-                    </Button>
-                    {can('suppliers.update') && <Button variant="primary"
-                        type="button"
-                        onClick={() => {
-                            onClose();
-                            onEdit(supplier);
-                        }}
-                        className="inline-flex items-center gap-1.5"
-                    >
-                        <Edit3 className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Update Supplier</span>
-                    </Button>}
-                </DialogFooter>
-        </Modal>
+                            </div>
+        </RecordDetailsModal>
     );
 };

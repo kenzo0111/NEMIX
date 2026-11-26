@@ -1,5 +1,8 @@
 import { formatScreenDate } from '@/utils/displayFormat';
 import { Button } from '@/Components/ui/button';
+import ConfirmDialog from '@/Components/ui/confirm-dialog';
+import TablePagination from '@/Components/ui/table-pagination';
+import EmptyState from '@/Components/ui/empty-state';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -319,15 +322,25 @@ export default function MyRequests({
         }
     };
 
+    const [cancelTarget, setCancelTarget] = useState<SupplyRequest | null>(null);
+
     const cancel = (request: SupplyRequest) => {
-        if (!window.confirm(`Are you sure you want to cancel supply request #${request.id}?`)) return;
-        setBusy(request.id);
+        setCancelTarget(request);
+    };
+
+    const confirmCancel = () => {
+        if (!cancelTarget) return;
+        const target = cancelTarget;
+        setBusy(target.id);
         router.post(
-            route('inventory.requests.cancel', request.id),
+            route('inventory.requests.cancel', target.id),
             {},
             {
                 preserveScroll: true,
-                onSuccess: () => notify({ type: 'success', message: 'Supply request cancelled.' }),
+                onSuccess: () => {
+                    setCancelTarget(null);
+                    notify({ type: 'success', message: 'Supply request cancelled.' });
+                },
                 onError: (errors) => notify({ type: 'error', message: Object.values(errors).join(' ') }),
                 onFinish: () => setBusy(null),
             }
@@ -427,13 +440,12 @@ export default function MyRequests({
                     onRis={openRis}
                     onCancel={cancel}
                 /> : <>
-                <PageHeader
+                <DashboardContent className="overflow-x-hidden">
+<PageHeader embedded
                     title="My Requests"
                     description="Supply requests, requisition tracking, and approval history"
                     breadcrumbs={[{ name: 'Overview' }, { name: 'My Requests' }]}
                 />
-
-                <DashboardContent className="overflow-x-hidden">
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -572,18 +584,25 @@ export default function MyRequests({
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                     {visible.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="px-6 py-12 text-center align-middle">
-                                                <div className="flex flex-col items-center">
-                                                    <FileText className="w-9 h-9 text-slate-300 dark:text-slate-400 mb-2" />
-                                                    <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
-                                                        No supply requests found
-                                                    </p>
-                                                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-                                                        {searchTerm || statusFilter
+                                            <td colSpan={7} className="p-0">
+                                                <EmptyState
+                                                    icon={<FileText className="w-6 h-6" />}
+                                                    title="No supply requests found"
+                                                    description={
+                                                        searchTerm || statusFilter
                                                             ? 'Try adjusting your search criteria or status filter.'
-                                                            : 'Submit a new supply requisition to begin tracking approval from the Property Custodian.'}
-                                                    </p>
-                                                </div>
+                                                            : 'Submit a new supply requisition to begin tracking approval from the Property Custodian.'
+                                                    }
+                                                    actionLabel={searchTerm || statusFilter ? 'Reset filters' : undefined}
+                                                    onAction={
+                                                        searchTerm || statusFilter
+                                                            ? () => {
+                                                                  setSearchTerm('');
+                                                                  setStatusFilter('');
+                                                              }
+                                                            : undefined
+                                                    }
+                                                />
                                             </td>
                                         </tr>
                                     ) : (
@@ -713,7 +732,7 @@ export default function MyRequests({
                                                             <Button variant="secondary"
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center"
+                                                                size="sm" className="inline-flex items-center justify-center"
                                                             >
                                                                 Details
                                                             </Button>
@@ -728,36 +747,15 @@ export default function MyRequests({
                         </div>
 
                         {/* Pagination */}
-                        {filtered.length > 0 && (
-                            <div className="ui-pagination px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                                <span className="text-slate-500 dark:text-slate-400 font-medium">
-                                    Showing <strong className="text-slate-700 dark:text-slate-200">{from}</strong>–<strong className="text-slate-700 dark:text-slate-200">{to}</strong> of <strong className="text-slate-700 dark:text-slate-200">{filtered.length}</strong> records
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <Button variant="secondary"
-                                        type="button"
-                                        onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
-                                        disabled={safePage <= 1}
-                                        aria-label="Go to previous page"
-                                        className="h-8"
-                                    >
-                                        Previous
-                                    </Button>
-                                    <span className="px-1 text-slate-500 dark:text-slate-400">
-                                        Page <strong className="text-slate-700 dark:text-slate-200">{safePage}</strong> of <strong className="text-slate-700 dark:text-slate-200">{lastPage}</strong>
-                                    </span>
-                                    <Button variant="secondary"
-                                        type="button"
-                                        onClick={() => setCurrentPage(Math.min(lastPage, safePage + 1))}
-                                        disabled={safePage >= lastPage}
-                                        aria-label="Go to next page"
-                                        className="h-8"
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
+                        <TablePagination
+                            currentPage={safePage}
+                            totalPages={lastPage}
+                            totalRecords={filtered.length}
+                            from={from}
+                            to={to}
+                            onPageChange={setCurrentPage}
+                            recordLabel="records"
+                        />
                     </div>
                 </DashboardContent>
                 </>}
@@ -813,6 +811,16 @@ export default function MyRequests({
                 defaultApprovedByDesignation={defaultApprovedByDesignation}
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
+            />
+            <ConfirmDialog
+                show={Boolean(cancelTarget)}
+                title="Cancel Supply Request"
+                message={cancelTarget ? `Are you sure you want to cancel supply request #${cancelTarget.id}?` : ''}
+                confirmLabel="Cancel Request"
+                variant="danger"
+                loading={Boolean(cancelTarget && busy === cancelTarget.id)}
+                onConfirm={confirmCancel}
+                onClose={() => setCancelTarget(null)}
             />
         </>
     );

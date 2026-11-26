@@ -48,23 +48,23 @@ export default function InventoryMovementOverview({
                     <div
                         role="group"
                         aria-label="Movement chart period"
-                        className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm shrink-0"
+                        className="inline-flex items-center gap-1 rounded-lg p-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm shrink-0"
                     >
-                        <Button variant="unstyled"
+                        <Button
+                            variant="tab"
+                            size="sm"
                             type="button"
                             aria-pressed={currentFilter === 'monthly'}
                             onClick={() => handleFilterChange('monthly')}
-                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${currentFilter === 'monthly'
-    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                         >
                             Last 6 Months
                         </Button>
-                        <Button variant="unstyled"
+                        <Button
+                            variant="tab"
+                            size="sm"
                             type="button"
                             aria-pressed={currentFilter === 'yearly'}
                             onClick={() => handleFilterChange('yearly')}
-                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${currentFilter === 'yearly'
-    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                         >
                             Last 5 Years
                         </Button>
@@ -72,7 +72,7 @@ export default function InventoryMovementOverview({
 
                     <Link
                         href={analyticsHref}
-                        className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
+                        className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 rounded transition-colors inline-flex items-center gap-1 shrink-0"
                     >
                         <span>{isCoordinator ? 'Unit Stock Cards' : 'Analytics'}</span>
                         <ArrowRight className="w-3.5 h-3.5" />

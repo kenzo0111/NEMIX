@@ -48,7 +48,7 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
                     <Button variant="secondary"
                         type="button"
                         onClick={() => onView(supplier)}
-                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                        size="sm" className="inline-flex items-center justify-center gap-1.5"
                     >
                         View
                     </Button>
@@ -56,7 +56,7 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
                         <Button variant="secondary"
                             type="button"
                             onClick={() => onEdit(supplier)}
-                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
+                            size="sm" className="inline-flex items-center justify-center gap-1.5"
                         >
                             Update
                         </Button>

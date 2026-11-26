@@ -53,7 +53,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         )}
                     </div>
                     <div className="min-w-0">
-                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                        <h3 className="break-words text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             {title}
                         </h3>
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 break-words">
@@ -184,6 +184,8 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                     isDisabled={isSubmitting}
                                     classNamePrefix="react-select"
                                     styles={institutionalSelectStyles}
+                                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                                    menuPosition="fixed"
                                 />
                                 {errors.status && (
                                     <p id="supplier-status-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.status}</p>

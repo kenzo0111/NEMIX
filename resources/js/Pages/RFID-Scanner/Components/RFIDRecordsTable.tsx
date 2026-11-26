@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { PaginationMeta, RFIDInventoryItem } from '../types';
 import { TablePagination } from '@/Components/ui/table-pagination';
+import StatusBadge from '@/Components/ui/status-badge';
 import {
     TableProperties,
     Search,
@@ -275,7 +276,7 @@ export default function RFIDRecordsTable({
                                 className="inline-flex items-center gap-1.5"
                             >
                                 <span>All</span>
-                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
                                     {items.length}
                                 </span>
                             </Button>
@@ -286,7 +287,7 @@ export default function RFIDRecordsTable({
                                 className="inline-flex items-center gap-1.5"
                             >
                                 <span>Untagged</span>
-                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-amber-100/80 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 tabular-nums">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm bg-amber-100/80 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 tabular-nums">
                                     {untaggedCount}
                                 </span>
                             </Button>
@@ -297,7 +298,7 @@ export default function RFIDRecordsTable({
                                 className="inline-flex items-center gap-1.5"
                             >
                                 <span>Tagged</span>
-                                <span className="px-1.5 py-0.2 rounded-full text-sm bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 tabular-nums">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 tabular-nums">
                                     {taggedCount}
                                 </span>
                             </Button>
@@ -375,15 +376,9 @@ export default function RFIDRecordsTable({
                                                     )}
                                                 </td>
                                                 <td className="py-3.5 px-6 align-middle text-center">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${isTagged
-    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60" : "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"}`}
-                                                    >
-                                                        <span
-                                                            className={`w-1.5 h-1.5 rounded-full ${isTagged ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-500"}`}
-                                                        />
-                                                        <span>{isTagged ? 'Tagged' : 'Needs Tag'}</span>
-                                                    </span>
+                                                    <StatusBadge tone={isTagged ? 'success' : 'warning'}>
+                                                        {isTagged ? 'Tagged' : 'Needs Tag'}
+                                                    </StatusBadge>
                                                 </td>
                                                 <td className="py-3.5 px-6 align-middle text-right whitespace-nowrap min-w-[10rem]">
                                                     <div className="inline-flex items-center justify-end gap-2 shrink-0">
@@ -393,7 +388,7 @@ export default function RFIDRecordsTable({
                                                                 onSelectItem(item);
                                                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                                                             }}
-                                                            className="inline-flex items-center justify-center min-h-[2.25rem] h-[2.25rem] gap-1.5"
+                                                            size="sm" className="inline-flex items-center justify-center gap-1.5"
                                                         >
                                                             {isSelected
                                                                 ? 'In Focus'

@@ -106,14 +106,14 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                                 <Button variant="secondary"
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center"
+                                                    size="sm" className="inline-flex items-center justify-center"
                                                 >
                                                     View
                                                 </Button>
                                                 <Button variant="secondary"
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center"
+                                                    size="sm" className="inline-flex items-center justify-center"
                                                 >
                                                     COA Form
                                                 </Button>

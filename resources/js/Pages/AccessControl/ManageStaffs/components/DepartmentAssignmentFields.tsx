@@ -256,7 +256,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 </div>
 
                                 <div>
-                                    <label htmlFor="staff-head-designation" className="block text-2xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    <label htmlFor="staff-head-designation" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                         Head’s Designation (Optional)
                                     </label>
                                     {isManualMode ? (

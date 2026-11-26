@@ -134,7 +134,7 @@ export default function Login({
                 </div>
 
                 {/* Compact Institutional Support Link */}
-                <div className="pt-5 border-t border-stone-200 dark:border-slate-800 text-center">
+                <div className="pt-5 border-t border-slate-200 dark:border-slate-800 text-center">
                     <Button variant="secondary"
                         type="button"
                         onClick={() => setShowHelpModal(true)}
@@ -142,7 +142,7 @@ export default function Login({
                         aria-haspopup="dialog"
                     >
                         <span>Need access help?</span>
-                        <span className="font-semibold text-[#7B1113] dark:text-red-400 hover:underline inline-flex items-center gap-1">
+                        <span className="font-semibold text-red-900 dark:text-red-400 hover:underline inline-flex items-center gap-1">
                             Contact IT support
                             <HelpCircle className="w-3.5 h-3.5 opacity-80" strokeWidth={2} aria-hidden="true" />
                         </span>
@@ -155,14 +155,14 @@ export default function Login({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
                 <DialogHeader className="shrink-0 flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/60 text-[#7B1113] dark:text-red-400 border border-red-100 dark:border-red-900/50 shrink-0">
+                        <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-900 dark:text-red-400 border border-red-100 dark:border-red-900/50 shrink-0">
                             <HelpCircle className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="break-words text-lg font-semibold text-stone-900 dark:text-slate-100 font-sans leading-tight">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans leading-tight">
                                 Institutional Access Support
                             </h3>
-                            <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 font-sans break-words mt-1">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-sans break-words mt-1">
                                 {institutionName}
                             </p>
                         </div>
@@ -172,24 +172,24 @@ export default function Login({
                     </Button>
                 </DialogHeader>
 
-                <DialogBody className="space-y-4 text-sm text-stone-600 dark:text-slate-300 leading-relaxed font-sans">
+                <DialogBody className="space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
                     <p>
-                        Access to SupplySync is restricted to authorized personnel of <strong className="text-stone-800 dark:text-slate-100">{institutionName}</strong>.
+                        Access to SupplySync is restricted to authorized personnel of <strong className="text-slate-800 dark:text-slate-100">{institutionName}</strong>.
                     </p>
 
-                    <div className="rounded-lg bg-stone-50 dark:bg-slate-800/80 p-4 border border-stone-200/80 dark:border-slate-700/80 space-y-2">
-                        <h4 className="text-base font-semibold text-stone-900 dark:text-slate-200 normal-case tracking-normal">
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/80 p-4 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+                        <h4 className="text-base font-semibold text-slate-900 dark:text-slate-200 normal-case tracking-normal">
                             Official Assistance Channels
                         </h4>
-                        <ul className="space-y-2 text-sm list-disc pl-4 text-stone-600 dark:text-slate-300">
+                        <ul className="space-y-2 text-sm list-disc pl-4 text-slate-600 dark:text-slate-300">
                             <li>
-                                <strong className="text-stone-800 dark:text-slate-200">Account Provisioning &amp; Clearances:</strong> Coordinate directly with the <span className="text-[#7B1113] dark:text-red-400 font-medium">{officeName}</span>.
+                                <strong className="text-slate-800 dark:text-slate-200">Account Provisioning &amp; Clearances:</strong> Coordinate directly with the <span className="text-red-900 dark:text-red-400 font-medium">{officeName}</span>.
                             </li>
                             <li>
-                                <strong className="text-stone-800 dark:text-slate-200">Network &amp; Credential Inquiries:</strong> Contact your campus Information &amp; Communications Technology (ICT / MIS) Unit during official university administrative hours.
+                                <strong className="text-slate-800 dark:text-slate-200">Network &amp; Credential Inquiries:</strong> Contact your campus Information &amp; Communications Technology (ICT / MIS) Unit during official university administrative hours.
                             </li>
                             <li>
-                                <strong className="text-stone-800 dark:text-slate-200">Forgotten Password:</strong> If you already have an activated institutional account, you can initiate self-service recovery below.
+                                <strong className="text-slate-800 dark:text-slate-200">Forgotten Password:</strong> If you already have an activated institutional account, you can initiate self-service recovery below.
                             </li>
                         </ul>
                     </div>
@@ -199,7 +199,7 @@ export default function Login({
                     {canResetPassword ? (
                         <Link
                             href={route('password.request')}
-                            className="text-sm font-semibold text-[#7B1113] dark:text-red-400 hover:underline"
+                            className="text-sm font-semibold text-red-900 dark:text-red-400 hover:underline"
                         >
                             Go to Password Recovery &rarr;
                         </Link>

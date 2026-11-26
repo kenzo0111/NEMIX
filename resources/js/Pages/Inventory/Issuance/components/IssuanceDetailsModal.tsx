@@ -1,8 +1,7 @@
-import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import RecordDetailsModal from '@/Components/ui/record-details-modal';
 import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
-import Modal from '@/Components/Modal';
 import { IssuanceRecord, IssuanceItemDetail } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -38,37 +37,32 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
     const totalAmt = issuance.total_amount ?? issuance.amount ?? 0;
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Issuance Record Details">
-            {/* Institutional Maroon Top Accent Line */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-
-            {/* Administrative Header */}
-            <DialogHeader className="shrink-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            <ClipboardList className="w-5 h-5 text-red-900 dark:text-red-400" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
-                                Issuance Record Details
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums break-words">
-                                RIS Reference: <span className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
-                            </p>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon"
+        <RecordDetailsModal
+            show={show}
+            onClose={onClose}
+            maxWidth="2xl"
+            title="Issuance Record Details"
+            description={
+                <span className="tabular-nums">
+                    RIS Reference: <strong className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</strong>
+                </span>
+            }
+            actions={
+                onViewRis ? (
+                    <Button
+                        variant="primary"
                         type="button"
-                        onClick={onClose}
-                        className="shrink-0 ml-2"
-                        aria-label="Close"
+                        onClick={() => {
+                            onClose();
+                            onViewRis(issuance);
+                        }}
                     >
-                        <X className="w-5 h-5" />
+                        View RIS Form
                     </Button>
-                </DialogHeader>
-
-                {/* Details Content */}
-                <DialogBody className="p-6 overflow-y-auto space-y-6 text-sm text-slate-700 dark:text-slate-300">
+                ) : undefined
+            }
+        >
+            <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300">
                     {/* General Information Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg">
                         <div>
@@ -209,19 +203,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                         </div>
                     </div>
-                </DialogBody>
-
-                {/* Modal Footer */}
-                <DialogFooter className="table-toolbar px-6 py-3.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
-                    {onViewRis && <Button variant="primary" type="button" onClick={() => { onClose(); onViewRis(issuance); }} className="inline-flex h-10 items-center justify-center">View RIS Form</Button>}
-                    <Button variant="secondary"
-                        type="button"
-                        onClick={onClose}
-                        className=""
-                    >
-                        Close
-                    </Button>
-                </DialogFooter>
-        </Modal>
+                            </div>
+        </RecordDetailsModal>
     );
 };

@@ -1,4 +1,8 @@
 import { notify } from '@/utils/notifications';
+import Modal from '@/Components/Modal';
+import { Button } from '@/Components/ui/button';
+import { DialogBody, DialogFooter, DialogHeader } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
 import React, { useState, useEffect, useRef } from 'react';
 import { usePage, router } from '@inertiajs/react';
 import {
@@ -344,101 +348,99 @@ export default function SystemModeBadge() {
       )}
 
       {/* Mode Change Confirmation Flow Modal */}
-      {confirmingMode && targetConfig && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label="Confirm operating mode change" onClick={(e) => { if (e.target === e.currentTarget) setConfirmingMode(null); }}>
-          <div className="w-full max-w-lg bg-slate-950 border border-red-900/80 rounded-xl shadow-2xl text-slate-100 overflow-hidden font-sans text-sm">
-            {/* Modal Header */}
-            <div className="bg-red-950 border-b border-red-900 px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <AlertTriangle className="w-5.5 h-5.5 text-amber-400 shrink-0" />
-                <h3 className="text-lg font-semibold text-amber-300 font-sans normal-case tracking-normal">
+      <Modal
+        show={Boolean(confirmingMode && targetConfig)}
+        onClose={() => !isSubmitting && setConfirmingMode(null)}
+        closeable={!isSubmitting}
+        maxWidth="lg"
+        ariaLabel="Confirm operating mode change"
+      >
+        {targetConfig && (
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Change Operating Mode?
-                </h3>
+                </h2>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setConfirmingMode(null)}
-                className="text-slate-400 hover:text-slate-200 p-1 rounded"
+                disabled={isSubmitting}
+                aria-label="Close operating mode confirmation"
               >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+                <X className="w-5 h-5" aria-hidden="true" />
+              </Button>
+            </DialogHeader>
 
-            {/* Modal Content */}
-            <div className="p-6 space-y-4">
-              <div className="p-4 bg-slate-900 rounded-lg border border-slate-800 space-y-2">
-                <div className="text-sm text-slate-400">
+            <DialogBody className="space-y-4">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                <div className="text-sm text-slate-600 dark:text-slate-400">
                   You are switching the system operating mode from:
                 </div>
-                <div className="flex items-center gap-2.5 tabular-nums font-semibold text-sm">
-                  <span className="px-3 py-1.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
+                <div className="flex flex-wrap items-center gap-2.5 tabular-nums font-semibold text-sm">
+                  <span className="px-3 py-1.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                     {activeMode}
                   </span>
-                  <span className="text-amber-400 text-sm">➔</span>
+                  <span className="text-red-900 dark:text-red-300 text-sm" aria-hidden="true">→</span>
                   <span className={`px-3 py-1.5 rounded border ${targetConfig.badgeBg} ${targetConfig.badgeBorder} ${targetConfig.badgeText}`}>
                     {targetConfig.label}
                   </span>
                 </div>
               </div>
 
-              {/* Mode-specific Alert Warning Box */}
               <div className={`p-4 rounded-lg border leading-relaxed text-sm ${confirmingMode === 'LIVE PRODUCTION'
-    ? "bg-red-950/90 border-red-700 text-red-200" : confirmingMode === 'MAINTENANCE MODE'
-    ? "bg-amber-950/90 border-amber-700 text-amber-200" : confirmingMode === 'STAGING SANDBOX'
-    ? "bg-sky-950/90 border-sky-700 text-sky-200" : "bg-purple-950/90 border-purple-700 text-purple-200"}`}>
-                <div className="font-semibold tabular-nums text-sm mb-1.5 flex items-center gap-2 normal-case">
-                  <ShieldCheck className="w-4.5 h-4.5 shrink-0" /> Mode Impact Assessment
+                ? "bg-rose-50 border-rose-300 text-rose-900 dark:bg-rose-950/50 dark:border-rose-700 dark:text-rose-200"
+                : confirmingMode === 'MAINTENANCE MODE'
+                ? "bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-950/50 dark:border-amber-700 dark:text-amber-200"
+                : confirmingMode === 'STAGING SANDBOX'
+                ? "bg-sky-50 border-sky-300 text-sky-900 dark:bg-sky-950/50 dark:border-sky-700 dark:text-sky-200"
+                : "bg-slate-100 border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"}`}>
+                <div className="font-semibold text-sm mb-1.5 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 shrink-0" aria-hidden="true" /> Mode Impact Assessment
                 </div>
                 <p className="text-sm leading-normal">{targetConfig.warningAlert}</p>
               </div>
 
-              {/* Reason for change field for Audit Log */}
-              <div className="space-y-1.5">
-                <label className="block text-sm tabular-nums font-semibold normal-case tracking-normal text-slate-300">
-                  Reason for Mode Change (Recorded in Audit Log)
-                </label>
+              <Field
+                id="system-mode-change-reason"
+                label="Reason for Mode Change (Recorded in Audit Log)"
+              >
                 <input
                   type="text"
                   value={reasonInput}
                   onChange={(e) => setReasonInput(e.target.value)}
                   placeholder="e.g. Scheduled System Audit / Staff Training Session..."
-                  className="ui-field w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none font-sans"
+                  className="ui-field w-full"
                 />
-              </div>
+              </Field>
 
-              <p className="leading-relaxed text-sm text-slate-400 tabular-nums">
-                This action will be authenticated under administrator <strong className="text-slate-200">{pageProps.auth?.user?.name}</strong> and logged in the official audit trail ledger.
+              <p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">
+                This action will be authenticated under administrator <strong className="text-slate-900 dark:text-slate-100">{pageProps.auth?.user?.name}</strong> and logged in the official audit trail ledger.
               </p>
-            </div>
+            </DialogBody>
 
-            {/* Modal Actions */}
-            <div className="bg-slate-900 px-6 py-4 border-t border-slate-800 flex items-center justify-end gap-3 tabular-nums">
-              <button
-                type="button"
+            <DialogFooter>
+              <Button
+                variant="secondary"
                 disabled={isSubmitting}
                 onClick={() => setConfirmingMode(null)}
-                className="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold transition-colors text-sm"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
+              </Button>
+              <Button
+                variant="primary"
+                loading={isSubmitting}
                 onClick={handleConfirmModeSwitch}
-                className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold transition-colors flex items-center gap-2 shadow-sm text-sm"
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Switching...
-                  </>
-                ) : (
-                  <>Confirm & Switch Operating Mode</>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                {isSubmitting ? 'Switching...' : 'Confirm & Switch Operating Mode'}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </Modal>
 
     </div>
   );

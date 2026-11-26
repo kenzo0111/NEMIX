@@ -137,10 +137,9 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                                     {session.ip_address}
                                                 </span>
                                                 {session.is_current && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-semibold tabular-nums bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                                                    <StatusBadge tone="success">
                                                         Current Session
-                                                    </span>
+                                                    </StatusBadge>
                                                 )}
                                             </div>
                                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate max-w-lg mt-1">

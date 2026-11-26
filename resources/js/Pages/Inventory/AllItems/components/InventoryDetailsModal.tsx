@@ -1,9 +1,8 @@
 import { formatScreenDate } from '@/utils/displayFormat';
-import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import RecordDetailsModal from '@/Components/ui/record-details-modal';
 import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
-import Modal from '@/Components/Modal';
 import { Link } from '@inertiajs/react';
 import { X, Edit3, Tag, Package, History, Layers, Trash2, Clock } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -53,37 +52,43 @@ export default function InventoryDetailsModal({
     if (!item) return null;
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Item Master Record">
-            {/* Institutional Maroon Top Accent Line */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
-
-            {/* Modal Header */}
-            <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/70">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
-                            <Package className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
-                                Item Master Record
-                            </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                Standardized consumable inventory identity and batch ledger.
-                            </p>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon"
-                        type="button"
-                        onClick={onClose}
-                        className=""
-                        aria-label="Close modal"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </DialogHeader>
-
-                {/* Modal Body */}
-                <DialogBody className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
+        <RecordDetailsModal
+            show={show}
+            onClose={onClose}
+            maxWidth="2xl"
+            title="Item Master Record"
+            description="Standardized consumable inventory identity and batch ledger."
+            actions={
+                <>
+                    {!readOnly && onDelete && can('inventory.destroy') && (
+                        <Button variant="danger" type="button" onClick={() => onDelete(item)}>
+                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            Delete Item
+                        </Button>
+                    )}
+                    {!readOnly && can('rfid.view') && can('rfid.assign') && (
+                        <Link data-variant="secondary" data-size="default" href={route('rfid-scanner.index', { item_id: item.id })} className="ui-button">
+                            <Tag className="w-3.5 h-3.5 text-red-900 dark:text-red-400" aria-hidden="true" />
+                            <span>Tag RFID</span>
+                        </Link>
+                    )}
+                    {!readOnly && can('inventory.update') && (
+                        <Button
+                            variant="primary"
+                            type="button"
+                            onClick={() => {
+                                onClose();
+                                onEdit(item);
+                            }}
+                        >
+                            <Edit3 className="w-3.5 h-3.5" aria-hidden="true" />
+                            <span>Edit Item Identity</span>
+                        </Button>
+                    )}
+                </>
+            }
+        >
+            <div className="space-y-5 sm:space-y-6">
                     {/* 1. ITEM INFORMATION SECTION */}
                     <div>
                         <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -383,48 +388,7 @@ export default function InventoryDetailsModal({
                             </div>
                         </div>
                     ) : null}
-                </DialogBody>
-
-                {/* Modal Footer */}
-                <DialogFooter className="table-toolbar px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                    <Button variant="secondary"
-                        type="button"
-                        onClick={onClose}
-                        className="w-full sm:w-auto text-center"
-                    >
-                        Close
-                    </Button>
-
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2">
-                        {!readOnly && onDelete && can('inventory.destroy') && <Button variant="danger"
-                            type="button"
-                            onClick={() => onDelete(item)}
-                            className="inline-flex w-full items-center justify-center gap-1.5 sm:w-auto"
-                        >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete Item
-                        </Button>}
-                        {!readOnly && can('rfid.view') && can('rfid.assign') && <Link data-variant="secondary" data-size="default"
-                            href={route('rfid-scanner.index', { item_id: item.id })}
-                            className="ui-button w-full sm:w-auto px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center gap-1.5"
-                        >
-                            <Tag className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
-                            <span>Tag RFID</span>
-                        </Link>}
-
-                        {!readOnly && can('inventory.update') && <Button variant="primary"
-                            type="button"
-                            onClick={() => {
-                                onClose();
-                                onEdit(item);
-                            }}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5"
-                        >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>Edit Item Identity</span>
-                        </Button>}
-                    </div>
-                </DialogFooter>
-        </Modal>
+                            </div>
+        </RecordDetailsModal>
     );
 }

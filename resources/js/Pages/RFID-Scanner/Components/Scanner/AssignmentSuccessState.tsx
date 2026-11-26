@@ -34,22 +34,22 @@ export default function AssignmentSuccessState({
 
             {/* Linked Item Summary Box */}
             <div className="my-4 bg-white p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-850">
-                <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
+                <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-400">
                     <span>RECORD LINKED</span>
                     <span className="text-emerald-700 font-semibold flex items-center gap-1 font-sans dark:text-emerald-300">
                         <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-300" />
                         Verified
                     </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-300">{item.name}</p>
-                <div className="flex items-center gap-2 text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-300">
+                <p className="leading-relaxed font-semibold text-slate-900 text-sm truncate dark:text-slate-100">{item.name}</p>
+                <div className="flex items-center gap-2 text-sm text-slate-500 tabular-nums mt-1 dark:text-slate-400">
                     <span>Property No:</span>
-                    <span className="text-slate-900 font-semibold dark:text-slate-300">{item.sku || 'N/A'}</span>
+                    <span className="text-slate-900 font-semibold dark:text-slate-100">{item.sku || 'N/A'}</span>
                 </div>
             </div>
 
             {/* CTAs */}
-            <div className="mt-5 flex items-center justify-center gap-3 max-w-sm mx-auto">
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3 max-w-sm mx-auto">
                 {nextItem && (
                     <Button variant="primary"
                         type="button"
@@ -65,7 +65,7 @@ export default function AssignmentSuccessState({
                     onClick={() => onViewItem(item)}
                     className="inline-flex items-center justify-center gap-1.5"
                 >
-                    <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
+                    <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>View Item</span>
                 </Button>
             </div>

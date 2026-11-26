@@ -1,7 +1,9 @@
 import React from 'react';
 import { SystemSettings, TelemetryData } from '../types';
-import { Clock, Download, Server } from 'lucide-react';
+import { Download, Server } from 'lucide-react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
+import Field from '@/Components/ui/field';
+import { actionLinkProps } from '@/Components/ui/button';
 
 interface OperationsSettingsProps {
     settings: SystemSettings;
@@ -30,11 +32,14 @@ export default function OperationsSettings({
                     </p>
                 </div>
 
-                <div className="max-w-md space-y-1.5">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                        <span>Terminal Inactivity Auto-Logout</span>
-                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
-                    </label>
+                <Field
+                    id="security-session-timeout-minutes"
+                    label="Terminal Inactivity Auto-Logout"
+                    required
+                    error={errors['settings.security.session_timeout_minutes']}
+                    hint="Valid range: 5 to 480 minutes before automatic lock out."
+                    className="max-w-md"
+                >
                     <div className="relative">
                         <input
                             type="number"
@@ -47,22 +52,13 @@ export default function OperationsSettings({
                                     parseInt(e.target.value, 10) || 30
                                 )
                             }
-                            className="ui-field w-full pl-3.5 pr-20 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="ui-field w-full pr-20 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-sm text-slate-500 dark:text-slate-400 font-medium">
                             Minutes
                         </span>
                     </div>
-                    {errors['settings.security.session_timeout_minutes'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
-                            {errors['settings.security.session_timeout_minutes']}
-                        </p>
-                    )}
-                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
-                        Valid range: 5 to 480 minutes before automatic lock out.
-                    </p>
-                </div>
+                </Field>
             </div>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />
@@ -79,11 +75,11 @@ export default function OperationsSettings({
                 </div>
 
                 {can('system.settings.backup') && <div className="max-w-md">
-                    <a data-variant="secondary" data-size="default"
+                    <a
+                        {...actionLinkProps('secondary')}
                         href={route('system.settings.backup')}
-                        className="ui-button inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-semibold shadow-sm transition-all cursor-pointer"
                     >
-                        <Download className="w-4 h-4 text-red-900 dark:text-red-400" />
+                        <Download className="w-4 h-4 text-red-900 dark:text-red-400" aria-hidden="true" />
                         <span>Download Policy Snapshot (JSON)</span>
                     </a>
                 </div>}

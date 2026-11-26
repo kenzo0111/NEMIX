@@ -106,7 +106,7 @@ export default function AnalyticsSummary({
                         <Card
                             key={card.title}
                             className={`border-t-2 border-t-red-900 transition-all ${card.clickable
-    ? "cursor-pointer hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900" : ""}`}
+    ? "cursor-pointer hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus:ring-1 focus:ring-red-900" : ""}`}
                             onClick={card.onClick}
                             role={card.clickable ? 'button' : undefined}
                             tabIndex={card.clickable ? 0 : undefined}

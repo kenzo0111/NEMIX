@@ -145,7 +145,7 @@ export default function EditRoleDialog({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">
+                                <h3 className="break-words text-xl font-semibold text-slate-900 dark:text-slate-100">
                                     Edit Role & Permissions
                                 </h3>
                                 {isSystemRole ? (
@@ -260,17 +260,11 @@ export default function EditRoleDialog({
                         <Button variant="primary"
                             type="submit"
                             form="edit-role-form"
-                            disabled={processing || !data.name.trim()}
+                            disabled={!data.name.trim()}
+                            loading={processing}
                             className="w-full sm:w-auto text-center flex items-center justify-center gap-1.5 tabular-nums"
                         >
-                            {processing ? (
-                                <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Saving...</span>
-                                </>
-                            ) : (
-                                <span>Save Changes</span>
-                            )}
+                            <span>{processing ? 'Saving...' : 'Save Changes'}</span>
                         </Button>
                     </div>
                 </DialogFooter>

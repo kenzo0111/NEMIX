@@ -294,12 +294,12 @@ export default function AnalyticsFilters({
                 {active.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                         {active.map((field) => (
-                            <Button variant="secondary"
+                            <Button variant="secondary" size="sm"
                                 key={field.key}
                                 type="button"
                                 disabled={loading}
                                 onClick={() => onChange(field.key, '')}
-                                className="inline-flex max-w-full items-center gap-2 min-h-8 h-auto py-1 px-3 text-xs"
+                                className="inline-flex max-w-full items-center gap-2"
                                 aria-label={`Remove ${field.label} filter`}
                             >
                                 <span className="truncate">
@@ -320,9 +320,9 @@ export default function AnalyticsFilters({
             <div
                 role="status"
                 aria-live="polite"
-                className="flex items-center gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-400"
+                className="flex items-center gap-2 rounded-b-xl border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-400"
             >
-                {loading ? <LoaderCircle size={14} className="animate-spin" /> : <Building2 size={14} />}
+                {loading ? <LoaderCircle size={14} className="animate-spin motion-reduce:animate-none" /> : <Building2 size={14} />}
                 <span>
                     {loading
                         ? 'Updating charts and tables…'

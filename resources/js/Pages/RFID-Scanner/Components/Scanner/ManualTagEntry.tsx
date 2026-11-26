@@ -56,7 +56,7 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                             onChange={(e) => setTagInput(e.target.value)}
                             placeholder="e.g. 04A7E82B9123 or E2801160..."
                             autoFocus
-                            className="ui-field w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm tabular-nums placeholder-slate-400 focus:border-red-950 focus:ring-1 focus:ring-red-950 shadow-sm transition-colors dark:bg-slate-900"
+                            className="ui-field w-full pl-10 pr-3.5 tabular-nums"
                         />
                         <Radio className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 dark:text-slate-300" />
                     </div>

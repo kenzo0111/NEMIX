@@ -281,7 +281,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                     {currentStep === 'configure' ? (
                         <div className="space-y-4">
                             {/* Card 1: Report Specification & Document Metadata */}
-                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-4">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm space-y-4">
                                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
                                     <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                         <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -339,7 +339,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             </div>
 
                             {/* Card 2: Coverage Period Selection */}
-                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-3.5 shadow-sm">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-3.5 shadow-sm">
                                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
                                     <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                         <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -377,12 +377,13 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     )}
 
                                     {formData.periodType === 'monthly' && (
-                                        <div className="flex items-center gap-2 w-full">
-                                            <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                                            <div className="flex-1 min-w-0">
+                                                <label htmlFor="report-month-select" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     Month
                                                 </label>
                                                 <Select
+                                                    inputId="report-month-select"
                                                     options={MONTH_OPTIONS}
                                                     value={MONTH_OPTIONS.find((opt) => opt.value === formData.selectedMonth)}
                                                     onChange={(opt: any) => updateField('selectedMonth', opt ? opt.value : 1)}
@@ -390,17 +391,18 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                                     isSearchable={false}
                                                 />
                                             </div>
-                                            <div className="w-28">
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            <div className="w-full sm:w-28">
+                                                <label htmlFor="report-monthly-year" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     Year
                                                 </label>
                                                 <input
+                                                    id="report-monthly-year"
                                                     type="number"
                                                     min="2000"
                                                     max="2100"
                                                     value={formData.selectedYear}
                                                     onChange={(e) => updateField('selectedYear', parseInt(e.target.value, 10))}
-                                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
+                                                    className="ui-field w-full tabular-nums"
                                                 />
                                             </div>
                                         </div>
@@ -408,38 +410,41 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                                     {formData.periodType === 'yearly' && (
                                         <div>
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            <label htmlFor="report-fiscal-year" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                 Fiscal Year
                                             </label>
                                             <input
+                                                id="report-fiscal-year"
                                                 type="number"
                                                 min="2000"
                                                 max="2100"
                                                 value={formData.selectedYear}
                                                 onChange={(e) => updateField('selectedYear', parseInt(e.target.value, 10))}
-                                                className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
+                                                className="ui-field w-full tabular-nums"
                                             />
                                         </div>
                                     )}
 
                                     {formData.periodType === 'range' && (
-                                        <div className="flex items-center gap-2 w-full">
-                                            <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                                            <div className="flex-1 min-w-0">
+                                                <label htmlFor="report-start-date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     From
                                                 </label>
                                                 <input
+                                                    id="report-start-date"
                                                     type="date"
                                                     value={formData.startDate}
                                                     onChange={(e) => updateField('startDate', e.target.value)}
-                                                    className="ui-field w-full h-9 text-sm px-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-slate-400 transition-colors"
+                                                    className="ui-field w-full tabular-nums"
                                                 />
                                             </div>
-                                            <div className="flex-1">
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            <div className="flex-1 min-w-0">
+                                                <label htmlFor="report-end-date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                                                     To
                                                 </label>
                                                 <input
+                                                    id="report-end-date"
                                                     type="date"
                                                     value={formData.endDate}
                                                     onChange={(e) => updateField('endDate', e.target.value)}
@@ -453,7 +458,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
                             {/* Card 3: Form-Specific Parameters (Conditional) */}
                             {formData.type === 'STOCK_CARD' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2 shadow-sm">
                                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -488,7 +493,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
 
                             {formData.type === 'MR' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2 shadow-sm">
                                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -513,7 +518,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
 
                             {formData.type === 'RPCI' && (
-                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4.5 space-y-2 shadow-sm">
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2 shadow-sm">
                                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
@@ -585,7 +590,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             </div>
 
                             {formData.type === 'MR' && !previewDataset?.mr?.items?.length && (
-                                <p className="leading-relaxed rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 print:hidden dark:text-amber-300">
+                                <p className="leading-relaxed rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 print:hidden dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
                                     No issued items were found for this officer and coverage period. Check the selected officer and dates before recording the MR.
                                 </p>
                             )}
@@ -606,7 +611,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                 </DialogBody>
 
                 {/* Modal Footer */}
-                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 print:hidden compliance-print-hide">
                     {currentStep === 'preview' ? (
                         <Button variant="secondary"
                             type="button"
@@ -639,19 +644,11 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                     (formData.type === 'STOCK_CARD' && !formData.itemName) ||
                                     (formData.type === 'MR' && !formData.endUser)
                                 }
+                                loading={isLoadingPreview}
                                 className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
                             >
-                                {isLoadingPreview ? (
-                                    <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                                        <span>Loading Authoritative Preview...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Preview Official Report</span>
-                                        <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-                                    </>
-                                )}
+                                <span>{isLoadingPreview ? 'Loading Authoritative Preview...' : 'Preview Official Report'}</span>
+                                {!isLoadingPreview && <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
                             </Button>
                         ) : (
                             <>
@@ -668,20 +665,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 <Button variant="primary"
                                     type="button"
                                     onClick={onSubmitReport}
-                                    disabled={isSubmitting || (formData.type === 'MR' && !previewDataset?.mr?.items?.length)}
+                                    disabled={formData.type === 'MR' && !previewDataset?.mr?.items?.length}
+                                    loading={isSubmitting}
                                     className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
                                 >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                                            <span>Recording in Registry...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Check className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Save & Record Document</span>
-                                        </>
-                                    )}
+                                    {!isSubmitting && <Check className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
+                                    <span>{isSubmitting ? 'Recording in Registry...' : 'Save & Record Document'}</span>
                                 </Button>
                             </>
                         )}

@@ -52,7 +52,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                         <ShieldPlus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                        <h3 className="break-words text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             Create Role
                         </h3>
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
@@ -109,20 +109,12 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                     </Button>
                     <Button variant="primary"
                         type="submit"
-                        disabled={processing || !data.name.trim()}
+                        disabled={!data.name.trim()}
+                        loading={processing}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                     >
-                        {processing ? (
-                            <>
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                <span>Creating...</span>
-                            </>
-                        ) : (
-                            <>
-                                <ShieldPlus className="w-3.5 h-3.5 text-amber-300" />
-                                <span>Create Role</span>
-                            </>
-                        )}
+                        {!processing && <ShieldPlus className="w-3.5 h-3.5" aria-hidden="true" />}
+                        <span>{processing ? 'Creating...' : 'Create Role'}</span>
                     </Button>
                 </DialogFooter>
             </form>

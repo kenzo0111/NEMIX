@@ -25,11 +25,11 @@ export default function AuthHeader({
                     showSystemBranding={showSystemBranding}
                 />
             )}
-            <h1 className="text-2xl sm:text-3xl font-semibold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                 {title}
             </h1>
             {description && (
-                <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 font-sans">
                     {description}
                 </p>
             )}

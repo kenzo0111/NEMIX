@@ -32,7 +32,7 @@ export default function CompactAuthLayout({
             </div>
 
             {/* Centered Institutional Card */}
-            <main className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-stone-200/40 dark:border-slate-800 p-6 sm:p-10`}>
+            <main className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/40 dark:border-slate-800 p-6 sm:p-10`}>
                 {headerSlot}
                 {children}
                 <AuthFooter compact className="pt-5 mt-6" />
