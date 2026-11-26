@@ -85,7 +85,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
 
             {/* 8. Institutional Actions */}
             <td className="px-3 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap min-w-[10rem] text-sm">
-                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                <div className="inline-flex items-center justify-end gap-2 shrink-0">
                     {/* View Action */}
                     <Button variant="secondary"
                         type="button"

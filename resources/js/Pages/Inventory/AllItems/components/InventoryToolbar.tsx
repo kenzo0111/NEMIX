@@ -52,7 +52,7 @@ export default function InventoryToolbar({
                     <label htmlFor="inventory-search-input" className="sr-only">
                         Search Inventory
                     </label>
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <Search className="w-4 h-4" aria-hidden="true" />
                     </div>
                     <input
@@ -62,7 +62,7 @@ export default function InventoryToolbar({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search name or SKU..."
                         aria-label="Search inventory by name or SKU"
-                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500"
                     />
                 </div>
 

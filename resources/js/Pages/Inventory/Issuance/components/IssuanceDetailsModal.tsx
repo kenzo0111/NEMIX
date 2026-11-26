@@ -49,10 +49,10 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             <ClipboardList className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 Issuance Record Details
                             </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 tabular-nums break-words">
                                 RIS Reference: <span className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                             </p>
                         </div>

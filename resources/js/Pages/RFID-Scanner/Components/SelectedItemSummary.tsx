@@ -82,7 +82,7 @@ export default function SelectedItemSummary({
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans leading-snug mt-1.5 truncate">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans leading-snug mt-1.5">
                             {item.name}
                         </h3>
 

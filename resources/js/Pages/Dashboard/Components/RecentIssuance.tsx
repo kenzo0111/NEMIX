@@ -21,7 +21,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
                         <div className="p-1 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 shrink-0">
                             <ArrowUpRight className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="break-words text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100">
                             Recent Issuance (RIS)
                         </h3>
                     </div>

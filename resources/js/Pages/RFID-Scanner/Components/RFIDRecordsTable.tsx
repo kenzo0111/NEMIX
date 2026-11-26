@@ -244,9 +244,9 @@ export default function RFIDRecordsTable({
                                     value={localSearch}
                                     onChange={(e) => setLocalSearch(e.target.value)}
                                     placeholder="Search by name, property no, or tag..."
-                                    className="ui-field h-10 w-full pl-8 pr-7 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
+                                    className="ui-field h-10 w-full pl-10 pr-9 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:border-red-950 dark:focus:border-red-600 focus:ring-1 focus:ring-red-950 dark:focus:ring-red-600 shadow-sm transition-colors"
                                 />
-                                <Search className="pointer-events-none w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                                <Search className="pointer-events-none w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 {localSearch && (
                                     <Button variant="secondary" size="icon"
                                         type="button"
@@ -386,7 +386,7 @@ export default function RFIDRecordsTable({
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 px-6 align-middle text-right whitespace-nowrap min-w-[10rem]">
-                                                    <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                    <div className="inline-flex items-center justify-end gap-2 shrink-0">
                                                         <Button aria-pressed={isSelected} variant="tab"
                                                             type="button"
                                                             onClick={() => {

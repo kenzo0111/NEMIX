@@ -224,16 +224,16 @@ export default function InventoryDetailsModal({
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                         {batches.map((batch) => (
                                             <tr key={batch.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-sm text-slate-600 dark:text-slate-400 tabular-nums truncate">
+                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-sm text-slate-600 dark:text-slate-400 tabular-nums whitespace-nowrap">
                                                     {formatScreenDate(batch.date_received) || batch.date_received}
                                                 </td>
-                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-sm font-medium text-slate-800 dark:text-slate-200 truncate" title={batch.supplier_name}>
+                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-sm font-medium text-slate-800 dark:text-slate-200 break-words" title={batch.supplier_name}>
                                                     {batch.supplier_name}
                                                 </td>
                                                 <td className="px-1.5 sm:px-2 py-3 align-middle">
                                                     {batch.supplier_stock_no ? (
                                                         <span
-                                                            className="inline-block tabular-nums text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200/70 dark:border-slate-700 truncate max-w-full align-middle"
+                                                            className="inline-block tabular-nums text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200/70 dark:border-slate-700 break-all max-w-full align-middle"
                                                             title={batch.supplier_stock_no}
                                                         >
                                                             {batch.supplier_stock_no}
@@ -242,10 +242,10 @@ export default function InventoryDetailsModal({
                                                         <span className="text-slate-500 dark:text-slate-400 italic text-sm">—</span>
                                                     )}
                                                 </td>
-                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm tabular-nums text-slate-700 dark:text-slate-300 truncate">
+                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">
                                                     {formatNumber(batch.quantity_received)}
                                                 </td>
-                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm tabular-nums truncate">
+                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm whitespace-nowrap">
                                                     <span
                                                         className={Number(batch.quantity_remaining) > 0
     ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-slate-500 dark:text-slate-400"}
@@ -253,10 +253,10 @@ export default function InventoryDetailsModal({
                                                         {formatNumber(batch.quantity_remaining)}
                                                     </span>
                                                 </td>
-                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm tabular-nums text-slate-700 dark:text-slate-300 truncate">
+                                                <td className="px-1 sm:px-1.5 py-3 align-middle text-right tabular-nums text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">
                                                     {formatCurrency(batch.unit_cost)}
                                                 </td>
-                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-right tabular-nums text-sm tabular-nums font-semibold text-slate-900 dark:text-slate-100 truncate">
+                                                <td className="px-1.5 sm:px-2 py-3 align-middle text-right tabular-nums text-sm font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                                                     {formatCurrency(batch.batch_value)}
                                                 </td>
                                             </tr>
@@ -361,19 +361,19 @@ export default function InventoryDetailsModal({
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                         {recentIssuances.map((iss) => (
                                             <tr key={iss.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
-                                                <td className="px-2 py-3 tabular-nums text-slate-600 dark:text-slate-400 truncate align-middle">
+                                                <td className="px-2 py-3 tabular-nums text-slate-600 dark:text-slate-400 whitespace-nowrap align-middle">
                                                     {formatScreenDate(iss.date_issued) || iss.date_issued}
                                                 </td>
-                                                <td className="px-2 py-3 tabular-nums font-semibold text-slate-800 dark:text-slate-200 truncate align-middle" title={iss.ris_number}>
+                                                <td className="px-2 py-3 tabular-nums font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap align-middle" title={iss.ris_number}>
                                                     {formatRisNumber(iss.ris_number)}
                                                 </td>
-                                                <td className="px-2 py-3 text-slate-700 dark:text-slate-300 truncate align-middle" title={iss.recipient}>
+                                                <td className="px-2 py-3 text-slate-700 dark:text-slate-300 break-words align-middle" title={iss.recipient}>
                                                     {iss.recipient}
                                                 </td>
-                                                <td className="px-1.5 py-3 text-right tabular-nums text-red-700 dark:text-red-400 font-semibold truncate align-middle">
+                                                <td className="px-1.5 py-3 text-right tabular-nums text-red-700 dark:text-red-400 font-semibold whitespace-nowrap align-middle">
                                                     -{formatNumber(iss.quantity)}
                                                 </td>
-                                                <td className="px-2 py-3 text-right tabular-nums font-semibold text-slate-800 dark:text-slate-200 truncate align-middle">
+                                                <td className="px-2 py-3 text-right tabular-nums font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap align-middle">
                                                     {formatCurrency(iss.amount)}
                                                 </td>
                                             </tr>

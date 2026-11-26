@@ -240,10 +240,10 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 {currentStep === 'configure' ? 'Generate Official COA Report' : `${formData.type} Report Preview`}
                             </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 break-words">
                                 {currentStep === 'configure'
                                     ? 'Step 1 of 2: Configure reporting criteria and required parameters'
                                     : `Step 2 of 2: Authoritative preview for Reference ${previewDataset?.reference || formData.reference || 'Pending'}`}

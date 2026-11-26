@@ -621,7 +621,7 @@ export default function MyRequests({
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0 max-w-xs sm:max-w-sm">
                                                             <span
-                                                                className="font-semibold text-sm text-slate-900 dark:text-slate-100 leading-snug truncate"
+                                                                className="font-semibold text-sm text-slate-900 dark:text-slate-100 leading-snug break-words"
                                                                 title={request.recipient || request.requester?.name || 'Supply Coordinator'}
                                                             >
                                                                 {request.recipient || request.requester?.name || 'Supply Coordinator'}
@@ -634,7 +634,7 @@ export default function MyRequests({
                                                             </span>
                                                             {request.recipient_designation && (
                                                                 <span
-                                                                    className="text-sm text-slate-500 dark:text-slate-400 font-normal mt-0.5 truncate"
+                                                                    className="text-sm text-slate-500 dark:text-slate-400 font-normal mt-0.5 break-words"
                                                                     title={request.recipient_designation}
                                                                 >
                                                                     {request.recipient_designation}
@@ -646,7 +646,7 @@ export default function MyRequests({
                                                     {/* Fund Cluster / Purpose */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0 max-w-xs">
-                                                            <span className="tabular-nums text-sm text-slate-500 dark:text-slate-400 truncate">
+                                                            <span className="tabular-nums text-sm text-slate-500 dark:text-slate-400 break-words">
                                                                 {(getFundClusterDisplay(request.fund_cluster) || '01 · Regular Agency Fund').replace(' - ', ' · ')}
                                                             </span>
                                                             <span
@@ -709,7 +709,7 @@ export default function MyRequests({
 
                                                     {/* Actions */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap min-w-[7.5rem] text-right">
-                                                        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                        <div className="inline-flex items-center justify-end gap-2 shrink-0">
                                                             <Button variant="secondary"
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}

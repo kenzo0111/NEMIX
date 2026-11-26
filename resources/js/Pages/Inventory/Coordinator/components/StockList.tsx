@@ -36,7 +36,7 @@ export default function StockList({
     const hasActions = canIssue || canStockCard;
 
     const actions = (stock: Stock) => hasActions ? (
-        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+        <div className="inline-flex items-center justify-end gap-2 shrink-0">
             {canIssue && (
                 <Button variant="secondary"
                     type="button"

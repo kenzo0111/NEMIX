@@ -92,10 +92,10 @@ export default function PreOrderModal({ item, onClose }: PreOrderModalProps) {
                             <p className="text-sm font-semibold tracking-normal normal-case text-red-900 dark:text-red-300">
                                 Central Stock Replenishment Demand
                             </p>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">
                                 {isExisting ? 'Manage Item Pre-Request' : 'Pre-Request Out-of-Stock Item'}
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium break-words">
                                 Notify Central Supply that your {supplyOwner.toLowerCase()} requires this item.
                             </p>
                         </div>

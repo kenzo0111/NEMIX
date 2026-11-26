@@ -234,14 +234,14 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     Official COA Document Inspector
                                 </h3>
                                 <span className="px-2 py-0.5 bg-red-50 dark:bg-red-950/50 border border-red-200/80 dark:border-red-900/40 text-red-900 dark:text-red-300 tabular-nums font-semibold text-sm rounded-md tracking-normal">
                                     {report.type}
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 break-words">
                                 Archived state compliance document recorded in university audit ledger.
                             </p>
                         </div>

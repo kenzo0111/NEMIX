@@ -1,4 +1,4 @@
-import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import Field from '@/Components/ui/field';
 import { Button } from '@/Components/ui/button';
 import React, { useEffect, useState } from 'react';
@@ -181,7 +181,7 @@ export default function InventoryFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight font-sans truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
                                 {isEditing ? 'Edit Item Master' : 'Register Item Master'}
                             </h3>
                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -236,7 +236,7 @@ export default function InventoryFormModal({
 
                 {/* Modal Form */}
                 <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
-                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8 space-y-6">
+                    <DialogBody className="space-y-6">
                         {/* 1. Item Information Card */}
                         <div className="space-y-5">
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -505,10 +505,10 @@ export default function InventoryFormModal({
                                 )}
                             </div>
                         )}
-                    </div>
+                    </DialogBody>
 
                     {/* Keep actions visible while the form body scrolls. */}
-                    <div className="shrink-0 px-6 py-4 sm:px-8 bg-slate-50/80 dark:bg-slate-950/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                    <DialogFooter className="px-6 py-4 sm:px-8">
                         <Button variant="secondary"
                             type="button"
                             onClick={onClose}
@@ -529,7 +529,7 @@ export default function InventoryFormModal({
                             )}
                             <span>{isEditing ? 'Save Changes' : 'Save Item Master'}</span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </div>
         </Modal>

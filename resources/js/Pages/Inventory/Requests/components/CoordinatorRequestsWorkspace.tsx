@@ -105,7 +105,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
     );
 
     const actions = (request: SupplyRequest) => (
-        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+        <div className="inline-flex items-center justify-end gap-2 shrink-0">
             <Button variant="secondary" type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] gap-1.5 inline-flex items-center justify-center `}>
                 <Eye size={14} />Details
             </Button>

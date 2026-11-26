@@ -44,7 +44,7 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
 
             {/* Actions: View & Update */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
-                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                <div className="inline-flex items-center justify-end gap-2 shrink-0">
                     <Button variant="secondary"
                         type="button"
                         onClick={() => onView(supplier)}

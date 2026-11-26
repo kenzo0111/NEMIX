@@ -50,7 +50,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                     <label htmlFor="receiving-search-input" className="sr-only">
                         Search receiving records
                     </label>
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 strokeLinecap="round"
@@ -67,7 +67,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search item or SKU..."
                         aria-label="Search receiving records by item or SKU"
-                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-10 pr-3.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 

@@ -37,13 +37,13 @@ export default function UnassignRFIDModal({
                     <AlertTriangle className="h-6 w-6" />
                 </div>
 
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 tracking-tight">
+                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 tracking-tight">
                     Unassign RFID Tag?
                 </h3>
 
-                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed max-w-xs mx-auto break-words">
                     Remove RFID tag <strong className="tabular-nums text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">{item.rfid_tag}</strong> from{' '}
-                    <strong className="text-slate-900 dark:text-slate-100">{item.name}</strong>?
+                    <strong className="text-slate-900 dark:text-slate-100 break-words">{item.name}</strong>?
                 </p>
 
                 <div className="p-3 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/50 text-red-900 dark:text-red-300 text-sm leading-relaxed text-left">

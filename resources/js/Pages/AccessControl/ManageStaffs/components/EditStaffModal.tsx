@@ -115,8 +115,8 @@ export default function EditStaffModal({
                         <Edit2 className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">Edit Staff Account</h3>
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
                             Update account details and Delivery Unit assignment for{' '}
                             <strong className="text-slate-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
                         </p>
@@ -144,7 +144,7 @@ export default function EditStaffModal({
                         {/* Full Name */}
                         <Field id="edit-staff-name" label="Full Name" required error={errors.name}>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <User className="w-4 h-4" />
                                 </div>
                                 <input aria-invalid={Boolean(errors.name)}
@@ -155,7 +155,7 @@ export default function EditStaffModal({
                                         setData('name', e.target.value);
                                         if (errors.name) clearErrors('name');
                                     }}
-                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors`)}
+                                    className={"ui-field " + (`w-full pl-10 pr-3.5 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                     autoFocus
                                 />
@@ -165,7 +165,7 @@ export default function EditStaffModal({
                         {/* Email Address (Read-only) */}
                         <Field id="edit-staff-email" label="Email Address" error={errors.email}>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <Mail className="w-4 h-4" />
                                 </div>
                                 <input
@@ -173,7 +173,7 @@ export default function EditStaffModal({
                                     id="edit-staff-email"
                                     value={data.email}
                                     readOnly
-                                    className="ui-field w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
+                                    className="ui-field w-full pl-10 pr-3.5 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
                                 />
                             </div>
                             <p className="leading-relaxed mt-1 text-sm text-slate-500 dark:text-slate-400">Email address cannot be modified after registration.</p>

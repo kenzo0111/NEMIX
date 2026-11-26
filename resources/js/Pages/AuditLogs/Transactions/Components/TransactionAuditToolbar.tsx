@@ -236,7 +236,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search user, action, RIS number, reference, item name..."
-                        className="ui-field table-control w-full pl-9 pr-8 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-slate-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-10 pr-9 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-slate-400 dark:placeholder-slate-500"
                     />
                     {search && (
                         <Button variant="secondary" size="icon"

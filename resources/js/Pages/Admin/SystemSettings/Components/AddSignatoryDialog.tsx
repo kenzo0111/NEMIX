@@ -104,10 +104,10 @@ export default function AddSignatoryDialog({
                         <UserPlus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             Add New Signatory
                         </h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
                             Register authorized personnel to the official directory.
                         </p>
                     </div>

@@ -145,7 +145,7 @@ export default function EditRoleDialog({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+                                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">
                                     Edit Role & Permissions
                                 </h3>
                                 {isSystemRole ? (
@@ -158,7 +158,7 @@ export default function EditRoleDialog({
                                     </span>
                                 )}
                             </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 break-words">
                                 Configure title and granular capabilities for{' '}
                                 <strong className="text-slate-800 dark:text-slate-200 font-semibold">{role.name}</strong>.
                             </p>

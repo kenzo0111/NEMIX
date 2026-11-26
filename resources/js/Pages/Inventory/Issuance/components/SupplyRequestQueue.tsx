@@ -19,8 +19,11 @@ import {
     Send,
     RotateCcw,
     ShieldCheck,
+    X,
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getRisCalendarDate } from '@/utils/risFormatter';
 import { getFundClusterDisplay } from '../constants';
@@ -343,7 +346,7 @@ export function SupplyRequestQueue({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Filter queue by keyword..."
-                            className="ui-field w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900"
+                            className="ui-field w-full pl-10 pr-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900"
                         />
                     </div>
                 </div>
@@ -464,7 +467,7 @@ export function SupplyRequestQueue({
                                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Requisition Purpose
                                             </span>
-                                            <span className="text-slate-700 dark:text-slate-300 truncate block" title={request.purpose}>
+                                            <span className="text-slate-700 dark:text-slate-300 break-words block" title={request.purpose}>
                                                 {request.purpose}
                                             </span>
                                         </div>
@@ -781,60 +784,56 @@ export function SupplyRequestQueue({
                 maxWidth="md"
                 ariaLabel="Reject Supply Request"
             >
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden">
-                    <div className="h-1.5 bg-rose-600" />
-                    <div className="p-5 space-y-4">
-                        <div className="flex items-start gap-3">
-                            <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
-                                <XCircle className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                                    Reject {rejectingRequest?.ris_number ? `RIS ${rejectingRequest.ris_number}` : `Supply Request #${rejectingRequest?.id}`}
-                                </h3>
-                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
-                                    Please provide an explanation or reason for the rejection so the Supply Coordinator can review and adjust accordingly.
-                                </p>
-                            </div>
+                <div className="h-1.5 w-full bg-rose-600 shrink-0" />
+                <DialogHeader className="shrink-0">
+                    <div className="flex items-start gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
+                            <XCircle className="w-5 h-5" />
                         </div>
-
-                        <div className="space-y-1.5">
-                            <label
-                                htmlFor="rejection-reason"
-                                className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
-                            >
-                                Rejection Justification / Reason <span className="text-rose-600 dark:text-rose-300">*</span>
-                            </label>
-                            <textarea
-                                id="rejection-reason"
-                                rows={3}
-                                required
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                placeholder="e.g. Requested item is currently reserved for laboratory operations or out of stock..."
-                                className="ui-field w-full p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <Button variant="secondary"
-                                type="button"
-                                onClick={() => setRejectingRequest(null)}
-                                className=""
-                            >
-                                Cancel
-                            </Button>
-                            <Button variant="secondary"
-                                type="button"
-                                disabled={!rejectionReason.trim() || busyId === rejectingRequest?.id}
-                                onClick={handleConfirmReject}
-                                className="tabular-nums"
-                            >
-                                Confirm Rejection
-                            </Button>
+                        <div className="min-w-0">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
+                                Reject {rejectingRequest?.ris_number ? `RIS ${rejectingRequest.ris_number}` : `Supply Request #${rejectingRequest?.id}`}
+                            </h3>
+                            <p className="mt-1 leading-relaxed text-sm text-slate-500 dark:text-slate-400 break-words">
+                                Please provide an explanation or reason for the rejection so the Supply Coordinator can review and adjust accordingly.
+                            </p>
                         </div>
                     </div>
-                </div>
+                    <Button variant="ghost" size="icon" type="button" onClick={() => setRejectingRequest(null)} aria-label="Close rejection dialog">
+                        <X className="w-5 h-5" />
+                    </Button>
+                </DialogHeader>
+
+                <DialogBody className="space-y-4">
+                    <Field id="rejection-reason" label="Rejection Justification / Reason" required>
+                        <textarea
+                            id="rejection-reason"
+                            rows={3}
+                            required
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="e.g. Requested item is currently reserved for laboratory operations or out of stock..."
+                            className="ui-field w-full p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
+                        />
+                    </Field>
+                </DialogBody>
+
+                <DialogFooter>
+                    <Button variant="secondary"
+                        type="button"
+                        onClick={() => setRejectingRequest(null)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button variant="danger"
+                        type="button"
+                        disabled={!rejectionReason.trim() || busyId === rejectingRequest?.id}
+                        onClick={handleConfirmReject}
+                        className="tabular-nums"
+                    >
+                        Confirm Rejection
+                    </Button>
+                </DialogFooter>
             </Modal>
         </section>
     );

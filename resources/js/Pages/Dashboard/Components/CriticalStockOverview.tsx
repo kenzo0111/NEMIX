@@ -30,7 +30,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                         <div className="p-1 rounded-md bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 shrink-0">
                             <AlertCircle className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="break-words text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100">
                             Stock Requiring Attention
                         </h3>
                     </div>

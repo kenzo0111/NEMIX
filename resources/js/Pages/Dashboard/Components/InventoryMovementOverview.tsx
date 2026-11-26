@@ -38,7 +38,7 @@ export default function InventoryMovementOverview({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-red-900 dark:bg-red-400 shrink-0"></span>
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal truncate">
+                    <h2 className="break-words text-xl font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                         Inventory Movement Overview
                     </h2>
                 </div>

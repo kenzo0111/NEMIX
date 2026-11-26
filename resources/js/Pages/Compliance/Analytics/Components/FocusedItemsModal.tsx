@@ -1,4 +1,4 @@
-import { DialogHeader, DialogBody } from '@/Components/ui/dialog-frame';
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
 import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { useSortableData } from '@/Hooks/useSortableData';
@@ -62,10 +62,10 @@ export default function FocusedItemsModal({
                             <Package className="h-4 w-4" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                                 Inventory Analytics Drill-Down
                             </h3>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 break-words">
                                 Compact snapshot of registered stock items and valuation
                             </p>
                         </div>
@@ -150,6 +150,12 @@ export default function FocusedItemsModal({
                         </div>
                     )}
                 </DialogBody>
+
+                <DialogFooter>
+                    <Button variant="secondary" onClick={onClose}>
+                        Close
+                    </Button>
+                </DialogFooter>
         </Modal>
     );
 }

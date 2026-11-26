@@ -393,14 +393,14 @@ export function RequestFormModal({
                         )}
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             {isRestocked
                                 ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
                                 : isPreRequest
                                     ? (request ? `Edit Pre-Request #${request.id}` : 'Create Multi-Item Pre-Request')
                                     : (request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)')}
                         </h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium break-words">
                             {isRestocked
                                 ? 'Supplies have arrived and have been restocked by Central Supply. Review line items and submit your official requisition.'
                                 : isPreRequest

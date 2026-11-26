@@ -78,7 +78,7 @@ export default function CatalogTable({
                                             )}
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
-                                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                            <div className="inline-flex items-center justify-end gap-2 shrink-0">
                                                 {eligible ? (
                                                     <Link data-variant="primary" data-size="default"
                                                         href={route('inventory.requests.index', { create: 1, item_id: item.id })}

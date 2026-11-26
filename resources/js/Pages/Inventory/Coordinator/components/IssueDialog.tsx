@@ -75,10 +75,10 @@ export default function IssueDialog({ stock, onClose }: IssueDialogProps) {
                             <p className="text-sm font-semibold tracking-normal normal-case text-red-900 dark:text-red-300">
                                 {isAuthorizedPersonnel ? 'Office Distribution' : 'Unit Distribution'}
                             </p>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+                            <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100">
                                 Record an Issue
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium break-words">
                                 Distribute supplies to an office or end user.
                             </p>
                         </div>

@@ -60,7 +60,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
 
             {/* Actions: View & RIS Form */}
             <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
-                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                <div className="inline-flex items-center justify-end gap-2 shrink-0">
                     <Button variant="secondary"
                         type="button"
                         onClick={() => onViewDetails(issuance)}

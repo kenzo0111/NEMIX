@@ -416,7 +416,7 @@ export default function PreOrdersIndex({
                                                         )}
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
-                                                        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                        <div className="inline-flex items-center justify-end gap-2 shrink-0">
                                                             <Link data-variant="secondary" data-size="default"
                                                                 href={route('inventory.receiving')}
                                                                 className="ui-button inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-sm font-semibold text-red-900 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 transition whitespace-nowrap"

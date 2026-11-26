@@ -111,14 +111,14 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     Historical Data Migration Workspace
                                 </h3>
                                 <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 tabular-nums font-semibold text-sm rounded-md tracking-normal">
                                     Legacy Ingestion
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 break-words">
                                 Extract table rows, map fields, review validation, and import legacy COA records from spreadsheets and supported documents.
                             </p>
                         </div>

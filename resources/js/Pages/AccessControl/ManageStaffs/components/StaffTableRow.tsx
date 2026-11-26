@@ -130,7 +130,7 @@ export default function StaffTableRow({
 
             {/* Actions: Direct action buttons */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[14rem] text-right">
-                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                <div className="inline-flex items-center justify-end gap-2 shrink-0">
                     {/* Resend Invite */}
                     {(!isActive || !staff.email_verified) && canResendInviteTarget && (
                         <Button variant="secondary"

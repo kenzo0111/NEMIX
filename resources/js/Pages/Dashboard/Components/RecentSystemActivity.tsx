@@ -45,7 +45,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
                             <History className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="break-words text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100">
                             {isCoordinator ? 'Recent unit activity' : 'Recent System Activity'}
                         </h3>
                     </div>

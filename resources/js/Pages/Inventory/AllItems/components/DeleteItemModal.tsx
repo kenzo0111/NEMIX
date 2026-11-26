@@ -38,10 +38,10 @@ export default function DeleteItemModal({
                         <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="break-words text-slate-900 dark:text-slate-100">
                             Delete Inventory Item
                         </h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-0.5 break-words">
                             Decommission item master record
                         </p>
                     </div>

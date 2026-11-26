@@ -65,9 +65,9 @@ export default function RoleTable({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Search roles..."
                             aria-label="Search roles"
-                            className="ui-field w-full pl-8 pr-7 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
+                            className="ui-field w-full pl-9 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm"
                         />
-                        <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
                             <Button variant="secondary"
                                 type="button"
@@ -184,7 +184,7 @@ export default function RoleTable({
 
                                         {/* Actions */}
                                         <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
-                                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                            <div className="inline-flex items-center justify-end gap-2 shrink-0">
                                                 {canUpdate && role.is_editable && (
                                                     <Button variant="secondary"
                                                         type="button"

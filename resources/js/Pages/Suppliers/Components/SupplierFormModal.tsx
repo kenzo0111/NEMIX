@@ -53,10 +53,10 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         )}
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             {title}
                         </h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 break-words">
                             {isCreate
                                 ? 'Maintain an accredited vendor record for university consumables.'
                                 : 'Update official accreditation and compliance record.'}

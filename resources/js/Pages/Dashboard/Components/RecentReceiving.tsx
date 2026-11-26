@@ -20,7 +20,7 @@ export default function RecentReceiving({ receivings = [], className = '' }: Rec
                         <div className="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 shrink-0">
                             <ArrowDownLeft className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="break-words text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100">
                             Recent Receiving
                         </h3>
                     </div>

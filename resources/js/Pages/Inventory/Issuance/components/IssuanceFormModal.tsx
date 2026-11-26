@@ -156,10 +156,10 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                        <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                             Record Stock Issuance
                         </h3>
-                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium break-words">
                             Administrative Requisition & Issue Slip (RIS) Entry
                         </p>
                     </div>

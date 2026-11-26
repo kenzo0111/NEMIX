@@ -123,10 +123,10 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
                                         {/* USER */}
                                         <td className="py-3.5 px-4 align-middle">
-                                            <div className="font-semibold text-slate-900 dark:text-slate-100 leading-tight truncate">
+                                            <div className="font-semibold text-slate-900 dark:text-slate-100 leading-tight break-words">
                                                 {record.user_name || record.user || 'System Administrator'}
                                             </div>
-                                            <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-tight truncate">
+                                            <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-tight break-words">
                                                 {record.role || 'System Role'}
                                             </div>
                                         </td>

@@ -199,7 +199,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search name, email, or IP address..."
-                        className="ui-field table-control w-full pl-9 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-normal text-slate-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-10 pr-9 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-normal text-slate-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                     />
                     {search && (
                         <Button variant="ghost" size="icon"

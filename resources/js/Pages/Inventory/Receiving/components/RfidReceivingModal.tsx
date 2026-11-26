@@ -157,13 +157,13 @@ export const RfidReceivingModal: React.FC<Props> = ({
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
+                                <h3 className="break-words text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">Scan RFID Receiving</h3>
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${is100LimitReached
     ? "bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-400 border border-amber-300 dark:border-amber-800" : "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50"}`}>
                                     {scannedItems.length} / 100 Items
                                 </span>
                             </div>
-                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate">
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 break-words mt-0.5">
                                 Scan to identify each item type, then enter the inspected quantity and actual unit cost.
                             </p>
                         </div>
