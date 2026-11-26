@@ -135,23 +135,19 @@ export default function LoginAuditIndex({
 
     return (
         <>
-            <Head title="Audit Logs - Login Audit Logs" />
+            <Head title={isCoordinator ? 'Login Audit' : 'Login Audit Logs'} />
 
             <DashboardLayout modules={modules} user={user}>
-                {/* PageHeader is completely hidden in print */}
-                <div className="print:hidden audit-print-hide">
-                    <PageHeader
-                        title={isCoordinator ? 'Login Audit' : 'Login Audit Logs'}
-                        description={isCoordinator ? 'Review recorded authentication activity, access results, and session details.' : 'Review sign-ins, access results, and source IP addresses.'}
-                        breadcrumbs={[
-                            isCoordinator ? { name: 'Coordinator Dashboard', href: route('dashboard') } : { name: 'Audit Logs' },
-                            { name: 'Login Audit' },
-                        ]}
-                        actions={isCoordinator ? <Button variant="secondary" type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</Button> : undefined}
-                    />
-                </div>
-
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
+                    <div className="print:hidden audit-print-hide">
+                        <PageHeader
+                            embedded
+                            title={isCoordinator ? 'Login Audit' : 'Login Audit Logs'}
+                            description={isCoordinator ? 'Review recorded authentication activity, access results, and session details.' : 'Review sign-ins, access results, and source IP addresses.'}
+                            breadcrumbs={isCoordinator ? [{ name: 'Login Audit' }] : [{ name: 'Audit Logs' }, { name: 'Login Audit Logs' }]}
+                            actions={isCoordinator ? <Button variant="secondary" type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</Button> : undefined}
+                        />
+                    </div>
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-login-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Subtle Institutional Security Header Banner */}

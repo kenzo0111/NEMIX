@@ -83,7 +83,7 @@ export default function DashboardIndex({
                     <>
                         {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
                         <DashboardContent>
-                            <PageHeader embedded title={isInventoryStaff ? "Inventory overview" : "Supply overview"} description="Monitor stock levels, receiving, issuance, and supply activity across the system." />
+                            <PageHeader embedded title={isInventoryStaff ? "Inventory Overview" : "Supply Overview"} description="Monitor stock levels, receiving, issuance, and supply activity across the system." />
                             {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                             <OperationalAlertStrip
                                 showRfidAlert={showRfidAlert}

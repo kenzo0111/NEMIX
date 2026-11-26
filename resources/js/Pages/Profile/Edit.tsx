@@ -44,20 +44,18 @@ export default function Edit({
 
     return (
         <>
-            <Head title="Profile & Account Settings — UCN SPMO" />
-
-            {/* Persistent University Sidebar */}
-
+            <Head title="Profile & Account Settings" />
 
             {/* Main Application Area */}
             <DashboardLayout modules={modules} user={authUser}>
                 {/* Unified Institutional Page Header */}
                 <DashboardContent>
-<PageHeader embedded
-                    title="Profile & Account Settings"
-                    description="Update your profile and account security."
-                    breadcrumbs={[{ name: 'Account Settings' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="Profile & Account Settings"
+                        description="Update your profile and account security."
+                        breadcrumbs={[{ name: 'Profile & Account Settings' }]}
+                    />
                     {/* Institutional Personnel Header */}
                     <PersonnelHeader profile={resolvedProfile} />
 

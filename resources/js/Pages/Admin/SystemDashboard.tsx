@@ -63,7 +63,7 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
                 <div data-tour="system-admin-dashboard-header">
-                    <PageHeader embedded title="System overview" description="Technical status, account administration, and security activity." actions={<>
+                    <PageHeader embedded title="System Overview" description="Technical status, account administration, and security activity." actions={<>
                         <Button variant="secondary" type="button" data-tour="system-admin-guide-start" onClick={() => window.dispatchEvent(new Event(SYSTEM_ADMIN_TOUR_START_EVENT))} className="inline-flex min-h-10 items-center gap-2"><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</Button>
                         <StatusBadge tone={adminOverview.databaseStatus === 'Connected' ? 'success' : 'danger'}><Activity size={14} aria-hidden="true" /> Database {adminOverview.databaseStatus.toLowerCase()}</StatusBadge>
                     </>} />

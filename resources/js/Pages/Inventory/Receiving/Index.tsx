@@ -380,19 +380,18 @@ export default function ReceivingIndex({
 
     return (
         <>
-            <Head title="Inventory - Receiving" />
-
-
+            <Head title="Stock Receiving" />
 
             {/* Main Content Area */}
             <DashboardLayout modules={modules} user={user}>
                 {/* Institutional Header */}
                 <DashboardContent>
-<PageHeader embedded
-                    title="Stock Receiving"
-                    description="Incoming stock and supplier deliveries"
-                    breadcrumbs={[{ name: 'Inventory' }, { name: 'Receiving' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="Stock Receiving"
+                        description="Incoming stock and supplier deliveries."
+                        breadcrumbs={[{ name: 'Inventory' }, { name: 'Stock Receiving' }]}
+                    />
 
                     {/* Receiving Ledger Card */}
                     <div data-tour="system-admin-receiving-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">

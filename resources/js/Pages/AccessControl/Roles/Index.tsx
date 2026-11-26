@@ -146,20 +146,20 @@ export default function RoleManagementIndex({
 
     return (
         <>
-            <Head title="Role & Permission Management - Access Control" />
-
+            <Head title="Role & Permission Management" />
 
             <DashboardLayout modules={sidebarModules} user={user}>
                 {/* 1. Page Header */}
                 <DashboardContent>
-<PageHeader embedded
-                    title="Role & Permission Management"
-                    description="Manage institutional roles and system access permissions."
-                    breadcrumbs={[
-                        { name: 'Access Control' },
-                        { name: 'Role & Permission Management' },
-                    ]}
-                />
+                    <PageHeader
+                        embedded
+                        title="Role & Permission Management"
+                        description="Manage institutional roles and system access permissions."
+                        breadcrumbs={[
+                            { name: 'Access Control' },
+                            { name: 'Role & Permission Management' },
+                        ]}
+                    />
 
                     {/* 2. Compact Access Control Summary */}
                     <AccessControlSummary

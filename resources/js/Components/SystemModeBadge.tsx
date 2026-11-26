@@ -131,8 +131,17 @@ export default function SystemModeBadge() {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleSelectModeClick = (modeKey: SystemModeType) => {
@@ -175,6 +184,7 @@ export default function SystemModeBadge() {
 
   const config = MODES[activeMode] || MODES['LIVE PRODUCTION'];
   const targetConfig = confirmingMode ? MODES[confirmingMode] : null;
+  const isQuietProduction = !isSystemAdmin && activeMode === 'LIVE PRODUCTION';
 
   return (
     <div className="relative inline-flex items-center" ref={dropdownRef}>
@@ -183,25 +193,38 @@ export default function SystemModeBadge() {
         data-tour="system-admin-operating-mode"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`group inline-flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-200 cursor-pointer shadow-sm ${config.badgeBg} ${config.badgeBorder} hover:brightness-125 focus:outline-none focus:ring-1 focus:ring-amber-400/50`}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        aria-label={`System mode: ${config.label}`}
+        className={`group inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:focus-visible:ring-amber-400/60 ${
+          isQuietProduction
+            ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:bg-slate-700/80'
+            : `${config.badgeBg} ${config.badgeBorder} hover:brightness-125`
+        }`}
         title="Click to view health & system diagnostics"
       >
-        {/* Pulsing Beacon Indicator Dot */}
-        <span className="relative flex h-2 w-2">
-          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${config.dotBg} opacity-75`}></span>
-          <span className={`relative inline-flex rounded-full h-2 w-2 ${config.dotBg}`}></span>
+        {/* Status Indicator Dot (pulsing only for admins or non-production modes) */}
+        <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+          {!isQuietProduction && (
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${config.dotBg} opacity-75 motion-reduce:hidden`}></span>
+          )}
+          <span className={`relative inline-flex rounded-full h-2 w-2 ${isQuietProduction ? 'bg-emerald-500' : config.dotBg}`}></span>
         </span>
 
-        <span className={`tabular-nums text-sm font-semibold tracking-normal ${config.badgeText}`}>
-          <span className="hidden sm:inline">SYSTEM MODE: </span>{config.label}
+        <span className={`tabular-nums text-sm font-medium tracking-normal ${isQuietProduction ? 'text-slate-700 dark:text-slate-200' : `font-semibold ${config.badgeText}`}`}>
+          {isQuietProduction ? (
+            <>Live</>
+          ) : (
+            <><span className="hidden sm:inline">SYSTEM MODE: </span>{config.label}</>
+          )}
         </span>
 
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${config.badgeText} ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isQuietProduction ? 'text-slate-500 dark:text-slate-400' : config.badgeText} ${isOpen ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
       {/* Popover Switcher & Dynamic Runtime Diagnostics Panel */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-slate-950 border border-red-900/80 shadow-2xl text-slate-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150 xl:left-auto xl:right-0">
+        <div className="absolute left-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-slate-950 border border-red-900/80 shadow-2xl text-slate-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150 lg:left-auto lg:right-0">
           {/* Diagnostics Panel Header */}
           <div className="bg-red-950/90 border-b border-red-900 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">

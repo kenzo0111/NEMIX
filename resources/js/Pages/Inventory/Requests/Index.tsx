@@ -441,11 +441,12 @@ export default function MyRequests({
                     onCancel={cancel}
                 /> : <>
                 <DashboardContent className="overflow-x-hidden">
-<PageHeader embedded
-                    title="My Requests"
-                    description="Supply requests, requisition tracking, and approval history"
-                    breadcrumbs={[{ name: 'Overview' }, { name: 'My Requests' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="My Requests"
+                        description="Supply requests, requisition tracking, and approval history."
+                        breadcrumbs={[{ name: 'Overview' }, { name: 'My Requests' }]}
+                    />
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

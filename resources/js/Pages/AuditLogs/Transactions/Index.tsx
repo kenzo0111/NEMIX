@@ -135,33 +135,32 @@ export default function TransactionAuditIndex({
 
     return (
         <>
-            <Head title="Audit Logs - Transaction Audit Logs" />
+            <Head title="Transaction Audit Logs" />
 
             <DashboardLayout modules={modules} user={user}>
-                {/* PageHeader is completely hidden in print */}
-                <div className="print:hidden audit-print-hide">
-                    <PageHeader
-                        title="Transaction Audit Logs"
-                        description="Review inventory changes and system activity."
-                        breadcrumbs={[
-                            { name: 'Audit Logs' },
-                            { name: 'Transaction Audit' },
-                        ]}
-                        actions={
-                            <Button
-                                variant="secondary"
-                                type="button"
-                                onClick={handlePrintLedger}
-                                title="Print or export official transaction audit ledger"
-                            >
-                                <Printer className="w-4 h-4" aria-hidden="true" />
-                                <span>Print Ledger</span>
-                            </Button>
-                        }
-                    />
-                </div>
-
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
+                    <div className="print:hidden audit-print-hide">
+                        <PageHeader
+                            embedded
+                            title="Transaction Audit Logs"
+                            description="Review inventory changes and system activity."
+                            breadcrumbs={[
+                                { name: 'Audit Logs' },
+                                { name: 'Transaction Audit Logs' },
+                            ]}
+                            actions={
+                                <Button
+                                    variant="secondary"
+                                    type="button"
+                                    onClick={handlePrintLedger}
+                                    title="Print or export official transaction audit ledger"
+                                >
+                                    <Printer className="w-4 h-4" aria-hidden="true" />
+                                    <span>Print Ledger</span>
+                                </Button>
+                            }
+                        />
+                    </div>
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-activity-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Institutional Header Banner */}

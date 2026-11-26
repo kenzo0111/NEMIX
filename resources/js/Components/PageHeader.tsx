@@ -9,11 +9,11 @@ interface PageHeaderProps {
 export default function PageHeader({ title, description, breadcrumbs = [], actions, onToggleSidebar, embedded = false }: PageHeaderProps) {
     return <>
         <section aria-label={`${title} overview`} className={embedded ? "w-full min-w-0 print:hidden" : "mx-auto w-full min-w-0 max-w-[1600px] px-4 pt-4 sm:px-7 sm:pt-7 lg:px-8 lg:pt-8 print:hidden"}>
-            {breadcrumbs.length > 0 && <div className="mb-6"><Breadcrumbs items={breadcrumbs} currentPage={title} /></div>}
+            {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} currentPage={title} className="mb-4" />}
             <SystemHeader onToggleSidebar={onToggleSidebar} actions={actions}>
-                <p className="mb-2 text-sm font-semibold text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p>
-                <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
-                {description && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">{description}</p>}
+                <p className="mb-1.5 text-sm font-semibold text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p>
+                <h1 className="break-words text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-50">{title}</h1>
+                {description && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">{description}</p>}
             </SystemHeader>
         </section>
     </>;

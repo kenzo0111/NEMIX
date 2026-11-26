@@ -50,7 +50,7 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
     };
 
     return <>
-        <Head title={`Central Supply Catalog | ${auth.capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
+        <Head title="Central Supply Catalog" />
 
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
@@ -59,7 +59,6 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
                     title="Central Supply Catalog"
                     description={`Browse consumable supplies in the Supply Office and check what is available for your ${supplyOwner}.`}
                     breadcrumbs={[
-                        { name: isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard', href: route('dashboard') },
                         { name: 'Central Supply Catalog' },
                     ]}
                     actions={

@@ -61,7 +61,7 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
     const totalValue = stocks.reduce((total, stock) => total + Number(stock.value), 0);
 
     return <>
-        <Head title={`${inventoryTitle} | ${isAuthorizedPersonnel ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
+        <Head title={inventoryTitle} />
 
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
@@ -70,8 +70,7 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
                     title={inventoryTitle}
                     description={`Manage your ${supplyOwner}’s supplies, record distributions, and prepare official Stock Cards.`}
                     breadcrumbs={[
-                        { name: `${workspaceName} Dashboard`, href: route('dashboard') },
-                        { name: isAuthorizedPersonnel ? 'Office Inventory' : 'Unit Inventory' },
+                        { name: inventoryTitle },
                     ]}
                     actions={
                         <div className="flex flex-wrap gap-2.5">

@@ -150,21 +150,21 @@ export default function PreOrdersIndex({
 
     return (
         <>
-            <Head title="Pre-Requests & Unit Demand | Supply Office" />
+            <Head title="Pre-Requests & Unit Demand" />
 
             <DashboardLayout
                 modules={getSidebarModules('Inventory', 'Pre-Requests / Unit Demand')}
                 user={auth.user}
             >
                 <DashboardContent>
-<PageHeader embedded
-                    title="Pre-Requests & Unit Demand"
-                    description="Monitor out-of-stock items needed by Delivery Units and Offices to prioritize purchase orders and warehouse replenishment."
-                    breadcrumbs={[
-                        { name: 'Dashboard', href: route('dashboard') },
-                        { name: 'Inventory', href: route('inventory.index') },
-                        { name: 'Pre-Requests / Unit Demand' },
-                    ]}
+                    <PageHeader
+                        embedded
+                        title="Pre-Requests & Unit Demand"
+                        description="Monitor out-of-stock items needed by Delivery Units and Offices to prioritize purchase orders and warehouse replenishment."
+                        breadcrumbs={[
+                            { name: 'Inventory', href: route('inventory.index') },
+                            { name: 'Pre-Requests & Unit Demand' },
+                        ]}
                     actions={
                         <div className="flex flex-wrap items-center gap-2">
                             <Button variant="secondary"

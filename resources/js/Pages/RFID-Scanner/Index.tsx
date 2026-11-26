@@ -137,15 +137,16 @@ export default function Index({
 
     return (
         <>
-            <Head title="RFID Scanner | UCN SPMO" />
+            <Head title="RFID Scanner" />
 
             <DashboardLayout modules={modules} user={user}>
                 <DashboardContent>
-<PageHeader embedded
-                    title="RFID Scanner"
-                    description="Assign RFID identification tags to inventory items before receiving."
-                    breadcrumbs={[{ name: 'RFID Scanner' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="RFID Scanner"
+                        description="Assign RFID identification tags to inventory items before receiving."
+                        breadcrumbs={[{ name: 'RFID Scanner' }]}
+                    />
                     <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">

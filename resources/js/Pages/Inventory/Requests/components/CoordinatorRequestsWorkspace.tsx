@@ -144,8 +144,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                 title="My Supply Requests"
                 description={`Request supplies for your ${isAuthorizedPersonnel ? "office" : "Delivery Unit"} and follow each requisition from review to release.`}
                 breadcrumbs={[
-                    { name: isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard', href: route('dashboard') },
-                    { name: 'My Requests' },
+                    { name: 'My Supply Requests' },
                 ]}
                 actions={
                     <div className="flex flex-wrap gap-2.5">

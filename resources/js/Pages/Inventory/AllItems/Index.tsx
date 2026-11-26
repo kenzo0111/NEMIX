@@ -362,18 +362,17 @@ export default function AllItemsIndex({
 
     return (
         <>
-            <Head title="Inventory Management - Supply Administration" />
-
-
+            <Head title="All Inventory Items" />
 
             <DashboardLayout modules={modules} user={user}>
                 {/* Unified Institutional Header */}
                 <DashboardContent>
-<PageHeader embedded
-                    title="All Inventory Items"
-                    description="Track consumable supplies and property assets."
-                    breadcrumbs={[{ name: 'Inventory' }, { name: 'All Items' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="All Inventory Items"
+                        description="Track consumable supplies and property assets."
+                        breadcrumbs={[{ name: 'Inventory' }, { name: 'All Inventory Items' }]}
+                    />
 
                     {/* Main Working Interface: Card & Table */}
                     <div data-tour="system-admin-inventory-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">

@@ -77,7 +77,7 @@ export default function CoordinatorDashboardWorkspace({
     return (
         <>
             <DashboardContent>
-                <PageHeader embedded title={isAuthorizedPersonnel ? "Office overview" : "Delivery unit overview"} description="Review your supplies, requests, and stock movements." />
+                <PageHeader embedded title={isAuthorizedPersonnel ? "Office Overview" : "Delivery Unit Overview"} description="Review your supplies, requests, and stock movements." />
                 <section data-tour="coordinator-dashboard-header" aria-label={isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'} className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>

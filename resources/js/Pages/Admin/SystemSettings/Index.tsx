@@ -155,22 +155,20 @@ export default function Index({
 
     return (
         <>
-            <Head title="System Settings & Policies — UCN SPMO" />
-
-            {/* Persistent Sidebar */}
-
+            <Head title="System Settings & Policies" />
 
             {/* Main Application Area */}
             <DashboardLayout modules={modules} user={user ?? undefined}>
                 {/* 1. PageHeader with Single Primary Save Controls */}
                 <DashboardContent>
-<PageHeader embedded
-                    title="System Settings & Policies"
-                    description="Manage institution settings and system policies."
-                    breadcrumbs={[
-                        { name: 'Administration & Governance' },
-                        { name: 'System Settings' },
-                    ]}
+                    <PageHeader
+                        embedded
+                        title="System Settings & Policies"
+                        description="Manage institution settings and system policies."
+                        breadcrumbs={[
+                            { name: 'Administration & Governance' },
+                            { name: 'System Settings & Policies' },
+                        ]}
                     actions={
                         <div data-tour="system-admin-settings-save" className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {canUpdateSettings && isDirty && (

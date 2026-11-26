@@ -307,17 +307,16 @@ export default function IssuanceIndex({
 
     return (
         <>
-            <Head title="Inventory - Stock Issuance & Approval Workspace" />
-
-
+            <Head title="Issuance & Approvals" />
 
             <DashboardLayout modules={modules} user={user}>
                 <DashboardContent className="overflow-x-hidden">
-<PageHeader embedded
-                    title="Issuance & Approvals"
-                    description="Approve requests and track issued supplies."
-                    breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance & Approvals' }]}
-                />
+                    <PageHeader
+                        embedded
+                        title="Issuance & Approvals"
+                        description="Approve requests and track issued supplies."
+                        breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance & Approvals' }]}
+                    />
 
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">

@@ -182,18 +182,17 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
 
     return (
         <>
-            <Head title="Suppliers - Consumable Office Supplies" />
+            <Head title="Manage Suppliers" />
 
             <>
-
-
                 <DashboardLayout modules={modules} user={user}>
                     <DashboardContent>
-<PageHeader embedded
-                        title="Consumable Office Supplies Suppliers"
-                        description="Maintain accredited suppliers of university office consumables."
-                        breadcrumbs={[{ name: 'Suppliers' }, { name: 'Manage Supplier' }]}
-                    />
+                        <PageHeader
+                            embedded
+                            title="Consumable Office Supplies Suppliers"
+                            description="Maintain accredited suppliers of university office consumables."
+                            breadcrumbs={[{ name: 'Suppliers' }, { name: 'Consumable Office Supplies Suppliers' }]}
+                        />
                         <div data-tour="system-admin-suppliers-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">
                             {/* Section Header */}
                             <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
